@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Grid, List, Filter, SortAsc, Search, RotateCcw } from 'lucide-react';
 import ProductCard from './ProductCard';
+import '../../styles/ProductGrid.css'
 
 const ProductGrid = ({
   products = [],
@@ -293,7 +294,7 @@ const ProductGrid = ({
           </div>
 
           <div className="filter-content">
-            {/* 카테고리 필터 */}
+            {/* 1. 카테고리 필터 */}
             <div className="filter-section">
               <h4>카테고리</h4>
               <div className="filter-options">
@@ -311,29 +312,7 @@ const ProductGrid = ({
               </div>
             </div>
 
-            {/* 가격 범위 필터 */}
-            <div className="filter-section">
-              <h4>가격 범위</h4>
-              <div className="price-range">
-                <input
-                  type="number"
-                  placeholder={`최소 (${priceInfo.min.toLocaleString()})`}
-                  value={priceRange.min}
-                  onChange={(e) => handlePriceChange('min', e.target.value)}
-                  className="price-input"
-                />
-                <span>~</span>
-                <input
-                  type="number"
-                  placeholder={`최대 (${priceInfo.max.toLocaleString()})`}
-                  value={priceRange.max}
-                  onChange={(e) => handlePriceChange('max', e.target.value)}
-                  className="price-input"
-                />
-              </div>
-            </div>
-
-            {/* 상품 상태 필터 */}
+            {/* 2. 상품 상태 필터 */}
             <div className="filter-section">
               <h4>상품 상태</h4>
               <div className="filter-options">
@@ -367,7 +346,7 @@ const ProductGrid = ({
               </div>
             </div>
 
-            {/* 태그 필터 */}
+            {/* 3. 태그 필터 */}
             {allTags.length > 0 && (
               <div className="filter-section">
                 <h4>태그</h4>
@@ -384,6 +363,28 @@ const ProductGrid = ({
                 </div>
               </div>
             )}
+
+            {/* 4. 가격 범위 필터 - 맨 마지막으로 이동 */}
+            <div className="filter-section">
+              <h4>가격 범위</h4>
+              <div className="price-range">
+                <input
+                  type="number"
+                  placeholder={`최소 (${priceInfo.min.toLocaleString()})`}
+                  value={priceRange.min}
+                  onChange={(e) => handlePriceChange('min', e.target.value)}
+                  className="price-input"
+                />
+                <span>~</span>
+                <input
+                  type="number"
+                  placeholder={`최대 (${priceInfo.max.toLocaleString()})`}
+                  value={priceRange.max}
+                  onChange={(e) => handlePriceChange('max', e.target.value)}
+                  className="price-input"
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,5 @@
-// src/components/navigation/CategoryMenu.js
-
-import React from 'react';
+import React, { useState } from 'react';
+import '../../styles/CategoryMenu.css';
 
 const CategoryMenu = ({ 
   categories = [], 
@@ -8,17 +7,48 @@ const CategoryMenu = ({
   onCategoryChange,
   showSpecialItems = false 
 }) => {
+  const [isMobileCategoryOpen, setIsMobileCategoryOpen] = useState(false);
+
+  const toggleMobileCategory = () => {
+    setIsMobileCategoryOpen(!isMobileCategoryOpen);
+  };
+
+  const handleCategorySelect = (categoryName) => {
+    onCategoryChange(categoryName);
+    setIsMobileCategoryOpen(false); // 모바일에서 선택 후 메뉴 닫기
+  };
+
   return (
     <nav className="category-menu">
       <div className="category-container">
-        <ul className="category-list">
+        {/* 모바일용 드롭다운 버튼 */}
+        <div className="mobile-category-header">
+          <button 
+            className="mobile-category-toggle"
+            onClick={toggleMobileCategory}
+            aria-label="카테고리 메뉴 열기"
+          >
+            <span className="current-category">
+              <span className="category-icon">
+                {categories.find(cat => cat.name === selectedCategory)?.icon || '☕'}
+              </span>
+              <span className="category-text">{selectedCategory}</span>
+            </span>
+            <span className={`dropdown-arrow ${isMobileCategoryOpen ? 'active' : ''}`}>
+              ▼
+            </span>
+          </button>
+        </div>
+
+        {/* 데스크톱용 가로 리스트 & 모바일용 드롭다운 리스트 */}
+        <ul className={`category-list ${isMobileCategoryOpen ? 'mobile-open' : ''}`}>
           {categories.map((category) => (
             <li key={category.id} className="category-item">
               <button
                 className={`category-button ${
                   selectedCategory === category.name ? 'active' : ''
                 }`}
-                onClick={() => onCategoryChange(category.name)}
+                onClick={() => handleCategorySelect(category.name)}
                 aria-label={`${category.name} 카테고리 보기`}
               >
                 <span className="category-icon">{category.icon}</span>
@@ -29,28 +59,36 @@ const CategoryMenu = ({
         </ul>
         
         {showSpecialItems && (
-          <div className="special-items">
+          <div className={`special-items ${isMobileCategoryOpen ? 'mobile-open' : ''}`}>
             <button 
               className="special-button new-items"
-              onClick={() => onCategoryChange('신상품')}
+              onClick={() => handleCategorySelect('신상품')}
             >
               ✨ 신상품
             </button>
             <button 
               className="special-button best-items"
-              onClick={() => onCategoryChange('베스트')}
+              onClick={() => handleCategorySelect('베스트')}
             >
               🏆 베스트
             </button>
             <button 
               className="special-button sale-items"
-              onClick={() => onCategoryChange('할인상품')}
+              onClick={() => handleCategorySelect('할인상품')}
             >
               🎯 할인상품
             </button>
           </div>
         )}
       </div>
+      
+      {/* 모바일 오버레이 */}
+      {isMobileCategoryOpen && (
+        <div 
+          className="mobile-category-overlay"
+          onClick={() => setIsMobileCategoryOpen(false)}
+        ></div>
+      )}
     </nav>
   );
 };

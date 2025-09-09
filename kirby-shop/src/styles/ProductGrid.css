@@ -1,0 +1,555 @@
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 3rem;
+}
+
+.pagination-btn {
+  padding: 0.8rem 1.2rem;
+  border: 2px solid rgba(253, 121, 168, 0.3);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.9);
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.pagination-btn:hover {
+  border-color: #fd79a8;
+  background: rgba(253, 121, 168, 0.1);
+}
+
+.pagination-btn.active {
+  background: linear-gradient(135deg, #e84393, #fd79a8);
+  color: white;
+  border-color: transparent;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ProductGrid 개선된 레이아웃 CSS */
+
+.product-grid-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* 상단 헤더 - 일렬로 정렬 */
+.product-grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,234,167,0.7));
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(253, 121, 168, 0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.grid-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.grid-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* 상품 개수는 숨김 */
+.product-count {
+  display: none;
+}
+
+.grid-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* 뷰 모드 버튼 */
+.view-mode-buttons {
+  display: flex;
+  gap: 0.3rem;
+  background: rgba(255,255,255,0.8);
+  padding: 0.3rem;
+  border-radius: 12px;
+  border: 1px solid rgba(253, 121, 168, 0.2);
+}
+
+.view-mode-btn {
+  padding: 0.6rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-mode-btn.active {
+  background: linear-gradient(135deg, #e84393, #fd79a8);
+  color: white;
+  box-shadow: 0 2px 8px rgba(253, 121, 168, 0.3);
+}
+
+/* 필터 버튼 */
+.filter-toggle-btn {
+  padding: 0.8rem 1.5rem;
+  border: 2px solid rgba(253, 121, 168, 0.3);
+  border-radius: 15px;
+  background: rgba(255,255,255,0.9);
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.filter-toggle-btn:hover {
+  border-color: #fd79a8;
+  box-shadow: 0 4px 12px rgba(253, 121, 168, 0.2);
+}
+
+.filter-toggle-btn.active {
+  background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+  color: white;
+  border-color: transparent;
+}
+
+.filter-toggle-btn.has-filters::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 12px;
+  height: 12px;
+  background: #ff4757;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* 정렬 선택 - 제일 오른쪽 */
+.sort-select {
+  padding: 0.8rem 1.2rem;
+  border: 2px solid rgba(253, 121, 168, 0.3);
+  border-radius: 15px;
+  background: rgba(255,255,255,0.9);
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.sort-select:hover {
+  border-color: #fd79a8;
+  box-shadow: 0 4px 12px rgba(253, 121, 168, 0.2);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #e84393;
+  box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.2);
+}
+
+/* 필터 패널 - 하단에 일렬로 */
+.filter-panel {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,234,167,0.8));
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(253, 121, 168, 0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(253, 121, 168, 0.2);
+}
+
+.filter-header h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.reset-filters-btn {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reset-filters-btn:hover {
+  background: linear-gradient(135deg, #e84393, #fd79a8);
+  transform: translateY(-2px);
+}
+
+.filter-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+/* 필터 섹션 */
+.filter-section {
+  background: rgba(255,255,255,0.7);
+  padding: 1.5rem;
+  border-radius: 15px;
+  border: 1px solid rgba(253, 121, 168, 0.2);
+}
+
+.filter-section h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(253, 121, 168, 0.2);
+}
+
+/* 체크박스 스타일 */
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.filter-checkbox:hover {
+  background: rgba(253, 121, 168, 0.1);
+}
+
+.filter-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(253, 121, 168, 0.4);
+  border-radius: 6px;
+  position: relative;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.filter-checkbox input[type="checkbox"]:checked + .checkmark {
+  background: linear-gradient(135deg, #e84393, #fd79a8);
+  border-color: transparent;
+}
+
+.filter-checkbox input[type="checkbox"]:checked + .checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+/* 가격 범위 입력 */
+.price-range {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.price-input {
+  flex: 1;
+  padding: 0.8rem;
+  border: 2px solid rgba(253, 121, 168, 0.3);
+  border-radius: 10px;
+  background: white;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.price-input:focus {
+  outline: none;
+  border-color: #e84393;
+  box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.2);
+}
+
+.price-input::placeholder {
+  color: #999;
+}
+
+/* 태그 필터 */
+.tag-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-filter {
+  padding: 0.5rem 1rem;
+  border: 2px solid rgba(253, 121, 168, 0.3);
+  border-radius: 20px;
+  background: white;
+  color: #666;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tag-filter:hover {
+  border-color: #fd79a8;
+  background: rgba(253, 121, 168, 0.1);
+}
+
+.tag-filter.active {
+  background: linear-gradient(135deg, #e84393, #fd79a8);
+  color: white;
+  border-color: transparent;
+}
+
+/* 활성 필터 표시 */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(253, 121, 168, 0.1);
+  border-radius: 15px;
+  border: 1px solid rgba(253, 121, 168, 0.2);
+}
+
+.active-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: linear-gradient(135deg, #e84393, #fd79a8);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.active-filter button {
+  background: rgba(255,255,255,0.3);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+.active-filter button:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* 반응형 디자인 - 새 2행 레이아웃에 맞게 */
+@media screen and (max-width: 768px) {
+  .product-grid-container {
+    padding: 1rem;
+  }
+  
+  .product-grid-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    padding: 1rem;
+  }
+  
+  .grid-header-right {
+    justify-content: space-between;
+  }
+  
+  /* 필터 패널 모바일 - 세로 레이아웃 */
+  .filter-panel {
+    padding: 1rem;
+  }
+  
+  .filter-content {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "category"
+      "status"
+      "tags"
+      "price";
+    gap: 1rem;
+  }
+  
+  .filter-section {
+    padding: 0.8rem;
+  }
+  
+  .filter-section h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  .filter-options {
+    gap: 0.5rem;
+  }
+  
+  .filter-checkbox {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.3rem;
+  }
+  
+  /* 모바일에서 가격 범위 */
+  .filter-section:nth-child(2) .price-range {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .filter-section:nth-child(2) .price-input {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .filter-section:nth-child(2) .price-range span {
+    font-size: 0.8rem;
+  }
+  
+  .tag-filters {
+    justify-content: flex-start;
+  }
+  
+  .tag-filter {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .active-filters {
+    justify-content: flex-start;
+    padding: 0.6rem;
+  }
+  
+  .active-filter {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .product-grid-header {
+    padding: 0.8rem;
+  }
+  
+  .grid-header-right {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  
+  .view-mode-buttons,
+  .filter-toggle-btn,
+  .sort-select {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .filter-toggle-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .sort-select {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    min-width: auto;
+  }
+  
+  .filter-panel {
+    padding: 0.8rem;
+  }
+  
+  .filter-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+  }
+  
+  .filter-header h3 {
+    font-size: 1rem;
+  }
+  
+  .reset-filters-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
+  .filter-section {
+    padding: 0.6rem;
+  }
+  
+  .checkmark {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .checkmark::after {
+    font-size: 9px !important;
+  }
+  
+  /* 작은 화면에서 가격 범위 */
+  .filter-section:nth-child(4) .price-input {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* 큰 화면에서 태블릿 레이아웃 */
+@media screen and (max-width: 1024px) and (min-width: 769px) {
+  .filter-content {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "category status"
+      "tags tags"
+      "price price";
+  }
+}
