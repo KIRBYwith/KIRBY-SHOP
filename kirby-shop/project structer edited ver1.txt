@@ -1,0 +1,60 @@
+src/
+├── components/
+│   ├── common/
+│   │   ├── Header.js          # 상단 공통(Header/Nav 등)
+│   │   ├── Footer.js
+│   │   ├── SearchBox.js
+│   │   ├── Notification.js
+│   │   └── ThemeToggle.js     # 🌙/☀️ 다크모드 토글버튼 (추천)
+│   ├── hero/
+│   │   ├── HeroSlider.js
+│   │   └── PromoBanner.js
+│   ├── navigation/
+│   │   ├── Navbar.js
+│   │   └── CategoryMenu.js
+│   ├── product/
+│   │   ├── ProductGrid.js
+│   │   ├── ProductCard.js
+│   │   ├── ProductModal.js
+│   │   └── ProductListItem.js
+│   ├── cart/
+│   │   ├── CartIcon.js
+│   │   └── CartSummary.js
+│   ├── order/
+│   │   └── OrderStepper.js
+│   └── user/
+│       └── UserMenu.js
+├── contexts/
+│   └── ThemeContext.js        # 🌙 전역 테마 관리(P rovider/상태)
+├── hooks/
+│   ├── useCart.js
+│   ├── useWishlist.js
+│   ├── useAuth.js
+│   ├── useOrder.js
+│   ├── usePayment.js
+│   └── useTheme.js            # 🌙 useThemeContext import해서 재사용성↑
+├── pages/
+│   ├── MainPage.js
+│   ├── LoginPage.js
+│   ├── SignupPage.js
+│   ├── ProductDetailPage.js
+│   ├── CartPage.js
+│   ├── OrderPage.js
+│   ├── PaymentPage.js
+│   ├── PaymentResultPage.js
+│   ├── WishlistPage.js
+│   ├── MyPage.js
+│   └── NotFound.js
+├── data/
+│   ├── products.js
+│   └── categories.js
+├── styles/
+│   ├── MainPage.css
+│   ├── LoginModal.css
+│   ├── CategoryMenu.css
+│   ├── ProductGrid.css
+│   └── theme.css              # 🌙 다크/라이트 컬러변수(필수)
+├── utils/
+│   ├── constants.js
+│   └── helpers.js
+└── App.js

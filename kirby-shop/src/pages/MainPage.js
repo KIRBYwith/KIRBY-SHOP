@@ -11,14 +11,13 @@ import PromoBanner from '../components/hero/PromoBanner';
 import CategoryMenu from '../components/navigation/CategoryMenu';
 import ProductGrid from '../components/product/ProductGrid';
 import ProductModal from '../components/product/ProductModal';
-import LoginModal from '../components/auth/LoginModal';
 
-// Hooks imports
+// hooks imports (전부 named export)
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
 import { useAuth } from '../hooks/useAuth';
 
-// Data imports
+// 데이터, 유틸
 import { productsData, categories } from '../data/products';
 import { createKirbyMessage } from '../utils/helpers';
 
@@ -79,124 +78,75 @@ const MainPage = () => {
   // 상태 관리
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid');
   const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  // Hooks 사용
-  const {
-    cartItems,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    totalQuantity,
-    finalPrice,
-    cartSummary
-  } = useCart();
-
-  const {
-    wishlistItems,
-    wishlistIds,
-    toggleWishlist,
-    isInWishlist
-  } = useWishlist();
-
-  const {
-    user,
-    isAuthenticated,
-    login,
-    logout,
-    signup,
-    socialLogin,
-    isLoading: authLoading
-  } = useAuth();
+  // hooks
+  const { cartItems, addToCart, removeFromCart, updateQuantity, totalQuantity, finalPrice, cartSummary } = useCart();
+  const { wishlistItems, wishlistIds, toggleWishlist, isInWishlist } = useWishlist();
+  const { user, isAuthenticated, login, logout, signup, socialLogin, isLoading: authLoading } = useAuth();
 
   // 상품 필터링
   const filteredProducts = React.useMemo(() => {
     let filtered = productsData;
-
-    // 카테고리 필터
     if (selectedCategory !== '전체') {
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
-
-    // 검색 필터
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(product =>
         product.title.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
-        (product.tags && product.tags.some(tag => 
-          tag.toLowerCase().includes(query)
-        ))
+        (product.tags && product.tags.some(tag => tag.toLowerCase().includes(query)))
       );
     }
-
     return filtered;
   }, [selectedCategory, searchQuery]);
 
   // 알림 메시지 표시
   const showNotification = (message, type = 'success') => {
-    const notification = {
-      id: Date.now(),
-      message,
-      type,
-      timestamp: Date.now()
-    };
-
+    const notification = { id: Date.now(), message, type, timestamp: Date.now() };
     setNotifications(prev => [...prev, notification]);
-
-    // 3초 후 자동 제거
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
     }, 3000);
   };
 
-  // 이벤트 핸들러들
+  // 카테고리 변경
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    setSearchQuery(''); // 카테고리 변경 시 검색어 초기화
-    
-    // 상품 섹션으로 스크롤
+    setSearchQuery('');
     setTimeout(() => {
-      document.getElementById('products-section')?.scrollIntoView({ 
-        behavior: 'smooth' 
-      });
+      document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   };
 
+  // 검색
   const handleSearchSubmit = (query) => {
     setSearchQuery(query);
-    setSelectedCategory('전체'); // 검색 시 카테고리 초기화
-    
-    // 상품 섹션으로 스크롤
+    setSelectedCategory('전체');
     setTimeout(() => {
-      document.getElementById('products-section')?.scrollIntoView({ 
-        behavior: 'smooth' 
-      });
+      document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   };
 
-  const handleProductClick = (product) => {
-    setSelectedProduct(product);
-  };
+  // 상품 클릭
+  const handleProductClick = (product) => setSelectedProduct(product);
 
+  // 찜 토글
   const handleWishlistToggle = (productId) => {
     const result = toggleWishlist(productsData.find(p => p.id === productId));
-    if (result.success) {
-      showNotification(result.message);
-    }
+    if (result.success) showNotification(result.message);
   };
 
+  // 장바구니 추가
   const handleCartAdd = (product, quantity = 1) => {
     if (!isAuthenticated) {
-      setShowLoginModal(true);
       showNotification('로그인 후 장바구니를 이용할 수 있습니다.', 'warning');
       return;
     }
-
     const result = addToCart(product, quantity);
     if (result.success) {
       showNotification(createKirbyMessage('장바구니에 추가되었습니다!'));
@@ -205,52 +155,10 @@ const MainPage = () => {
     }
   };
 
-  const handleLogin = async (credentials) => {
-    const result = await login(credentials);
-    if (result.success) {
-      setShowLoginModal(false);
-      showNotification(result.message);
-    } else {
-      showNotification(result.message, 'error');
-    }
-    return result;
-  };
-
-  const handleSignup = async (userData) => {
-    const result = await signup(userData);
-    if (result.success) {
-      setShowLoginModal(false);
-      showNotification(result.message);
-    } else {
-      showNotification(result.message, 'error');
-    }
-    return result;
-  };
-
-  const handleSocialLogin = async (provider) => {
-    const result = await socialLogin(provider);
-    if (result.success) {
-      setShowLoginModal(false);
-      showNotification(result.message);
-    } else {
-      showNotification(result.message, 'error');
-    }
-  };
-
-  const handleLogout = () => {
-    const result = logout();
-    if (result.success) {
-      showNotification(result.message);
-    }
-  };
-
-  const handleHeroSlideChange = (index, slide) => {
-    // 히어로 슬라이드 변경 시 로직
-    console.log('Hero slide changed:', index, slide);
-  };
+  // 히어로슬라이드 컨트롤
+  const handleHeroSlideChange = () => {};
 
   const handleHeroButtonClick = (slide) => {
-    // 히어로 버튼 클릭 시 해당 카테고리로 이동
     if (slide.buttonText.includes('플러시')) {
       handleCategoryChange('인형/피규어');
     } else if (slide.buttonText.includes('생활용품')) {
@@ -262,54 +170,46 @@ const MainPage = () => {
     }
   };
 
+  // 프로모 배너 클릭
   const handlePromoBannerClick = (banner) => {
     if (banner.type === 'signup') {
       if (!isAuthenticated) {
-        setShowLoginModal(true);
+        showNotification('회원가입/로그인 페이지로 이동해주세요!', 'info');
       } else {
         showNotification('이미 로그인된 상태입니다!', 'info');
       }
     }
   };
 
+  // 바로구매
   const handleBuyNow = (product, quantity = 1) => {
     if (!isAuthenticated) {
-      setShowLoginModal(true);
       showNotification('로그인 후 구매할 수 있습니다.', 'warning');
       return;
     }
-
-    // 바로 구매 로직 (실제로는 주문 페이지로 이동)
     showNotification(createKirbyMessage(`${product.title} 주문 페이지로 이동합니다!`));
-    console.log('Buy now:', product, quantity);
   };
 
-  // 페이지 로딩 시 초기화
+  // 로그아웃
+  const handleLogout = () => {
+    const result = logout();
+    if (result.success) showNotification(result.message);
+  };
+
+  // 로딩/키보드 단축키 처리
   useEffect(() => {
     setIsLoading(true);
-    
-    // 초기 데이터 로딩 시뮬레이션
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    setTimeout(() => setIsLoading(false), 1000);
   }, []);
 
-  // 키보드 단축키
   useEffect(() => {
     const handleKeyPress = (e) => {
-      // Escape 키로 모달 닫기
-      if (e.key === 'Escape') {
-        setSelectedProduct(null);
-        setShowLoginModal(false);
-      }
-      
-      // Ctrl+K로 검색 포커스 (개발자 도구용)
+      if (e.key === 'Escape') setSelectedProduct(null);
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         document.querySelector('.search-input')?.focus();
       }
     };
-
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
@@ -329,33 +229,25 @@ const MainPage = () => {
 
   return (
     <div className="kirby-shop">
-      {/* Skip link for accessibility */}
       <a href="#main-content" className="skip-link">
         메인 콘텐츠로 이동
       </a>
-
-      {/* Header */}
       <Header
         isLoggedIn={isAuthenticated}
         user={user}
         wishlistCount={wishlistIds.length}
         cartCount={totalQuantity}
-        onLoginClick={() => setShowLoginModal(true)}
+        onLoginClick={() => showNotification('로그인 페이지로 이동해주세요!', 'info')}
         onLogout={handleLogout}
         onSearchSubmit={handleSearchSubmit}
       />
-
-      {/* Category Menu */}
       <CategoryMenu
         categories={categories}
         selectedCategory={selectedCategory}
         onCategoryChange={handleCategoryChange}
         showSpecialItems={true}
       />
-
-      {/* Main Content */}
       <main id="main-content">
-        {/* Hero Slider */}
         <HeroSlider
           images={heroImages}
           autoSlide={true}
@@ -363,20 +255,16 @@ const MainPage = () => {
           onSlideChange={handleHeroSlideChange}
           onButtonClick={handleHeroButtonClick}
         />
-
-        {/* Promo Banner */}
         <PromoBanner
           banners={promoBanners}
-          autoRotate={false}
+          autoRotate={true}
+          rotateInterval={8000}
           onBannerClick={handlePromoBannerClick}
-          closeable={true}
         />
-
-        {/* Products Section */}
-        <section id="products-section" className="products-section">
+        <section id="products-section">
           <ProductGrid
             products={filteredProducts}
-            loading={false}
+            loading={authLoading}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             itemsPerPage={12}
@@ -389,98 +277,22 @@ const MainPage = () => {
             cart={cartItems}
           />
         </section>
+        {selectedProduct && (
+          <ProductModal
+            product={selectedProduct}
+            isOpen={!!selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            isWishlisted={wishlistIds.includes(selectedProduct.id)}
+            cartQuantity={
+              cartItems.find(item => item.id === selectedProduct.id)?.quantity || 0
+            }
+            onWishlistToggle={handleWishlistToggle}
+            onCartAdd={handleCartAdd}
+            onBuyNow={handleBuyNow}
+          />
+        )}
       </main>
-
-      {/* Footer */}
       <Footer />
-
-      {/* Product Modal */}
-      {selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          isOpen={!!selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          isWishlisted={isInWishlist(selectedProduct.id)}
-          cartQuantity={cartItems.find(item => item.id === selectedProduct.id)?.quantity || 0}
-          onWishlistToggle={handleWishlistToggle}
-          onCartAdd={handleCartAdd}
-          onBuyNow={handleBuyNow}
-          relatedProducts={productsData.filter(p => 
-            p.category === selectedProduct.category && p.id !== selectedProduct.id
-          ).slice(0, 4)}
-        />
-      )}
-
-      {/* Login Modal */}
-      {showLoginModal && (
-        <LoginModal
-          isOpen={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
-          onLogin={handleLogin}
-          onSignup={handleSignup}
-          onSocialLogin={handleSocialLogin}
-          loading={authLoading}
-        />
-      )}
-
-      {/* Notification System */}
-      {notifications.length > 0 && (
-        <div className="notification-container">
-          {notifications.map(notification => (
-            <div
-              key={notification.id}
-              className={`notification ${notification.type} fade-in`}
-            >
-              <span>{notification.message}</span>
-              <button 
-                onClick={() => setNotifications(prev => 
-                  prev.filter(n => n.id !== notification.id)
-                )}
-                className="notification-close"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* 장바구니 플로팅 버튼 (모바일) */}
-      {totalQuantity > 0 && (
-        <div className="floating-cart">
-          <button 
-            className="floating-cart-btn"
-            onClick={() => showNotification('장바구니 페이지로 이동합니다!')}
-          >
-            <span className="cart-icon">🛒</span>
-            <span className="cart-count">{totalQuantity}</span>
-            <span className="cart-total">{finalPrice.toLocaleString()}원</span>
-          </button>
-        </div>
-      )}
-
-      {/* 개발자 도구 (개발 모드에서만) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="dev-tools">
-          <details>
-            <summary>개발자 도구</summary>
-            <div className="dev-tools-content">
-              <p>현재 카테고리: {selectedCategory}</p>
-              <p>검색어: {searchQuery || '없음'}</p>
-              <p>상품 수: {filteredProducts.length}</p>
-              <p>장바구니: {totalQuantity}개</p>
-              <p>찜목록: {wishlistIds.length}개</p>
-              <p>로그인: {isAuthenticated ? '로그인됨' : '로그아웃'}</p>
-              <button onClick={() => console.log('Cart:', cartItems)}>
-                장바구니 로그
-              </button>
-              <button onClick={() => console.log('Wishlist:', wishlistItems)}>
-                찜목록 로그
-              </button>
-            </div>
-          </details>
-        </div>
-      )}
     </div>
   );
 };

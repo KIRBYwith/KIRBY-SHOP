@@ -1,0 +1,166 @@
+/* styles/theme.css */
+
+/* -----------------------------
+   Kirby Shop 라이트/다크 테마 컬러 변수
+------------------------------ */
+
+/* 기본 라이트 테마 */
+:root {
+  /* 메인 컬러 */
+  --color-primary: #ff69b4;
+  --color-primary-dark: #ff1493;
+  --color-accent: #fff200;
+  --color-background: #f8f4ff;
+  --color-background-alt: #fffafc;
+  --color-card: #fff;
+  --color-border: #ffb6c1;
+  --color-highlight: #ffeef8;
+  --color-gradient-main: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+  --color-gradient-bg: linear-gradient(135deg, #ffeef8 0%, #f8f4ff 100%);
+  --color-promo-gradient: linear-gradient(90deg, #ffb6c1 0%, #ff69b4 50%, #ffb6c1 100%);
+  --color-yellow: #fff200;
+
+  /* 텍스트 */
+  --color-text-main: #333;
+  --color-text-sub: #666;
+  --color-text-light: #fff;
+  --color-text-link: #ff69b4;
+
+  /* 상태 및 뱃지 */
+  --color-success: #2e7d32;
+  --color-warning: #ef6c00;
+  --color-error: #e74c3c;
+  --color-info: #1976d2;
+  --color-sale: #ffd700;
+  --color-best: #5f27cd;
+
+  /* 카드/섀도우 */
+  --shadow-card: 0 8px 30px rgba(255, 105, 180, 0.15);
+  --shadow-hover: 0 15px 40px rgba(255, 105, 180, 0.18);
+
+  /* 보더 */
+  --border-radius-main: 20px;
+  --border-radius-full: 9999px;
+  --border-width: 2px;
+}
+
+/* 다크 테마 */
+[data-theme="dark"] {
+  --color-primary: #e35c9f;
+  --color-primary-dark: #c0508c;
+  --color-accent: #ffe066;
+  --color-background: #16141a;
+  --color-background-alt: #231f2b;
+  --color-card: #22202a;
+  --color-border: #43324e;
+  --color-highlight: #24192e;
+  --color-gradient-main: linear-gradient(135deg, #853b6a 0%, #301d35 100%);
+  --color-gradient-bg: linear-gradient(135deg, #2a2336 0%, #1a1422 100%);
+  --color-promo-gradient: linear-gradient(90deg, #84396b 0%, #db7ecb 50%, #84396b 100%);
+  --color-yellow: #ffda47;
+
+  --color-text-main: #ffeef8;
+  --color-text-sub: #b39fc8;
+  --color-text-light: #fff;
+  --color-text-link: #e35c9f;
+
+  --color-success: #85e085;
+  --color-warning: #ffca80;
+  --color-error: #ff7c7c;
+  --color-info: #80b3ff;
+  --color-sale: #ffd700;
+  --color-best: #a49fff;
+
+  --shadow-card: 0 8px 32px rgba(44, 9, 41, 0.25);
+  --shadow-hover: 0 16px 64px rgba(100, 50, 130, 0.22);
+
+  --border-radius-main: 20px;
+  --border-radius-full: 9999px;
+  --border-width: 2px;
+}
+
+/* -----------------------------
+   테마 변수를 사용하는 패턴 예시
+------------------------------ */
+
+body {
+  background: var(--color-gradient-bg);
+  color: var(--color-text-main);
+  transition: background 0.2s, color 0.2s;
+}
+
+.kirby-shop, .login-page, .login-container, .product-card, .product-modal, .navbar, .footer {
+  background: var(--color-background);
+  color: var(--color-text-main);
+}
+
+.card, .product-card {
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
+  border-radius: var(--border-radius-main);
+  border: var(--border-width) solid var(--color-border);
+}
+
+a, .link-button, .view-terms, .promo-button {
+  color: var(--color-text-link);
+}
+a:hover, .link-button:hover, .promo-button:hover {
+  color: var(--color-primary-dark);
+}
+
+.promo-banner {
+  background: var(--color-promo-gradient);
+  color: var(--color-text-light);
+}
+
+.badge.new    { background: var(--color-primary);      color: var(--color-text-light);}
+.badge.best   { background: var(--color-best);         color: var(--color-text-light);}
+.badge.discount { background: var(--color-sale);       color: var(--color-primary-dark);}
+.badge.hot    { background: var(--color-error);        color: var(--color-text-light);}
+
+.input-group input,
+.input-group input[type="text"],
+.input-group input[type="email"],
+.input-group input[type="password"] {
+  background: var(--color-background-alt);
+  color: var(--color-text-main);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-main);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--color-primary);
+}
+
+.submit-button {
+  background: var(--color-gradient-main);
+  color: var(--color-text-light);
+  border: none;
+}
+
+.submit-button:disabled {
+  background: #bbb;
+  color: #666;
+}
+
+/* 상태/경고 색상 */
+.error-message, .submit-error { color: var(--color-error); }
+.success-message { color: var(--color-success); }
+.warning-message { color: var(--color-warning); }
+.info-message { color: var(--color-info); }
+
+/* 예시: Login, Product 등 모달/컨테이너 배경 */
+.product-modal, .login-container {
+  background: var(--color-card);
+  color: var(--color-text-main);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+/* Example for selection */
+::selection {
+  background: var(--color-primary);
+  color: var(--color-text-light);
+}
+
+/* 실제 적용 시, 기존 스타일의 background, color, border-color를 위 variable로 바꿔 사용! */

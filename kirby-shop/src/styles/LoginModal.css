@@ -1,0 +1,204 @@
+/* src/styles/LoginModal.css */
+
+.login-modal-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: linear-gradient(135deg, #fcdeff 0%, #fbf5ff 100%);
+  padding-top: 60px;
+}
+
+.login-modal {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(255, 105, 180, 0.18);
+  border: 3px solid #ffb6c1;
+  max-width: 400px;
+  width: 94vw;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+/* ───────── 탭 버튼 ───────── */
+.login-modal .tab-group {
+  display: flex;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 5px;
+  margin: 1.5rem 2rem 1.7rem;
+  gap: 7px;
+}
+.login-modal .tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 13px 0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  transition: background 0.3s;
+}
+.login-modal .tab-btn.active { background: #ff69b4; color: #fff; }
+
+/* ───────── 인풋/폼 ───────── */
+.login-modal .form-group { margin-bottom: 1.11rem; }
+.login-modal label {
+  display: block;
+  margin-bottom: 0.44rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 15px;
+}
+.login-modal .input-wrapper { position: relative; }
+
+.login-modal input[type="email"],
+.login-modal input[type="password"],
+.login-modal input[type="text"],
+.login-modal input[type="tel"],
+.login-modal input[type="date"] {
+  width: 100%;
+  padding: 13px 44px 13px 38px;
+  border-radius: 10px;
+  border: 2px solid #f0c3e2;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+  background: #fffafd;
+  box-sizing: border-box;
+}
+.login-modal input[type="date"] { padding-right: 15px; }
+.login-modal input:focus { border-color: #ff69b4; }
+.login-modal input.error { border-color: #fd593b; }
+.login-modal .input-icon {
+  position: absolute;
+  left: 13px; top: 50%; transform: translateY(-50%);
+  color: #ff69b4;
+  z-index: 2;
+}
+.login-modal .password-toggle {
+  position: absolute;
+  right: 7px; top: 50%; transform: translateY(-50%);
+  background: none; border: none;
+  color: #aaa;
+  cursor: pointer; padding: 4px;
+}
+
+.login-modal .error-message {
+  display: flex; align-items: center; gap: 5px;
+  color: #e74c3c;
+  font-size: 0.86rem;
+  margin-top: 0.3rem;
+}
+
+/* ───────── 로그인 옵션, 약관 ───────── */
+.login-modal .login-options {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 0.7rem; margin-top: -0.4rem;
+}
+.login-modal .remember-me {
+  display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px;
+}
+.login-modal .forgot-password {
+  background: none; border: none; color: #ff69b4; cursor: pointer;
+  font-size: 0.94rem; text-decoration: underline; padding: 0;
+}
+
+.login-modal .agreement-section { margin: 0.5rem 0 1.1rem 0; }
+.login-modal .agreement-all { padding-bottom: 10px; border-bottom: 1px solid #eaeaea; margin-bottom: 10px; }
+.login-modal .agreement-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 7px; cursor: pointer;}
+.login-modal .agreement-item input[type="checkbox"] { margin: 0;}
+.login-modal .checkmark { height: 18px; width: 18px; background-color: #fff; border: 2px solid #ff69b4;
+  border-radius: 4px; margin-right: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+.login-modal .agreement-item input:checked ~ .checkmark { background-color: #ff69b4; border-color: #ff69b4;}
+.login-modal .agreement-item input:checked ~ .checkmark::after { content: '✓'; color: white; font-size: 12px; font-weight: bold; }
+.login-modal .agreement-text { flex: 1; font-size: 0.98rem; line-height: 1.42; }
+.login-modal .agreement-item.required .agreement-text { font-weight: 600; }
+.login-modal .view-terms { background: none; border: none; color: #ff69b4;
+  cursor: pointer; font-size: 0.86rem; text-decoration: underline; margin-left: 6px; }
+
+.login-modal .submit-error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 11px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.95rem;
+}
+.login-modal .submit-button {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(135deg, #ff77bb, #ff69b4);
+  color: white;
+  border: none; padding: 14px 0;
+  border-radius: 12px;
+  font-size: 1rem; font-weight: bold;
+  cursor: pointer; transition: all 0.2s;
+  margin-bottom: 1.22rem;
+}
+.login-modal .submit-button:disabled { background: #f4a5ca; cursor: not-allowed; }
+.login-modal .spinner {
+  width: 18px; height: 18px; border: 2px solid #eac7ec;
+  border-top: 2px solid #ff69b4; border-radius: 50%;
+  margin-right: 6px; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+
+/* ───────── 소셜 로그인 ───────── */
+.login-modal .social-login-section { margin-top: 1.23rem; }
+.login-modal .divider { position: relative; text-align: center; margin: 1rem 0 1.25rem 0;}
+.login-modal .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #f0f0f0;}
+.login-modal .divider span { position: relative; background: white; padding: 0 16px; color: #666; font-size: 0.97rem;}
+.login-modal .social-buttons { display: flex; flex-direction: column; gap: 10px; }
+.login-modal .social-button {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px 0; border: 2px solid #e0e0e0; border-radius: 12px;
+  background: white; cursor: pointer; font-weight: 600; font-size: 16px;
+  transition: all 0.3s;
+}
+.login-modal .social-button.google { color: #4285f4;}
+.login-modal .social-button.kakao { background: #fee500; color: #3c1e1e; border-color: #fee500;}
+.login-modal .social-button.naver { background: #03c75a; color: white; border-color: #03c75a;}
+.login-modal .social-button:disabled { opacity: 0.5; cursor: not-allowed;}
+.login-modal .social-icon { font-size: 1.19em; }
+.login-modal .social-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 3px 12px #ffd7ee33;}
+.login-modal .social-button.kakao:hover:not(:disabled) { background: #ffe700; }
+
+/* ───────── 하단 링크 ───────── */
+.login-modal .bottom-links { text-align: center; margin-top: 2rem;}
+.login-modal .bottom-links p { margin-bottom: 0.7rem; color: #666;}
+.login-modal .link-button { background: none; border: none; color: #ff69b4;
+  cursor: pointer; font-weight: 600; text-decoration: underline;}
+.login-modal .help-links { display: flex; justify-content: center; gap: 9px; align-items: center; margin-top: 0.6rem;}
+.login-modal .help-link { background: none; border: none; color: #aaa; cursor: pointer; font-size: 0.96rem; text-decoration: underline;}
+.login-modal .separator { color: #f8f8f8; }
+
+/* ───────── 효과/장식 ───────── */
+.login-modal .kirby-decoration { position: absolute; pointer-events: none; overflow: hidden; left: 0; right: 0; bottom: 0; top: 0;}
+.login-modal .kirby-float { position: absolute; font-size: 1.23em; animation: float 3.5s ease-in-out infinite; opacity: 0.83;}
+.login-modal .kirby-1 { top: 8%; left: 7%; animation-delay: 0s;}
+.login-modal .kirby-2 { top: 77%; left: 87%; animation-delay: 0.8s;}
+.login-modal .kirby-3 { bottom: 12%; left: 23%; animation-delay: 1.6s;}
+@keyframes float { 0%, 100% { transform: translateY(0);} 50% { transform: translateY(-18px);} }
+
+/* ───────── 반응형 ───────── */
+@media (max-width: 650px){
+  .login-modal { max-width: 98vw; width: 100vw; border-radius: 0; margin: 0; box-shadow: none; }
+  .login-modal .tab-group,
+  .login-modal .form-group,
+  .login-modal .social-login-section { padding-left: 1rem !important; padding-right: 1rem !important;}
+}
+@media (max-width: 390px){
+  .login-modal .tab-group,
+  .login-modal .form-group,
+  .login-modal .social-login-section { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+}
