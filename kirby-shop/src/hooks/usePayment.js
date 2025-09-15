@@ -1,318 +1,268 @@
-// src/hooks/usePayment.js (카카오, 이니시스, 네이버페이, 토스페이 통합 예시)
-import { useState } from "react";
+// src/hooks/usePayment.js
+import { useState } from 'react';
 
-/** [카카오] */
-const KAKAO_API_BASE = "https://kapi.kakao.com/v1/payment";
-const KAKAO_CID = "TC0ONETIME"; // 공식 테스트 CID
-const KAKAO_ADMIN_KEY = "KakaoAK YOUR_KAKAO_TEST_KEY";
-
-/** [이니시스] */
-const INICIS_API_BASE = "https://sandbox-api.inicis.com/v1";
-const INICIS_CLIENT_ID = "INIpayTest";
-const INICIS_CLIENT_PW = "1234567890";
-const INICIS_MID = "INIpayTest";
-
-/** [네이버페이] */
-const NAVER_API_BASE = "https://dev-pay.paygate.naver.com/v2";
-const NAVER_SANDBOX_CLIENT_ID = "YOUR_NAVERPAY_SANDBOX_ID";
-const NAVER_SANDBOX_SECRET = "YOUR_NAVERPAY_SANDBOX_SECRET";
-
-/** [토스페이] */
-const TOSS_API_BASE = "https://api.tosspayments.com/v1";
-const TOSS_TEST_SECRET = "test_sk_YOUR_TOSS_SECRET"; // 토스 샌드박스 SecretKey
-
-export function usePayment() {
-  const [method, setMethod] = useState("kakao"); // 'kakao' | 'inicis' | 'naver' | 'toss'
+const usePayment = () => {
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
   const [paymentResult, setPaymentResult] = useState(null);
 
-  const selectMethod = (payMethod) => setMethod(payMethod);
-
-  /** ---- 카카오페이 ---- */
-  const requestKakaoPay = async ({
-    orderId, userId, itemName, quantity, totalAmount,
-    successUrl = `${window.location.origin}/payment/success`,
-    failUrl = `${window.location.origin}/payment/fail`,
-    cancelUrl = `${window.location.origin}/payment/cancel`,
-  }) => {
-    setPaymentLoading(true); setPaymentError(null);
-    try {
-      const params = new URLSearchParams({
-        cid: KAKAO_CID,
-        partner_order_id: orderId,
-        partner_user_id: userId,
-        item_name: itemName,
-        quantity,
-        total_amount: totalAmount,
-        vat_amount: (totalAmount / 11).toFixed(0),
-        tax_free_amount: 0,
-        approval_url: successUrl,
-        cancel_url: cancelUrl,
-        fail_url: failUrl,
-      });
-      const resp = await fetch(`${KAKAO_API_BASE}/ready`, {
-        method: "POST",
-        headers: {
-          Authorization: KAKAO_ADMIN_KEY,
-          "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
-        },
-        body: params,
-      });
-      if (!resp.ok) throw new Error((await resp.json()).msg || "카카오페이 결제 실패");
-      const data = await resp.json();
-      setPaymentResult(data);
-      window.location.href = data.next_redirect_pc_url;
-      return data;
-    } catch (err) {
-      setPaymentError(err.message); setPaymentLoading(false);
-      throw err;
-    }
+  // 결제 수단 선택
+  const selectMethod = (method) => {
+    setPaymentMethod(method);
+    setPaymentError(null);
   };
-  const approveKakaoPay = async ({ tid, pgToken, partner_order_id, partner_user_id }) => {
-    setPaymentLoading(true); setPaymentError(null);
+
+  // 실제 결제 요청 함수
+  const requestPayment = async (orderData) => {
+    setPaymentLoading(true);
+    setPaymentError(null);
+
     try {
-      const params = new URLSearchParams({
-        cid: KAKAO_CID, tid, partner_order_id, partner_user_id, pg_token: pgToken,
-      });
-      const resp = await fetch(`${KAKAO_API_BASE}/approve`, {
-        method: "POST",
-        headers: {
-          Authorization: KAKAO_ADMIN_KEY,
-          "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
-        },
-        body: params,
-      });
-      if (!resp.ok) throw new Error((await resp.json()).msg || "카카오페이 승인 실패");
-      const data = await resp.json();
-      setPaymentResult(data); setPaymentLoading(false);
-      return data;
-    } catch (err) {
-      setPaymentError(err.message); setPaymentLoading(false);
-      throw err;
+      switch (paymentMethod) {
+        case 'kakao':
+          await initKakaoPayment(orderData);
+          break;
+        case 'naver':
+          await initNaverPayment(orderData);
+          break;
+        case 'inicis':
+          await initInicisPayment(orderData);
+          break;
+        case 'toss':
+          await initTossPayment(orderData);
+          break;
+        default:
+          throw new Error('결제 수단을 선택해주세요.');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      setPaymentError(error.message);
+      setPaymentLoading(false);
     }
   };
 
-  /** ---- 이니시스 ---- */
-  const requestInicis = async ({
-    orderId, itemName, totalAmount, userId,
-    successUrl = `${window.location.origin}/payment/success`,
-    failUrl = `${window.location.origin}/payment/fail`,
-    cancelUrl = `${window.location.origin}/payment/cancel`,
-  }) => {
-    setPaymentLoading(true); setPaymentError(null);
+  // 카카오페이 초기화
+  const initKakaoPayment = async (orderData) => {
     try {
-      const tokenResp = await fetch(`${INICIS_API_BASE}/auth/token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      // 카카오페이 SDK 로드
+      if (!window.Kakao) {
+        await loadKakaoPayScript();
+      }
+
+      // 카카오페이 결제 요청
+      const response = await fetch('/api/payment/kakao/ready', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: "client_cert", id: INICIS_CLIENT_ID, pw: INICIS_CLIENT_PW
+          partner_order_id: orderData.orderId,
+          partner_user_id: orderData.userId,
+          item_name: orderData.itemName,
+          quantity: orderData.quantity,
+          total_amount: orderData.totalAmount,
+          vat_amount: Math.floor(orderData.totalAmount / 11),
+          tax_free_amount: 0,
+          approval_url: `${window.location.origin}/payment/success`,
+          fail_url: `${window.location.origin}/payment/fail`,
+          cancel_url: `${window.location.origin}/payment/cancel`
         })
       });
-      const tokenJson = await tokenResp.json();
-      if (!tokenJson.access_token) throw new Error("이니시스 토큰 발급 실패");
 
-      const payData = {
-        mid: INICIS_MID,
-        oid: orderId,
-        price: totalAmount,
-        goodname: itemName,
-        buyername: userId,
-        returndetailurl: successUrl,
-        returnurl: successUrl,
+      const data = await response.json();
+      
+      if (data.success) {
+        // 카카오페이 결제창 오픈
+        window.location.href = data.next_redirect_pc_url;
+      } else {
+        throw new Error(data.message || '카카오페이 결제 준비 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      throw new Error(`카카오페이 오류: ${error.message}`);
+    }
+  };
+
+  // 네이버페이 초기화
+  const initNaverPayment = async (orderData) => {
+    try {
+      // 네이버페이 SDK 로드
+      if (!window.naver) {
+        await loadNaverPayScript();
+      }
+
+      const oPay = window.Naver.Pay.create({
+        mode: 'development', // 'production' for live
+        clientId: process.env.REACT_APP_NAVER_CLIENT_ID, // 환경변수에서 가져오기
+        chainId: orderData.orderId,
+        payType: 'normal'
+      });
+
+      const oReq = {
+        merchantPayKey: orderData.orderId,
+        productName: orderData.itemName,
+        productCount: orderData.quantity,
+        totalPayAmount: orderData.totalAmount,
+        taxScopeAmount: orderData.totalAmount,
+        taxExScopeAmount: 0,
+        returnUrl: `${window.location.origin}/payment/naver/callback`
       };
-      const paymentResp = await fetch(`${INICIS_API_BASE}/pay/open`, {
-        method: "POST",
-        headers: {
-          "Authorization": tokenJson.access_token,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payData),
-      });
-      const paymentJson = await paymentResp.json();
-      if (paymentJson.resultCode !== "00") throw new Error(paymentJson.resultMsg || "이니시스 결제 실패");
-      setPaymentResult(paymentJson);
-      window.location.href = paymentJson.payUrl;
-      return paymentJson;
-    } catch (err) {
-      setPaymentError(err.message); setPaymentLoading(false);
-      throw err;
-    }
-  };
-  const approveInicis = async ({ authToken, oid }) => {
-    setPaymentLoading(true); setPaymentError(null);
-    try {
-      const resp = await fetch(`${INICIS_API_BASE}/pay/approve`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ authToken, mid: INICIS_MID, oid, price: 0 })
-      });
-      const approveJson = await resp.json();
-      if (approveJson.resultCode !== "00") throw new Error(approveJson.resultMsg || "이니시스 승인 실패");
-      setPaymentResult(approveJson); setPaymentLoading(false);
-      return approveJson;
-    } catch (err) {
-      setPaymentError(err.message); setPaymentLoading(false);
-      throw err;
+
+      oPay.open(oReq);
+      setPaymentLoading(false);
+    } catch (error) {
+      throw new Error(`네이버페이 오류: ${error.message}`);
     }
   };
 
-  /** ---- 네이버페이 ---- */
-  const requestNaverPay = async ({
-    orderId, userId, itemName, totalAmount,
-    successUrl = `${window.location.origin}/payment/success`,
-    failUrl = `${window.location.origin}/payment/fail`,
-    cancelUrl = `${window.location.origin}/payment/cancel`,
-  }) => {
-    setPaymentLoading(true); setPaymentError(null);
+  // 이니시스 초기화
+  const initInicisPayment = async (orderData) => {
     try {
-      // 네이버페이 샌드박스: dev-pay.paygate.naver.com
-      const payData = {
-        merchantPayKey: orderId,
-        merchantUserKey: userId,
-        productName: itemName,
-        totalPayAmount: totalAmount,
-        returnUrl: successUrl, // 결과 콜백
-        cancelUrl,
-        failUrl,
-        // ...기타 샌드박스 파라미터 및 사양에 맞게 확장
+      // 이니시스 SDK 로드
+      if (!window.INIStdPay) {
+        await loadInicisScript();
+      }
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://mobile.inicis.com/smart/payment/';
+      
+      const fields = {
+        P_MID: process.env.REACT_APP_INICIS_MID, // 상점 ID
+        P_OID: orderData.orderId,
+        P_AMT: orderData.totalAmount,
+        P_UNAME: '구매자',
+        P_GOODS: orderData.itemName,
+        P_NOTI: orderData.orderId,
+        P_NEXT_URL: `${window.location.origin}/payment/inicis/callback`,
+        P_NOTI_URL: `${window.location.origin}/api/payment/inicis/noti`
       };
-      const resp = await fetch(`${NAVER_API_BASE}/payments/request`, {
-        method: "POST",
-        headers: {
-          "X-Naver-Client-Id": NAVER_SANDBOX_CLIENT_ID,
-          "X-Naver-Client-Secret": NAVER_SANDBOX_SECRET,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payData),
+
+      Object.keys(fields).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        form.appendChild(input);
       });
-      const result = await resp.json();
-      if (result.code !== "Success") throw new Error(result.message || "네이버페이 결제 실패");
-      setPaymentResult(result);
-      window.location.href = result.body.confirmUrl; // 결제창(모의) 이동
-      return result;
-    } catch (err) {
-      setPaymentError(err.message); setPaymentLoading(false);
-      throw err;
+
+      document.body.appendChild(form);
+      form.submit();
+      setPaymentLoading(false);
+    } catch (error) {
+      throw new Error(`이니시스 오류: ${error.message}`);
     }
   };
 
-  const approveNaverPay = async ({ paymentId, authToken }) => {
-    setPaymentLoading(true); setPaymentError(null);
+  // 토스페이 초기화
+  const initTossPayment = async (orderData) => {
     try {
-      const resp = await fetch(`${NAVER_API_BASE}/payments/confirm`, {
-        method: "POST",
-        headers: {
-          "X-Naver-Client-Id": NAVER_SANDBOX_CLIENT_ID,
-          "X-Naver-Client-Secret": NAVER_SANDBOX_SECRET,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ paymentId, authToken }),
+      // 토스페이 SDK 로드
+      if (!window.TossPayments) {
+        await loadTossPayScript();
+      }
+
+      const tossPayments = window.TossPayments(process.env.REACT_APP_TOSS_CLIENT_KEY);
+      
+      // 결제창 호출
+      tossPayments.requestPayment('카드', {
+        amount: orderData.totalAmount,
+        orderId: orderData.orderId,
+        orderName: orderData.itemName,
+        customerName: '구매자',
+        successUrl: `${window.location.origin}/payment/toss/success`,
+        failUrl: `${window.location.origin}/payment/toss/fail`,
       });
-      const result = await resp.json();
-      if (result.code !== "Success") throw new Error(result.message || "네이버페이 승인 실패");
-      setPaymentResult(result); setPaymentLoading(false);
-      return result;
-    } catch (err) {
-      setPaymentError(err.message); setPaymentLoading(false);
-      throw err;
+      
+      setPaymentLoading(false);
+    } catch (error) {
+      throw new Error(`토스페이 오류: ${error.message}`);
     }
   };
 
-  /** ---- 토스페이 ---- */
-  const requestTossPay = async ({
-    orderId, itemName, totalAmount, userId,
-    successUrl = `${window.location.origin}/payment/success`,
-    failUrl = `${window.location.origin}/payment/fail`,
-    cancelUrl = `${window.location.origin}/payment/cancel`,
-  }) => {
-    setPaymentLoading(true); setPaymentError(null);
-    try {
-      const payData = {
-        orderId,
-        orderName: itemName,
-        amount: totalAmount,
-        customerName: userId,
-        successUrl,
-        failUrl,
-        // ...기타 토스 파라미터는 공식 문서 참고(필요시)
+  // 스크립트 로드 함수들
+  const loadKakaoPayScript = () => {
+    return new Promise((resolve, reject) => {
+      if (document.getElementById('kakao-pay-script')) {
+        resolve();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.id = 'kakao-pay-script';
+      script.src = 'https://developers.kakao.com/sdk/js/kakao.min.js';
+      script.onload = () => {
+        window.Kakao.init(process.env.REACT_APP_KAKAO_APP_KEY);
+        resolve();
       };
-      const resp = await fetch(`${TOSS_API_BASE}/payments`, {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${btoa(TOSS_TEST_SECRET + ":")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payData),
-      });
-      const result = await resp.json();
-      if (result.code && result.code !== "SUCCESS") throw new Error(result.message || "토스페이 결제 실패");
-      setPaymentResult(result);
-      window.location.href = result.next_redirect_pc_url; // 샌드박스용 결제창 URL
-      return result;
-    } catch (err) {
-      setPaymentError(err.message); setPaymentLoading(false);
-      throw err;
-    }
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
   };
 
-  const approveTossPay = async ({ paymentKey, orderId, amount }) => {
-    setPaymentLoading(true); setPaymentError(null);
-    try {
-      const resp = await fetch(`${TOSS_API_BASE}/payments/confirm`, {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${btoa(TOSS_TEST_SECRET + ":")}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ paymentKey, orderId, amount }),
-      });
-      const result = await resp.json();
-      if (result.code && result.code !== "SUCCESS") throw new Error(result.message || "토스페이 승인 실패");
-      setPaymentResult(result); setPaymentLoading(false);
-      return result;
-    } catch (err) {
-      setPaymentError(err.message); setPaymentLoading(false);
-      throw err;
-    }
+  const loadNaverPayScript = () => {
+    return new Promise((resolve, reject) => {
+      if (document.getElementById('naver-pay-script')) {
+        resolve();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.id = 'naver-pay-script';
+      script.src = 'https://nsp.pay.naver.com/sdk/js/naverpay.min.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
   };
 
-  // 통합 결제 요청
-  const requestPayment = async (payload) => {
-    if (method === "kakao") return requestKakaoPay(payload);
-    if (method === "inicis") return requestInicis(payload);
-    if (method === "naver") return requestNaverPay(payload);
-    if (method === "toss") return requestTossPay(payload);
-    throw new Error("지원하지 않는 결제수단입니다.");
+  const loadInicisScript = () => {
+    return new Promise((resolve, reject) => {
+      if (document.getElementById('inicis-script')) {
+        resolve();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.id = 'inicis-script';
+      script.src = 'https://stdpay.inicis.com/stdjs/INIStdPay.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
   };
 
-  const approvePayment = async (payload) => {
-    if (method === "kakao") return approveKakaoPay(payload);
-    if (method === "inicis") return approveInicis(payload);
-    if (method === "naver") return approveNaverPay(payload);
-    if (method === "toss") return approveTossPay(payload);
-    throw new Error("지원하지 않는 결제수단입니다.");
+  const loadTossPayScript = () => {
+    return new Promise((resolve, reject) => {
+      if (document.getElementById('toss-pay-script')) {
+        resolve();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.id = 'toss-pay-script';
+      script.src = 'https://js.tosspayments.com/v1/payment';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
   };
 
+  // 결제 상태 초기화
   const resetPayment = () => {
-    setPaymentLoading(false); setPaymentError(null); setPaymentResult(null);
+    setPaymentMethod('');
+    setPaymentLoading(false);
+    setPaymentError(null);
+    setPaymentResult(null);
   };
 
   return {
-    paymentMethod: method,
-    selectMethod,
+    paymentMethod,
     paymentLoading,
     paymentError,
     paymentResult,
+    selectMethod,
     requestPayment,
-    approvePayment,
-    resetPayment,
-    // 각각의 메서드도 직접 사용 가능
-    requestKakaoPay, approveKakaoPay,
-    requestInicis, approveInicis,
-    requestNaverPay, approveNaverPay,
-    requestTossPay, approveTossPay,
+    resetPayment
   };
-}
+};
 
 export default usePayment;

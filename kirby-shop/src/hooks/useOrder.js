@@ -1,6 +1,9 @@
 // src/hooks/useOrder.js
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+
+const ORDER_STORAGE_KEY = 'kirby-shop-current-order';
+const ORDERS_LIST_KEY = 'kirby-shop-orders';
 
 // 기본 주문 상태 구조 (상품, 수량, 옵션, 배송지, 결제 등)
 const initialOrderState = {
@@ -19,15 +22,36 @@ const initialOrderState = {
 };
 
 export const useOrder = (cartItems = []) => {
-  // 주문 오브젝트 정의 (cartItems가 변경될 때 자동 sync)
-  const [order, setOrder] = useState({
-    ...initialOrderState,
-    items: cartItems?.map((item) => ({
-      product: item.product || item,
-      quantity: item.quantity || 1,
-      selectedOption: item.selectedOption || null,
-    })) || [],
+  const [order, setOrder] = useState(() => {
+    try {
+      const saved = localStorage.getItem(ORDER_STORAGE_KEY);
+      return saved ? { ...initialOrderState, ...JSON.parse(saved) } : initialOrderState;
+    } catch (_) {
+      return initialOrderState;
+    }
   });
+
+  // cartItems가 변경될 때마다 order.items 업데이트
+  useEffect(() => {
+    setOrder(prev => ({
+      ...prev,
+      items: (cartItems || [])
+        .filter(Boolean)
+        .map((item) => ({
+          product: item && (item.product || item) || null,
+          quantity: (item && Number(item.quantity)) || 1,
+          selectedOption: item?.selectedOption || null,
+        }))
+        .filter(it => !!it.product),
+    }));
+  }, [cartItems]);
+
+  // 주문 상태 변경 시 저장
+  useEffect(() => {
+    try {
+      localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
+    } catch (_) {}
+  }, [order]);
 
   // step 변경
   const setStep = (newStep) => setOrder((o) => ({ ...o, step: newStep }));
@@ -59,10 +83,14 @@ export const useOrder = (cartItems = []) => {
     let quantity = 0;
     let discount = 0;
     for (const { product, quantity: qty } of items) {
-      const price = (product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price);
-      total += price * qty;
-      quantity += qty;
-      if (product.discount > 0) discount += (product.price - price) * qty;
+      if (!product) continue;
+      const base = Number(product.price) || 0;
+      const percent = Number(product.discount) || 0;
+      const price = percent > 0 ? base * (1 - percent / 100) : base;
+      const q = Number(qty) || 1;
+      total += price * q;
+      quantity += q;
+      if (percent > 0) discount += (base - price) * q;
     }
     // 쿠폰 적용
     if (order.coupon?.discountAmount) discount += order.coupon.discountAmount;
@@ -93,6 +121,14 @@ export const useOrder = (cartItems = []) => {
         orderId: newOrderId,
         error: null,
       }));
+
+      // 주문 목록에 기록
+      try {
+        const saved = localStorage.getItem(ORDERS_LIST_KEY);
+        const list = saved ? JSON.parse(saved) : [];
+        const finalized = { ...order, orderId: newOrderId, status: 'done', createdAt: new Date().toISOString() };
+        localStorage.setItem(ORDERS_LIST_KEY, JSON.stringify([finalized, ...list]));
+      } catch (_) {}
       return { success: true, orderId: newOrderId };
     } catch (error) {
       setOrder((o) => ({ ...o, status: "failed", error: error?.message || "결제 실패" }));

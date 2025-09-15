@@ -1,221 +1,235 @@
-// src/hooks/useWishlist.js
+// src/hooks/useWishlist.js - 비로그인 사용자 지원 버전
 
 import { useState, useEffect, useCallback } from 'react';
 
-const WISHLIST_STORAGE_KEY = 'kirby-shop-wishlist';
+const GUEST_WISHLIST_KEY = 'kirby-shop-guest-wishlist';
+const TEMP_WISHLIST_KEY = 'kirby-shop-temp-wishlist'; // 회원가입 시 이전용
 
-export const useWishlist = () => {
+export const useWishlist = (user) => {
+  // 로그인 상태에 따른 스토리지 키 결정
+  const getStorageKey = () => {
+    if (user && user.id) {
+      return `kirby-shop-wishlist-${user.id}`;
+    }
+    return GUEST_WISHLIST_KEY;
+  };
+
   const [wishlistItems, setWishlistItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 로컬 스토리지에서 찜목록 데이터 불러오기
+  // 찜목록 불러오기
   useEffect(() => {
     try {
-      const savedWishlist = localStorage.getItem(WISHLIST_STORAGE_KEY);
-      if (savedWishlist) {
-        const parsedWishlist = JSON.parse(savedWishlist);
-        setWishlistItems(parsedWishlist);
-      }
+      const storageKey = getStorageKey();
+      const saved = localStorage.getItem(storageKey);
+      setWishlistItems(saved ? JSON.parse(saved) : []);
     } catch (error) {
       console.error('찜목록 데이터 로드 오류:', error);
       setWishlistItems([]);
     }
-  }, []);
+  }, [user]);
 
-  // 찜목록 데이터 로컬 스토리지에 저장
-  const saveWishlistToStorage = useCallback((items) => {
+  // 다른 탭/컴포넌트에서의 변경 사항에 반응 (storage + 커스텀 이벤트)
+  useEffect(() => {
+    const handleStorage = (e) => {
+      const key = getStorageKey();
+      if (e && e.key === key) {
+        try {
+          const next = e.newValue ? JSON.parse(e.newValue) : [];
+          setWishlistItems(Array.isArray(next) ? next : []);
+        } catch (_) {}
+      }
+    };
+    const handleCustom = (e) => {
+      if (e?.detail?.type === 'wishlist:update') {
+        const key = getStorageKey();
+        try {
+          const saved = localStorage.getItem(key);
+          setWishlistItems(saved ? JSON.parse(saved) : []);
+        } catch (_) {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('kirby:wishlist', handleCustom);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('kirby:wishlist', handleCustom);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // 스토리지 저장
+  const saveWishlist = useCallback(items => {
     try {
-      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(items));
+      const storageKey = getStorageKey();
+      localStorage.setItem(storageKey, JSON.stringify(items));
+      
+      // 비로그인 사용자의 경우 임시 백업도 저장 (회원가입 시 이전용)
+      if (!user || !user.id) {
+        localStorage.setItem(TEMP_WISHLIST_KEY, JSON.stringify(items));
+      }
+
+      // 커스텀 이벤트 브로드캐스트
+      try {
+        const evt = new CustomEvent('kirby:wishlist', { detail: { type: 'wishlist:update' } });
+        window.dispatchEvent(evt);
+      } catch (_) {}
     } catch (error) {
       console.error('찜목록 데이터 저장 오류:', error);
     }
-  }, []);
+  }, [user]);
 
-  // 찜목록에 상품 추가
+  // 찜목록 추가 (비로그인 사용자도 가능)
   const addToWishlist = useCallback((product) => {
     setIsLoading(true);
-    
     try {
-      setWishlistItems(prevItems => {
-        // 이미 있는 상품인지 확인
-        const isAlreadyInWishlist = prevItems.some(item => item.id === product.id);
-        
-        if (isAlreadyInWishlist) {
-          return prevItems; // 이미 있으면 그대로 반환
+      let result = null;
+      setWishlistItems(prev => {
+        if (prev.some(item => item.id === product.id)) {
+          result = { success: false, message: '이미 찜한 상품입니다.' };
+          return prev;
         }
-
+        
         const newItem = {
           ...product,
           addedAt: new Date().toISOString(),
-          wishlistId: `wishlist-${product.id}-${Date.now()}`
+          wishlistId: `wishlist-${product.id}-${Date.now()}`,
+          isGuest: !user || !user.id // 게스트 여부 표시
         };
-        
-        const newItems = [...prevItems, newItem];
-        saveWishlistToStorage(newItems);
+        const newItems = [...prev, newItem];
+        saveWishlist(newItems);
+        result = { 
+          success: true, 
+          message: user && user.id 
+            ? '찜목록에 추가되었습니다!' 
+            : '찜목록에 추가되었습니다! (회원가입 시 저장됩니다)'
+        };
         return newItems;
       });
-
-      return { success: true, message: '찜목록에 추가되었습니다! 💖' };
+      return result || { success: true, message: '찜목록에 추가되었습니다!' };
     } catch (error) {
       console.error('찜목록 추가 오류:', error);
       return { success: false, message: '찜목록 추가에 실패했습니다.' };
     } finally {
       setIsLoading(false);
     }
-  }, [saveWishlistToStorage]);
+  }, [user, saveWishlist]);
 
-  // 찜목록에서 상품 제거
+  // 찜목록에서 제거
   const removeFromWishlist = useCallback((productId) => {
-    setWishlistItems(prevItems => {
-      const newItems = prevItems.filter(item => item.id !== productId);
-      saveWishlistToStorage(newItems);
+    setWishlistItems(prev => {
+      const newItems = prev.filter(item => item.id !== productId);
+      saveWishlist(newItems);
       return newItems;
     });
-    
     return { success: true, message: '찜목록에서 제거되었습니다.' };
-  }, [saveWishlistToStorage]);
+  }, [saveWishlist]);
 
-  // 찜목록 토글 (추가/제거)
+  // 찜 토글
   const toggleWishlist = useCallback((product) => {
-    const isInWishlist = wishlistItems.some(item => item.id === product.id);
-    
-    if (isInWishlist) {
-      return removeFromWishlist(product.id);
-    } else {
-      return addToWishlist(product);
-    }
+    const isIn = wishlistItems.some(item => item.id === product.id);
+    return isIn ? removeFromWishlist(product.id) : addToWishlist(product);
   }, [wishlistItems, addToWishlist, removeFromWishlist]);
 
   // 찜목록 비우기
   const clearWishlist = useCallback(() => {
     setWishlistItems([]);
-    saveWishlistToStorage([]);
+    saveWishlist([]);
     return { success: true, message: '찜목록이 모두 삭제되었습니다.' };
-  }, [saveWishlistToStorage]);
+  }, [saveWishlist]);
 
-  // 상품이 찜목록에 있는지 확인
+  // 찜목록에 있는지 확인
   const isInWishlist = useCallback((productId) => {
     return wishlistItems.some(item => item.id === productId);
   }, [wishlistItems]);
 
-  // 찜목록 상품 ID들만 반환 (간단한 배열)
-  const wishlistIds = wishlistItems.map(item => item.id);
+  // 구매 가능 여부 확인 (로그인 필요)
+  const canPurchaseWishlist = useCallback(() => {
+    return {
+      canPurchase: !!(user && user.id),
+      message: user && user.id 
+        ? '구매할 수 있습니다.' 
+        : '구매하려면 로그인이 필요합니다.'
+    };
+  }, [user]);
 
-  // 찜목록 총 개수
-  const totalCount = wishlistItems.length;
-
-  // 카테고리별 찜목록 그룹핑
-  const groupedByCategory = wishlistItems.reduce((groups, item) => {
-    const category = item.category || '기타';
+  // 게스트 데이터를 회원 데이터로 이전
+  const migrateGuestWishlist = useCallback((newUser) => {
+    if (!newUser || !newUser.id) return;
     
-    if (!groups[category]) {
-      groups[category] = [];
+    try {
+      const guestWishlist = localStorage.getItem(GUEST_WISHLIST_KEY);
+      const tempWishlist = localStorage.getItem(TEMP_WISHLIST_KEY);
+      
+      if (guestWishlist || tempWishlist) {
+        const wishlistData = JSON.parse(guestWishlist || tempWishlist || '[]');
+        const userStorageKey = `kirby-shop-wishlist-${newUser.id}`;
+        
+        // 게스트 표시 제거하고 유저 찜목록으로 저장
+        const migratedItems = wishlistData.map(item => ({
+          ...item,
+          isGuest: false,
+          migratedAt: new Date().toISOString()
+        }));
+        
+        localStorage.setItem(userStorageKey, JSON.stringify(migratedItems));
+        
+        // 임시 데이터 정리
+        localStorage.removeItem(GUEST_WISHLIST_KEY);
+        localStorage.removeItem(TEMP_WISHLIST_KEY);
+        
+        setWishlistItems(migratedItems);
+      }
+    } catch (error) {
+      console.error('찜목록 데이터 이전 오류:', error);
     }
-    
-    groups[category].push(item);
-    return groups;
-  }, {});
-
-  // 가격대별 찜목록 그룹핑
-  const groupedByPriceRange = wishlistItems.reduce((groups, item) => {
-    let priceRange;
-    
-    if (item.price < 10000) {
-      priceRange = '1만원 미만';
-    } else if (item.price < 30000) {
-      priceRange = '1만원 ~ 3만원';
-    } else if (item.price < 50000) {
-      priceRange = '3만원 ~ 5만원';
-    } else {
-      priceRange = '5만원 이상';
-    }
-    
-    if (!groups[priceRange]) {
-      groups[priceRange] = [];
-    }
-    
-    groups[priceRange].push(item);
-    return groups;
-  }, {});
-
-  // 최근 추가된 상품들 (최대 5개)
-  const recentItems = [...wishlistItems]
-    .sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt))
-    .slice(0, 5);
-
-  // 할인 상품들
-  const discountedItems = wishlistItems.filter(item => item.discount > 0);
-
-  // 품절된 상품들
-  const outOfStockItems = wishlistItems.filter(item => item.stock <= 0);
-
-  // 재고 부족 상품들
-  const lowStockItems = wishlistItems.filter(item => item.stock > 0 && item.stock <= 5);
+  }, []);
 
   // 찜목록 정렬
-  const sortWishlist = useCallback((sortBy) => {
-    setWishlistItems(prevItems => {
-      const sortedItems = [...prevItems];
-      
-      switch (sortBy) {
-        case 'newest':
-          sortedItems.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
-          break;
-        case 'oldest':
-          sortedItems.sort((a, b) => new Date(a.addedAt) - new Date(b.addedAt));
-          break;
-        case 'price-low':
-          sortedItems.sort((a, b) => a.price - b.price);
-          break;
-        case 'price-high':
-          sortedItems.sort((a, b) => b.price - a.price);
-          break;
-        case 'name':
-          sortedItems.sort((a, b) => a.title.localeCompare(b.title));
-          break;
-        case 'discount':
-          sortedItems.sort((a, b) => (b.discount || 0) - (a.discount || 0));
-          break;
-        default:
-          return prevItems;
-      }
-      
-      saveWishlistToStorage(sortedItems);
-      return sortedItems;
+  const sortWishlist = useCallback((type) => {
+    setWishlistItems(prev => {
+      const sorted = [...prev].sort((a, b) => {
+        switch (type) {
+          case 'newest':
+            return new Date(b.addedAt) - new Date(a.addedAt);
+          case 'price-high':
+            return b.price - a.price;
+          case 'price-low':
+            return a.price - b.price;
+          case 'discount':
+            return (b.discount || 0) - (a.discount || 0);
+          default:
+            return new Date(b.addedAt) - new Date(a.addedAt);
+        }
+      });
+      saveWishlist(sorted);
+      return sorted;
     });
-  }, [saveWishlistToStorage]);
+  }, [saveWishlist]);
 
   // 찜목록 필터링
-  const filterWishlist = useCallback((filterOptions) => {
-    const {
-      category,
-      priceMin,
-      priceMax,
-      inStock,
-      onSale
-    } = filterOptions;
-
+  const filterWishlist = useCallback((filters) => {
     return wishlistItems.filter(item => {
       // 카테고리 필터
-      if (category && item.category !== category) {
+      if (filters.category && item.category !== filters.category) {
         return false;
       }
       
       // 가격 범위 필터
-      if (priceMin && item.price < priceMin) {
+      if (filters.minPrice && item.price < filters.minPrice) {
         return false;
       }
-      if (priceMax && item.price > priceMax) {
+      if (filters.maxPrice && item.price > filters.maxPrice) {
         return false;
       }
       
       // 재고 필터
-      if (inStock && item.stock <= 0) {
+      if (filters.inStock && item.stock <= 0) {
         return false;
       }
       
       // 할인 상품 필터
-      if (onSale && (!item.discount || item.discount <= 0)) {
+      if (filters.onSale && (!item.discount || item.discount <= 0)) {
         return false;
       }
       
@@ -223,125 +237,59 @@ export const useWishlist = () => {
     });
   }, [wishlistItems]);
 
-  // 찜목록 검색
-  const searchWishlist = useCallback((query) => {
-    const lowercaseQuery = query.toLowerCase();
-    
-    return wishlistItems.filter(item =>
-      item.title.toLowerCase().includes(lowercaseQuery) ||
-      item.description.toLowerCase().includes(lowercaseQuery) ||
-      (item.tags && item.tags.some(tag => 
-        tag.toLowerCase().includes(lowercaseQuery)
-      ))
-    );
-  }, [wishlistItems]);
-
   // 찜목록 통계
   const getWishlistStats = useCallback(() => {
-    const totalValue = wishlistItems.reduce((sum, item) => sum + item.price, 0);
-    const avgPrice = wishlistItems.length > 0 ? totalValue / wishlistItems.length : 0;
-    const totalDiscountValue = discountedItems.reduce((sum, item) => {
-      const discountAmount = item.price * (item.discount / 100);
-      return sum + discountAmount;
-    }, 0);
-
-    return {
-      totalCount,
-      totalValue,
-      avgPrice,
-      discountedCount: discountedItems.length,
-      totalDiscountValue,
-      outOfStockCount: outOfStockItems.length,
-      lowStockCount: lowStockItems.length,
-      categoryCounts: Object.keys(groupedByCategory).map(category => ({
-        category,
-        count: groupedByCategory[category].length
-      }))
+    const stats = {
+      totalCount: wishlistItems.length,
+      totalValue: 0,
+      avgPrice: 0,
+      discountedCount: 0,
+      outOfStockCount: 0,
+      categories: {},
+      hasGuestItems: false
     };
-  }, [wishlistItems, discountedItems, outOfStockItems, lowStockItems, groupedByCategory, totalCount]);
 
-  // 찜목록 내보내기 (공유용)
-  const exportWishlist = useCallback(() => {
-    return {
-      items: wishlistItems.map(item => ({
-        id: item.id,
-        title: item.title,
-        price: item.price,
-        image: item.image,
-        category: item.category,
-        addedAt: item.addedAt
-      })),
-      stats: getWishlistStats(),
-      exportedAt: new Date().toISOString()
-    };
-  }, [wishlistItems, getWishlistStats]);
+    wishlistItems.forEach(item => {
+      const price = item.discount > 0 
+        ? item.price * (1 - item.discount / 100)
+        : item.price;
+      
+      stats.totalValue += price;
+      
+      if (item.discount > 0) stats.discountedCount++;
+      if (item.stock <= 0) stats.outOfStockCount++;
+      if (item.isGuest) stats.hasGuestItems = true;
+      
+      stats.categories[item.category] = (stats.categories[item.category] || 0) + 1;
+    });
 
-  // 찜목록 가져오기 (공유받은 데이터)
-  const importWishlist = useCallback((importData) => {
-    try {
-      if (!importData.items || !Array.isArray(importData.items)) {
-        throw new Error('잘못된 데이터 형식입니다.');
-      }
-
-      const importedItems = importData.items.map(item => ({
-        ...item,
-        addedAt: new Date().toISOString(),
-        wishlistId: `wishlist-${item.id}-${Date.now()}`
-      }));
-
-      setWishlistItems(prevItems => {
-        // 중복 제거
-        const existingIds = prevItems.map(item => item.id);
-        const newItems = importedItems.filter(item => !existingIds.includes(item.id));
-        
-        const combinedItems = [...prevItems, ...newItems];
-        saveWishlistToStorage(combinedItems);
-        return combinedItems;
-      });
-
-      return { 
-        success: true, 
-        message: `${importedItems.length}개 상품이 찜목록에 추가되었습니다!` 
-      };
-    } catch (error) {
-      console.error('찜목록 가져오기 오류:', error);
-      return { 
-        success: false, 
-        message: '찜목록 가져오기에 실패했습니다.' 
-      };
+    if (wishlistItems.length > 0) {
+      stats.avgPrice = stats.totalValue / wishlistItems.length;
     }
-  }, [saveWishlistToStorage]);
+
+    stats.canPurchase = canPurchaseWishlist();
+    
+    return stats;
+  }, [wishlistItems, canPurchaseWishlist]);
+
+  // ID 배열 (간편 사용용)
+  const wishlistIds = wishlistItems.map(item => item.id);
+  const totalCount = wishlistItems.length;
 
   return {
-    // 상태
     wishlistItems,
     wishlistIds,
     isLoading,
-    
-    // 액션
     addToWishlist,
     removeFromWishlist,
     toggleWishlist,
     clearWishlist,
-    
-    // 조회
     isInWishlist,
-    totalCount,
-    
-    // 그룹핑된 데이터
-    groupedByCategory,
-    groupedByPriceRange,
-    recentItems,
-    discountedItems,
-    outOfStockItems,
-    lowStockItems,
-    
-    // 유틸리티
+    canPurchaseWishlist,
+    migrateGuestWishlist,
     sortWishlist,
     filterWishlist,
-    searchWishlist,
     getWishlistStats,
-    exportWishlist,
-    importWishlist
+    totalCount,
   };
 };

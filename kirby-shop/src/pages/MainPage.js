@@ -11,11 +11,14 @@ import PromoBanner from '../components/hero/PromoBanner';
 import CategoryMenu from '../components/navigation/CategoryMenu';
 import ProductGrid from '../components/product/ProductGrid';
 import ProductModal from '../components/product/ProductModal';
+import FloatingCartSidebar from '../components/cart/FloatingCartSidebar';
+import FloatingWishlistSidebar from '../components/wishlist/FloatingWishlistSidebar';
+
 
 // hooks imports (전부 named export)
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 // 데이터, 유틸
 import { productsData, categories } from '../data/products';
@@ -75,18 +78,22 @@ const promoBanners = [
 ];
 
 const MainPage = () => {
+  // hooks
+  const { user, isAuthenticated, login, logout, signup, socialLogin, isLoading: authLoading } = useAuth();
+  const { cartItems, addToCart, removeFromCart, updateQuantity, totalQuantity, finalPrice, cartSummary } = useCart(user);
+  const { wishlistItems, wishlistIds, toggleWishlist, isInWishlist } = useWishlist(user);
+
   // 상태 관리
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid');
   const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
-
-  // hooks
-  const { cartItems, addToCart, removeFromCart, updateQuantity, totalQuantity, finalPrice, cartSummary } = useCart();
-  const { wishlistItems, wishlistIds, toggleWishlist, isInWishlist } = useWishlist();
-  const { user, isAuthenticated, login, logout, signup, socialLogin, isLoading: authLoading } = useAuth();
+  const [showFloatingCart, setShowFloatingCart] = useState(false);
+  const [showFloatingWishlist, setShowFloatingWishlist] = useState(false);
 
   // 상품 필터링
   const filteredProducts = React.useMemo(() => {
@@ -137,26 +144,34 @@ const MainPage = () => {
 
   // 찜 토글
   const handleWishlistToggle = (productId) => {
+    if (!isAuthenticated) {
+      showNotification('로그인하지 않아도 찜하기를 이용할 수 있습니다!', 'info');
+    }
     const result = toggleWishlist(productsData.find(p => p.id === productId));
-    if (result.success) showNotification(result.message);
+    if (result.success) {
+      showNotification(result.message);
+      if (result.message.includes('추가')) {
+        setShowFloatingWishlist(true); // 찜목록 사이드바 자동 오픈
+      }
+    }
   };
 
   // 장바구니 추가
   const handleCartAdd = (product, quantity = 1) => {
     if (!isAuthenticated) {
-      showNotification('로그인 후 장바구니를 이용할 수 있습니다.', 'warning');
-      return;
+      showNotification('로그인하지 않아도 장바구니를 이용할 수 있습니다!', 'info');
     }
     const result = addToCart(product, quantity);
     if (result.success) {
       showNotification(createKirbyMessage('장바구니에 추가되었습니다!'));
+      setShowFloatingCart(true); // 장바구니 사이드바 자동 오픈
     } else {
       showNotification(result.message, 'error');
     }
   };
 
   // 히어로슬라이드 컨트롤
-  const handleHeroSlideChange = () => {};
+  const handleHeroSlideChange = () => { };
 
   const handleHeroButtonClick = (slide) => {
     if (slide.buttonText.includes('플러시')) {
@@ -236,10 +251,12 @@ const MainPage = () => {
         isLoggedIn={isAuthenticated}
         user={user}
         wishlistCount={wishlistIds.length}
-        cartCount={totalQuantity}
-        onLoginClick={() => showNotification('로그인 페이지로 이동해주세요!', 'info')}
+        cartCount={totalQuantity}  // cartItemCount → cartCount
+        onLogin={() => showNotification('로그인 페이지로 이동해주세요!', 'info')}
         onLogout={handleLogout}
         onSearchSubmit={handleSearchSubmit}
+        onCartClick={() => setShowFloatingCart(true)}
+        onWishlistClick={() => setShowFloatingWishlist(true)}
       />
       <CategoryMenu
         categories={categories}
@@ -293,6 +310,23 @@ const MainPage = () => {
         )}
       </main>
       <Footer />
+      <FloatingCartSidebar
+        isOpen={showFloatingCart}
+        onClose={() => setShowFloatingCart(false)}
+        onOpenWishlist={() => {
+          setShowFloatingCart(false);
+          setShowFloatingWishlist(true);
+        }}
+      />
+
+      <FloatingWishlistSidebar
+        isOpen={showFloatingWishlist}
+        onClose={() => setShowFloatingWishlist(false)}
+        onOpenCart={() => {
+          setShowFloatingWishlist(false);
+          setShowFloatingCart(true);
+        }}
+      />
     </div>
   );
 };

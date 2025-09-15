@@ -1,6 +1,7 @@
 // src/components/product/ProductCard.js
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Star, Eye, Zap, Crown, Sparkles, Tag, Truck } from 'lucide-react';
 
 const ProductCard = ({
@@ -22,12 +23,43 @@ const ProductCard = ({
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  // 상품 상세로 이동
+  const navigate = useNavigate();
+
+  const handleProductClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
+  const handleWishlistToggle = (e) => {
+    e.stopPropagation();
+    if (onWishlistToggle) {
+      onWishlistToggle(product.id);
+    }
+  };
+
+  const handleCartAdd = (e) => {
+    e.stopPropagation();
+    if (onCartAdd) {
+      onCartAdd(product);
+    }
+  };
+
+  const handleQuickView = (e) => {
+    e.stopPropagation();
+    if (onQuickView) {
+      onQuickView(product);
+    }
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   // 할인된 가격 계산
   const discountedPrice = product.discount > 0 
     ? product.price * (1 - product.discount / 100)
     : product.price;
 
-  // 재고 상태 확인
   const isOutOfStock = product.stock <= 0;
   const isLowStock = product.stock <= 5 && product.stock > 0;
 
@@ -37,42 +69,6 @@ const ProductCard = ({
   if (product.isBest) badges.push({ text: 'BEST', type: 'best' });
   if (product.isHot) badges.push({ text: 'HOT', type: 'hot' });
   if (product.discount > 0) badges.push({ text: `${product.discount}%`, type: 'discount' });
-
-  // 상품 클릭 핸들러
-  const handleProductClick = () => {
-    if (onProductClick) {
-      onProductClick(product);
-    }
-  };
-
-  // 찜하기 토글
-  const handleWishlistToggle = (e) => {
-    e.stopPropagation();
-    if (onWishlistToggle) {
-      onWishlistToggle(product.id);
-    }
-  };
-
-  // 장바구니 추가
-  const handleCartAdd = (e) => {
-    e.stopPropagation();
-    if (onCartAdd) {
-      onCartAdd(product);
-    }
-  };
-
-  // 빠른 보기
-  const handleQuickView = (e) => {
-    e.stopPropagation();
-    if (onQuickView) {
-      onQuickView(product);
-    }
-  };
-
-  // 이미지 에러 처리
-  const handleImageError = () => {
-    setImageError(true);
-  };
 
   // 평점 별 렌더링
   const renderStars = (rating) => {

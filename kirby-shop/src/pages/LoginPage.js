@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import '../styles/MainPage.css';
-import '../styles/LoginModal.css';
+import '../styles/LoginPage.css';
 
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 const EventBadge = () => (
   <div className="welcome-message" style={{

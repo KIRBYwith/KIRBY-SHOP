@@ -58,7 +58,12 @@
   color: #333;
   font-size: 15px;
 }
-.login-modal .input-wrapper { position: relative; }
+.login-modal .input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
 .login-modal input[type="email"],
 .login-modal input[type="password"],
@@ -98,6 +103,55 @@
   font-size: 0.86rem;
   margin-top: 0.3rem;
 }
+
+.login-modal .input-check-btn {
+  background: linear-gradient(135deg, #ff77bb, #ff69b4);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.25);
+  min-width: 80px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-modal .input-check-btn:hover {
+  background: linear-gradient(135deg, #ff66aa, #ff5599);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.35);
+}
+
+.login-modal .input-check-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(255, 105, 180, 0.3);
+}
+
+.login-modal .input-check-btn:disabled {
+  background: #f4a5ca;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 입력 필드가 버튼과 함께 있을 때 조정 */
+.login-modal .input-wrapper input {
+  flex: 1;
+  padding-right: 15px; /* 버튼과의 간격을 위해 우측 패딩 조정 */
+}
+
+/* 버튼만 있는 경우 (주소검색 등) */
+.login-modal .input-wrapper:has(.input-check-btn) {
+  justify-content: space-between;
+}
+
 
 /* ───────── 로그인 옵션, 약관 ───────── */
 .login-modal .login-options {
@@ -196,6 +250,18 @@
   .login-modal .tab-group,
   .login-modal .form-group,
   .login-modal .social-login-section { padding-left: 1rem !important; padding-right: 1rem !important;}
+}
+@media (max-width: 480px) {
+  .login-modal .input-check-btn {
+    min-width: 70px;
+    padding: 8px 12px;
+    font-size: 12px;
+    height: 40px;
+  }
+  
+  .login-modal .input-wrapper {
+    gap: 6px;
+  }
 }
 @media (max-width: 390px){
   .login-modal .tab-group,

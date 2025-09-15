@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
@@ -10,25 +11,22 @@ import { productsData, getProductById } from '../data/products';
 // 커스텀 훅
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 // 경로: React Router(예시용) → 실제 app에선 useParams 등 조정
 // import { useParams } from 'react-router-dom';
 
-const ProductDetailPage = (props) => {
-  // 실제 라우팅 환경에서는 productId를 useParams()로 받는다.
+const ProductDetailPage = () => {
+  const { productId } = useParams();
+  const { user } = useAuth();  // 실제 라우팅 환경에서는 productId를 useParams()로 받는다.
   // 예시: const { productId } = useParams();
-
-  // 여기선 props로 받는다(예: <ProductDetailPage productId={...} />)
-  const productId = props.productId || (props.match && props.match.params && props.match.params.productId);
-
-  // 상품 데이터
+  
+  // product 조회
   const product = useMemo(() => getProductById(productId), [productId]);
 
-  // Hooks
-  const { addToCart, isInCart, getCartQuantity } = useCart();
-  const { isInWishlist, toggleWishlist } = useWishlist();
-  const { isAuthenticated, user } = useAuth();
+  // Hooks에 user 전달
+  const { addToCart, isInCart, getCartQuantity } = useCart(user);
+  const { isInWishlist, toggleWishlist } = useWishlist(user);
 
   // 모달 띄우기용 상태, 모바일 지원 등 커스텀 가능
   const [showModal, setShowModal] = useState(true);

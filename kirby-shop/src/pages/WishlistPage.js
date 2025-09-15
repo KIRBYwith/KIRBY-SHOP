@@ -4,10 +4,12 @@ import Footer from '../components/common/Footer';
 
 import { useWishlist } from '../hooks/useWishlist';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../contexts/AuthContext';
 // 카드를 더 활용하려면 ProductCard, 리스트나 간략형은 ProductListItem 도 활용
 import ProductCard from '../components/product/ProductCard';
 
 const WishlistPage = () => {
+  const { user } = useAuth();
   const {
     wishlistItems,
     removeFromWishlist,
@@ -16,7 +18,8 @@ const WishlistPage = () => {
     sortWishlist,
     filterWishlist,
     getWishlistStats,
-  } = useWishlist();
+  } = useWishlist(user);
+
   const { addToCart, isInCart } = useCart();
 
   const [sort, setSort] = useState('newest');
@@ -60,10 +63,10 @@ const WishlistPage = () => {
           <strong>품절:</strong> {stats.outOfStockCount}개
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          <button onClick={() => handleSort('newest')} style={{ background: sort==='newest'? "#FFB6C1":"#eee" }}>최신순</button>
-          <button onClick={() => handleSort('price-high')} style={{ background: sort==='price-high'? "#FFB6C1":"#eee" }}>고가순</button>
-          <button onClick={() => handleSort('price-low')} style={{ background: sort==='price-low'? "#FFB6C1":"#eee" }}>저가순</button>
-          <button onClick={() => handleSort('discount')} style={{ background: sort==='discount'? "#FFB6C1":"#eee" }}>할인순</button>
+          <button onClick={() => handleSort('newest')} style={{ background: sort === 'newest' ? "#FFB6C1" : "#eee" }}>최신순</button>
+          <button onClick={() => handleSort('price-high')} style={{ background: sort === 'price-high' ? "#FFB6C1" : "#eee" }}>고가순</button>
+          <button onClick={() => handleSort('price-low')} style={{ background: sort === 'price-low' ? "#FFB6C1" : "#eee" }}>저가순</button>
+          <button onClick={() => handleSort('discount')} style={{ background: sort === 'discount' ? "#FFB6C1" : "#eee" }}>할인순</button>
           <button onClick={clearWishlist} style={{ marginLeft: 18, color: "red" }}>모두삭제</button>
         </div>
         {/* 상품 리스트 */}

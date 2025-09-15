@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import '../styles/EcommercePages.css';
 
 import usePayment from '../hooks/usePayment'; // default export
 import { useOrder } from '../hooks/useOrder';

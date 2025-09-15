@@ -1,10 +1,11 @@
 // src/components/navigation/Navbar.js
 
 import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Sparkles, Heart, ShoppingCart, Menu } from "lucide-react";
 import UserMenu from "../user/UserMenu";
 import CartIcon from "../cart/CartIcon";
-import "../styles/MainPage.css"; // 혹시 css 분리라면 import '../../styles/MainPage.css'
+import "../styles/MainPage.css";
 import SearchBox from "../common/SearchBox";
 
 const Navbar = ({
@@ -25,74 +26,67 @@ const Navbar = ({
   showMenuBtn = false,
   onMenuBtnClick,
 }) => {
+  const navigate = useNavigate();
+  // Goto 대신 Link, 필요시 navigate 사용
   return (
-    <nav className="navbar" style={{ background: "linear-gradient(135deg,#ff69b4 0%,#ff1493 100%)", color: "#fff", position: "sticky", top: 0, zIndex: 1000 }}>
-      <div className="nav-left" style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-        {showMenuBtn && (
-          <button className="mobile-menu-btn" style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", marginRight: "8px" }} onClick={onMenuBtnClick} aria-label="메뉴 열기">
-            <Menu size={28} />
-          </button>
+    <nav className="navbar">
+      {/* 햄버거 메뉴(모바일용) */}
+      {showMenuBtn && (
+        <button className="mobile-menu-btn" onClick={onMenuBtnClick}>
+          <Menu size={24} />
+        </button>
+      )}
+
+      {/* 로고 (클릭: 홈 이동, onLogoClick 시 콜백 실행 후 이동도 가능) */}
+      <Link
+        to="/"
+        className="logo"
+        onClick={e => {
+          if (onLogoClick) {
+            e.preventDefault();
+            onLogoClick();
+          }
+        }}
+        style={{ textDecoration: "none" }}
+      >
+        <Sparkles className="logo-icon" />
+        <span>KIRBY-SHOP</span>
+      </Link>
+
+      {/* 검색창 */}
+      <SearchBox onSearchSubmit={onSearchSubmit} />
+
+      {/* 네비게이션 버튼들 */}
+      <div className="nav-buttons">
+        {/* UserMenu가 더 복잡한 사용자/마이/드롭다운이면 여기서 불러쓰기 */}
+        {/* <UserMenu ... /> */}
+        {/* 로그인/마이페이지 구간 */}
+        {isLoggedIn ? (
+          // "000님" 클릭시 마이페이지 이동
+          <Link to="/mypage" className="nav-button">
+            {user?.name || "사용자"}님
+          </Link>
+        ) : (
+          <Link to="/login" className="nav-button">
+            로그인
+          </Link>
         )}
-        <a
-          className="logo"
-          style={{ display: "flex", alignItems: "center", fontWeight: 800, fontSize: "2rem", color: "#fff", textDecoration: "none", gap: 8, cursor: "pointer" }}
-          href="/"
-          onClick={e => { onLogoClick && (e.preventDefault(), onLogoClick()); }}
-        >
-          <Sparkles className="logo-icon" size={30} style={{ color: "#fff200", filter: "drop-shadow(0 0 8px #fff20088)" }} />
-          KIRBY-SHOP
-        </a>
+
+        {/* 찜목록 SPA 이동 */}
+        <Link to="/wishlist" className="nav-button">
+          <Heart size={20} />
+          <span>찜</span>
+          {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
+        </Link>
+
+        {/* 장바구니 SPA 이동 */}
+        <Link to="/cart" className="nav-button">
+          <ShoppingCart size={20} />
+          <span>장바구니</span>
+          {cartCount > 0 && <span className="badge">{cartCount}</span>}
+        </Link>
       </div>
-      <div className="nav-center" style={{ flex: 2, display: "flex", justifyContent: "center" }}>
-        <div className="search-box-container" style={{ width: "100%", maxWidth: 420 }}>
-          <SearchBox onSearchSubmit={onSearchSubmit} />
-        </div>
-      </div>
-      <div className="nav-right" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button
-          className="nav-button"
-          aria-label="찜목록"
-          onClick={onGoWishlist}
-          style={{
-            position: "relative", display: "flex", alignItems: "center", gap: 4,
-            background: "none", border: "none", color: "#fff", fontWeight: 600, fontSize: 15, cursor: "pointer",
-          }}
-        >
-          <Heart size={22} color="#ff69b4" />
-          찜
-          {wishlistCount > 0 && (
-            <span className="badge" style={{
-              background: "#ff1493", color: "#fff", borderRadius: "50%", fontSize: 12, fontWeight: "bold",
-              padding: "2px 7px", marginLeft: 4,
-              position: "absolute", top: "-8px", right: "-13px"
-            }}>
-              {wishlistCount}
-            </span>
-          )}
-        </button>
-        <button
-          className="nav-button"
-          aria-label="장바구니"
-          onClick={onGoCart}
-          style={{
-            position: "relative", display: "flex", alignItems: "center", gap: 4,
-            background: "none", border: "none", color: "#fff", fontWeight: 600, fontSize: 15, cursor: "pointer",
-          }}
-        >
-          <CartIcon count={cartCount} showBadge={true} size={23} color="#fff" />
-          장바구니
-        </button>
-        <UserMenu
-          isLoggedIn={isLoggedIn}
-          user={user}
-          onLogin={onLogin}
-          onLogout={onLogout}
-          onMyPage={onMyPage}
-          onOrderList={onOrderList}
-          onCoupon={onCoupon}
-          showGrade={true}
-        />
-      </div>
+
       {children && children}
     </nav>
   );

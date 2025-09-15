@@ -1,0 +1,644 @@
+/* src/styles/OrderPage.css */
+
+/* ======================
+   주문 페이지 기본 스타일
+   ====================== */
+.order-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ffeef8 0%, #f8f4ff 100%);
+    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+}
+
+.order-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ======================
+     헤더 섹션
+     ====================== */
+.order-header {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+    border: 3px solid #ffb6c1;
+    position: relative;
+    overflow: hidden;
+    animation: slideInUp 0.6s ease-out;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.order-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff69b4, #ff1493, #ff69b4);
+    animation: gradient 3s ease infinite;
+}
+
+.order-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff1493;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.order-title::before {
+    content: '📋';
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 8px rgba(255, 242, 0, 0.5));
+}
+
+.coupon-btn {
+    background: linear-gradient(135deg, #4c83ff, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(76, 131, 255, 0.3);
+}
+
+.coupon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 131, 255, 0.4);
+}
+
+/* ======================
+     섹션 공통 스타일
+     ====================== */
+.order-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+    border: 3px solid #ffb6c1;
+    animation: slideInUp 0.6s ease-out;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f8f9fa;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title::before {
+    content: '🛍️';
+    font-size: 1.3rem;
+}
+
+.section-title:nth-of-type(2)::before {
+    content: '💰';
+}
+
+.section-title:nth-of-type(3)::before {
+    content: '🚚';
+}
+
+/* ======================
+     주문 상품 리스트
+     ====================== */
+     .order-items .product-list-item img,
+     .order-items .product-image,
+     .order-item-image {
+       width: 120px;           /* 더 큰 너비 */
+       height: 120px;          /* 더 큰 높이 */
+       object-fit: cover;      /* 비율 유지하며 크롭 */
+       border-radius: 12px;
+       flex-shrink: 0;         /* 크기 축소 방지 */
+       margin-right: 1.5rem;   /* 여백도 조정 */
+     }
+
+/* ProductListItem에 추가 스타일링 */
+.order-items .product-list-item {
+    background: #fafafa;
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.order-items .product-list-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.order-items .product-list-item:hover::before {
+    left: 100%;
+}
+
+.order-items .product-list-item:hover {
+    border-color: #ffb6c1;
+    transform: translateX(5px);
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);
+}
+
+/* ======================
+     결제 요약 카드
+     ====================== */
+.summary-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 2px solid #e0e0e0;
+    margin-top: 1rem;
+}
+
+.summary-card .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 1.1rem;
+}
+
+.summary-card .row:last-child {
+    border-bottom: none;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #ff69b4;
+}
+
+.summary-card .row.discount {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.summary-card .row.total {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #ff1493;
+}
+
+/* ======================
+     배송지 정보 폼
+     ====================== */
+.copy-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0.8rem;
+    background: rgba(255, 105, 180, 0.1);
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.copy-check:hover {
+    background: rgba(255, 105, 180, 0.15);
+}
+
+.copy-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #ff69b4;
+    margin: 0;
+}
+
+.address-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: stretch;
+}
+
+.address-row input {
+    flex: 2;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    background: #f8f9fa;
+}
+
+.address-row input:focus {
+    outline: none;
+    border-color: #ff69b4;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+}
+
+.search-btn {
+    background: #3182f6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+}
+
+.full-input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.full-input:focus {
+    outline: none;
+    border-color: #ff69b4;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+}
+
+.full-input:read-only {
+    background: #f8f9fa;
+}
+
+.inline-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.inline-row input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.inline-row input:focus {
+    outline: none;
+    border-color: #ff69b4;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+}
+
+.memo {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.memo:focus {
+    outline: none;
+    border-color: #ff69b4;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+}
+
+/* ======================
+     우편번호 검색 모달
+     ====================== */
+.postcode-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.postcode-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+    border: 3px solid #ffb6c1;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.close-postcode {
+    width: 100%;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.close-postcode:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+}
+
+/* ======================
+     결제하기 버튼
+     ====================== */
+.pay-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 1.2rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.pay-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.pay-btn:hover::before {
+    left: 100%;
+}
+
+.pay-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(255, 105, 180, 0.4);
+}
+
+.pay-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ======================
+     빈 장바구니 상태
+     ====================== */
+.empty-cart-message {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+    border: 3px solid #ffb6c1;
+    margin: 2rem auto;
+    max-width: 600px;
+}
+
+.empty-cart-message h2 {
+    color: #ff1493;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.empty-cart-message p {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* ======================
+     반응형 디자인
+     ====================== */
+@media (max-width: 768px) {
+    .order-main {
+        padding: 1rem;
+    }
+
+    .order-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1.5rem;
+    }
+
+    .order-title {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .coupon-btn {
+        align-self: center;
+    }
+
+    .order-section {
+        padding: 1.5rem;
+        border-radius: 15px;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .address-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .address-row input {
+        margin-bottom: 0.5rem;
+    }
+
+    .inline-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .summary-card .row {
+        font-size: 1rem;
+    }
+
+    .summary-card .row.total {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-main {
+        padding: 0.5rem;
+    }
+
+    .order-header,
+    .order-section {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .order-title {
+        font-size: 1.3rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .coupon-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .pay-btn {
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+
+    .postcode-modal {
+        padding: 1rem;
+        border-radius: 15px;
+    }
+}
+
+/* ======================
+     다크모드 지원
+     ====================== */
+@media (prefers-color-scheme: dark) {
+    .order-page {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+
+    .order-header,
+    .order-section,
+    .postcode-modal,
+    .empty-cart-message {
+        background: #2d3748;
+        color: #e0e0e0;
+        border-color: #4a5568;
+    }
+
+    .summary-card {
+        background: linear-gradient(135deg, #3a4553 0%, #2d3748 100%);
+    }
+
+    .order-items .product-list-item {
+        background: #3a4553;
+    }
+
+    .full-input,
+    .inline-row input,
+    .address-row input,
+    .memo {
+        background: #4a5568;
+        color: #e0e0e0;
+        border-color: #6b7280;
+    }
+
+    .copy-check {
+        background: rgba(255, 105, 180, 0.2);
+    }
+}
+
+/* ======================
+     접근성 향상
+     ====================== */
+button:focus,
+input:focus,
+textarea:focus {
+    outline: 2px solid #ff69b4;
+    outline-offset: 2px;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+
+    .order-header,
+    .order-section {
+        border: 3px solid #000;
+    }
+
+    .order-items .product-list-item:hover {
+        border: 2px solid #ff69b4;
+    }
+}
+
+/* 애니메이션 감소 모드 지원 */
+@media (prefers-reduced-motion: reduce) {
+
+    .order-header,
+    .order-section {
+        animation: none;
+    }
+
+    .order-items .product-list-item,
+    .order-items .product-list-item::before,
+    .pay-btn,
+    .pay-btn::before,
+    .coupon-btn {
+        transition: none;
+    }
+}
+
+/* ======================
+     유틸리티 애니메이션
+     ====================== */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gradient {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}

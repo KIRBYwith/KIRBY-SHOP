@@ -1,0 +1,507 @@
+/* src/styles/MyPage.css */
+
+/* ======================
+   마이페이지 기본 컨테이너
+   ====================== */
+   .mypage-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ffeef8 0%, #f8f4ff 100%);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  }
+  
+  .mypage-box {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.2);
+    border: 3px solid #ffb6c1;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    animation: slideInUp 0.6s ease-out;
+  }
+  
+  .mypage-box p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  
+  .mypage-box .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+  
+  .mypage-box .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
+  }
+  
+  /* ======================
+     프로필 섹션
+     ====================== */
+  .mypage-profile {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+    border: 3px solid #ffb6c1;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    overflow: hidden;
+    animation: slideInUp 0.6s ease-out;
+  }
+  
+  .mypage-profile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff69b4, #ff1493, #ff69b4);
+    animation: gradient 3s ease infinite;
+  }
+  
+  .profile-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .profile-icon {
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    padding: 20px;
+    border-radius: 50%;
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+    filter: drop-shadow(0 0 15px rgba(255, 105, 180, 0.4));
+    animation: pulse 2s infinite;
+  }
+  
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .profile-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-grade {
+    padding: 6px 16px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  }
+  
+  /* 등급별 스타일 */
+  .profile-grade.bronze {
+    background: linear-gradient(135deg, #cd7f32, #8b4513);
+  }
+  
+  .profile-grade.silver {
+    background: linear-gradient(135deg, #c0c0c0, #808080);
+  }
+  
+  .profile-grade.gold {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+  }
+  
+  .profile-grade.platinum {
+    background: linear-gradient(135deg, #e5e4e2, #b8b8b8);
+  }
+  
+  .profile-grade.diamond {
+    background: linear-gradient(135deg, #b9f2ff, #00bcd4);
+  }
+  
+  .profile-grade.vip {
+    background: linear-gradient(135deg, #8b008b, #ff1493);
+  }
+  
+  /* ======================
+     메뉴 섹션
+     ====================== */
+  .mypage-menu {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+    border: 3px solid #ffb6c1;
+    width: 100%;
+    max-width: 500px;
+    animation: slideInUp 0.6s ease-out 0.2s both;
+  }
+  
+  .menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 1.2rem 1.5rem;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.1), transparent);
+    transition: left 0.6s ease;
+  }
+  
+  .menu-item:hover::before {
+    left: 100%;
+  }
+  
+  .menu-item:hover {
+    background: linear-gradient(135deg, rgba(255, 105, 180, 0.1), rgba(255, 182, 193, 0.1));
+    transform: translateX(8px);
+    box-shadow: 0 5px 15px rgba(255, 105, 180, 0.2);
+  }
+  
+  .menu-item:last-child {
+    margin-bottom: 0;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+  }
+  
+  .menu-item:last-child:hover {
+    background: linear-gradient(135deg, rgba(255, 86, 86, 0.1), rgba(255, 107, 107, 0.1));
+    color: #ff5656;
+  }
+  
+  .menu-item span {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+  
+  .menu-item svg {
+    transition: all 0.3s ease;
+  }
+  
+  .menu-item:hover svg {
+    transform: scale(1.1);
+  }
+  
+  .menu-item svg:last-child {
+    opacity: 0.6;
+    transition: all 0.3s ease;
+  }
+  
+  .menu-item:hover svg:last-child {
+    opacity: 1;
+    transform: translateX(5px);
+  }
+  
+  /* ======================
+     반응형 디자인
+     ====================== */
+  @media (max-width: 768px) {
+    .mypage-container {
+      padding: 1rem;
+    }
+    
+    .mypage-profile {
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .profile-main {
+      gap: 1rem;
+    }
+    
+    .profile-name {
+      font-size: 1.5rem;
+    }
+    
+    .profile-icon {
+      padding: 15px;
+    }
+    
+    .mypage-menu {
+      padding: 1rem;
+    }
+    
+    .menu-item {
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .mypage-container {
+      padding: 0.5rem;
+    }
+    
+    .mypage-profile {
+      padding: 1.5rem;
+      border-radius: 15px;
+    }
+    
+    .mypage-menu {
+      padding: 0.8rem;
+      border-radius: 15px;
+    }
+    
+    .menu-item {
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+    }
+    
+    .profile-name {
+      font-size: 1.3rem;
+    }
+    
+    .mypage-box {
+      padding: 2rem;
+      border-radius: 15px;
+    }
+  }
+  
+  /* ======================
+     다크모드 지원
+     ====================== */
+  @media (prefers-color-scheme: dark) {
+    .mypage-container {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    
+    .mypage-profile,
+    .mypage-menu,
+    .mypage-box {
+      background-color: #2d3748;
+      color: #e0e0e0;
+      border-color: #4a5568;
+    }
+    
+    .profile-name {
+      color: #e0e0e0;
+    }
+    
+    .menu-item {
+      color: #e0e0e0;
+    }
+    
+    .menu-item:hover {
+      background: linear-gradient(135deg, rgba(255, 105, 180, 0.2), rgba(255, 182, 193, 0.2));
+    }
+    
+    .menu-item:last-child {
+      border-top-color: #4a5568;
+    }
+  }
+  
+  /* ======================
+     접근성 향상
+     ====================== */
+  .menu-item:focus {
+    outline: 2px solid #ff69b4;
+    outline-offset: 2px;
+  }
+  
+  .profile-icon:focus {
+    outline: 2px solid #ff69b4;
+    outline-offset: 4px;
+  }
+  
+  /* 고대비 모드 지원 */
+  @media (prefers-contrast: high) {
+    .mypage-profile,
+    .mypage-menu,
+    .mypage-box {
+      border: 3px solid #000;
+    }
+    
+    .menu-item:hover {
+      border: 2px solid #ff69b4;
+    }
+  }
+  
+  /* 애니메이션 감소 모드 지원 */
+  @media (prefers-reduced-motion: reduce) {
+    .mypage-profile,
+    .mypage-menu,
+    .mypage-box {
+      animation: none;
+    }
+    
+    .profile-icon {
+      animation: none;
+    }
+    
+    .menu-item,
+    .menu-item::before,
+    .menu-item svg {
+      transition: none;
+    }
+  }
+  
+  /* ======================
+     유틸리티 클래스
+     ====================== */
+  .fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .slide-in-up {
+    animation: slideInUp 0.6s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+  
+  @keyframes gradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* ======================
+     추가 인터랙션 효과
+     ====================== */
+  .menu-item {
+    position: relative;
+  }
+  
+  .menu-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ff69b4, #ff1493);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+  
+  .menu-item:hover::after {
+    width: 80%;
+  }
+  
+  .menu-item:last-child::after {
+    background: linear-gradient(90deg, #ff5656, #ff3030);
+  }
+  
+  /* 프로필 이미지 플레이스홀더 (향후 확장용) */
+  .profile-image-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+  }
+  
+  /* 로딩 상태 */
+  .loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .loading .menu-item {
+    background: #f8f9fa;
+    animation: pulse 1.5s infinite;
+  }
+  
+  /* 성공/에러 메시지 */
+  .message {
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  
+  .message.success {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+  }
+  
+  .message.error {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+  }
+  
+  .message.info {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+  }

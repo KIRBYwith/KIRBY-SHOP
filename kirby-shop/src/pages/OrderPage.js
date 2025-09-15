@@ -1,138 +1,233 @@
+// src/pages/OrderPage.js
 import React, { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-
-// 주문 스텝, 장바구니, 인증정보
+import CouponModal from '../components/coupon/CouponModal';
+import DaumPostcode from 'react-daum-postcode';
 import { useCart } from '../hooks/useCart';
 import { useOrder } from '../hooks/useOrder';
-import { useAuth } from '../hooks/useAuth';
-
-// 장바구니 상품 단순 리스트 렌더 예시 컴포넌트
+import { useAuth } from '../contexts/AuthContext';
 import ProductListItem from '../components/product/ProductListItem';
+import '../styles/OrderPage.css';
 
 const OrderPage = () => {
-  const { cartItems, clearCart } = useCart();
-  const { order, setStep, updateItem, setAddress, setReceiver, setRequest, getSummary, submitOrder } = useOrder(cartItems);
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth();
+  const { cartItems } = useCart(user);
+  const { setOrder, getSummary, submitOrder } = useOrder(cartItems);
 
-  // 배송지, 받는사람 등 입력 상태 관리
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [showPostCode, setShowPostCode] = useState(false);
   const [receiver, _setReceiver] = useState({
-    name: '',
-    phone: '',
-    address: '',
-    zip: ''
-  });
-  const [address, _setAddress] = useState({
-    address: '',
-    zip: ''
+    name: '', phone: '', address: '', addressDetail: '', zip: '', _copyFromMember: false
   });
   const [requestMsg, setRequestMsg] = useState('');
-  const [submitStatus, setSubmitStatus] = useState(null);
+  const navigate = useNavigate();
 
-  if (cartItems.length === 0) {
-    return (
-      <>
-        <Header />
-        <div style={{ minHeight: 300, padding: 32, textAlign: 'center' }}>
-          <h2>장바구니가 비었습니다.</h2>
-        </div>
-        <Footer />
-      </>
-    );
-  }
-
-  // 총 결제 정보
-  const summary = getSummary();
-
-  // 주문 제출 핸들러
-  const handleOrderSubmit = async (e) => {
-    e.preventDefault();
-    setReceiver(receiver);
-    setAddress(address);
-    setRequest(requestMsg);
-    const result = await submitOrder();
-    setSubmitStatus(result.success ? 'success' : 'fail');
-    if (result.success) clearCart();
+  const handleCompletePostCode = (data) => {
+    _setReceiver(prev => ({
+      ...prev,
+      address: data.address,
+      zip: data.zonecode,
+    }));
+    setShowPostCode(false);
   };
 
-  if (order.status === 'done' || submitStatus === 'success') {
+  // ★ 중요: appliedCoupon이 null 또는 undefined일 경우를 대비해 optional chaining을 사용합니다.
+  const couponDiscount = appliedCoupon?.discountInfo?.discount || 0;
+
+  const handleOrderSubmit = () => {
+    const summary = getSummary ? getSummary() : { payable: 0 };
+    const baseAmount = summary.payable ?? 0;
+    const finalAmount = baseAmount - couponDiscount;
+
+    if (!receiver.name || !receiver.phone || !receiver.address || !receiver.zip) {
+      alert('수령인·연락처·주소·우편번호를 모두 입력하세요');
+      return;
+    }
+
+    const newOrder = {
+      orderId: `ORDER-${Date.now()}`,
+      items: cartItems,
+      summary: summary,
+      payable: finalAmount,
+      baseAmount: baseAmount,
+      receiver,
+      requestMsg,
+      couponId: appliedCoupon?.couponId ?? null,
+      discountAmount: couponDiscount, // 안전하게 계산된 값 사용
+      status: "REQUESTED"
+    };
+
+    setOrder(newOrder);
+    try {
+      localStorage.setItem('kirby-shop-current-order', JSON.stringify(newOrder));
+    } catch (_) { }
+    submitOrder(newOrder);
+    navigate('/payment');
+  };
+
+  const summary = getSummary ? getSummary() : { payable: 0 };
+  const baseAmount = summary.payable ?? 0;
+  const finalAmount = baseAmount - couponDiscount;
+
+  if (!cartItems || cartItems.length === 0) {
     return (
       <>
         <Header />
-        <div style={{ minHeight: 300, textAlign: 'center', padding: 80 }}>
-          <h2>주문이 완료되었습니다!</h2>
-          <p>주문번호: {order.orderId}</p>
-          <p>결제 페이지로 이동하여 결제를 마무리해주세요.</p>
-          {/* 실제 앱에서는 자동으로 PaymentPage로 이동 처리 */}
-        </div>
+        <main style={{ minHeight: '70vh', textAlign: 'center', padding: '60px 0' }}>
+          <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 18 }}>
+            장바구니가 비어 있습니다.
+          </div>
+        </main>
         <Footer />
       </>
     );
   }
 
   return (
-    <>
-      <Header />
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: 32 }}>
-        <h2 style={{ marginBottom: 24 }}>주문/배송지 입력</h2>
-        <form onSubmit={handleOrderSubmit}>
-          <div style={{ marginBottom: 32 }}>
-            <h3>주문상품</h3>
-            {cartItems.map(item => (
-              <ProductListItem
-                key={item.cartItemId || item.id}
-                product={item}
-                cartQuantity={item.quantity}
-                showRating={false}
-                showStock={true}
-                onWishlistToggle={null}
-                onCartAdd={null}
+    <div>
+      <div className="page-container order-page">
+        <div className="order-page">
+          <Header />
+          <main className="order-main">
+            <div className="order-header">
+              <h2 className="order-title">주문서 작성</h2>
+              <button type="button" className="coupon-btn" onClick={() => setShowCouponModal(true)}>쿠폰 적용하기</button>
+            </div>
+
+            <section className="order-section">
+              <h3 className="section-title">주문 상품</h3>
+              <div className="order-items">
+                {cartItems.map(item => (
+                  <ProductListItem key={item.id} product={item} />
+                ))}
+              </div>
+            </section>
+
+            {showCouponModal && (
+              <CouponModal
+                isOpen={showCouponModal}
+                onClose={() => setShowCouponModal(false)}
+                onApplyCoupon={(couponId, discountData) => {
+                  // discountData가 null/undefined이거나 discount 속성이 없는 경우를 방어
+                  if (couponId && discountData && typeof discountData.discount === 'number' && discountData.discount >= 0) {
+                    setAppliedCoupon({
+                      couponId,
+                      discountInfo: discountData
+                    });
+                  } else {
+                    setAppliedCoupon(null);
+                  }
+                }}
+                cartItems={cartItems}
+                orderAmount={baseAmount}
+                appliedCouponId={appliedCoupon?.couponId ?? null}
+                user={user}
               />
-            ))}
-          </div>
-          <div style={{ marginBottom: 28 }}>
-            <h3>받는 사람</h3>
-            <label>
-              이름 <input value={receiver.name} onChange={e => _setReceiver(r => ({...r, name: e.target.value}))} required />
-            </label>
-            <br/>
-            <label>
-              연락처 <input value={receiver.phone} onChange={e => _setReceiver(r => ({...r, phone: e.target.value}))} required />
-            </label>
-          </div>
-          <div style={{ marginBottom: 28 }}>
-            <h3>배송지 정보</h3>
-            <label>
-              주소 <input value={address.address} onChange={e => _setAddress(r => ({...r, address: e.target.value}))} required style={{ width:300 }}/>
-            </label>
-            <br/>
-            <label>
-              우편번호 <input value={address.zip} onChange={e => _setAddress(r => ({...r, zip: e.target.value}))} style={{ width:140 }}/>
-            </label>
-          </div>
-          <div style={{ marginBottom: 28 }}>
-            <h3>배송요청사항</h3>
-            <textarea
-              placeholder="문 앞에 놓아주세요 등"
-              value={requestMsg}
-              onChange={e => setRequestMsg(e.target.value)}
-              style={{ width:320, height: 40}}
-            />
-          </div>
-          <div style={{ border: '1px solid #eee', margin: '32px 0 18px', padding: 18, fontWeight: 600 }}>
-            총 결제금액: {summary.payable.toLocaleString()}원
-          </div>
-          <button type="submit" style={{
-            background: "#FF69B4", color: "#fff", fontWeight: 600, fontSize: 18,
-            padding: "14px 40px", border: "none", borderRadius: 8, marginTop: 16
-          }}>
-            결제하기
-          </button>
-        </form>
+            )}
+
+            <section className="order-section">
+              <h3 className="section-title">결제 요약</h3>
+              <div className="summary-card">
+                <div className="row"><span>상품 금액</span><span>{baseAmount.toLocaleString()}원</span></div>
+                {couponDiscount > 0 && (
+                  <div className="row discount"><span>쿠폰 할인</span><span>-{couponDiscount.toLocaleString()}원</span></div>
+                )}
+                <div className="row total"><span>총 결제금액</span><span>{finalAmount.toLocaleString()}원</span></div>
+              </div>
+            </section>
+
+            <section className="order-section">
+              <h3 className="section-title">배송지 정보</h3>
+              <label className="copy-check">
+                <input
+                  type="checkbox"
+                  checked={receiver._copyFromMember}
+                  onChange={e => {
+                    if (e.target.checked) {
+                      _setReceiver({
+                        name: user?.name ?? "",
+                        phone: user?.phone ?? "",
+                        address: user?.address ?? "",
+                        addressDetail: user?.addressDetail ?? "",
+                        zip: user?.postcode ?? "",
+                        _copyFromMember: true
+                      });
+                    } else {
+                      _setReceiver({ name: '', phone: '', address: '', addressDetail: '', zip: '', _copyFromMember: false });
+                    }
+                  }}
+                />
+                회원정보와 동일하게 입력
+              </label>
+
+              <div className="address-row">
+                <input
+                  value={receiver.address}
+                  onChange={e => _setReceiver(prev => ({ ...prev, address: e.target.value }))}
+                  placeholder="주소"
+                  readOnly
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPostCode(true)}
+                  className="search-btn"
+                >주소 검색</button>
+              </div>
+
+              {showPostCode && (
+                <div className="postcode-overlay">
+                  <div className="postcode-modal">
+                    <DaumPostcode
+                      onComplete={handleCompletePostCode}
+                      style={{ width: 360, height: 400 }}
+                    />
+                    <button onClick={() => setShowPostCode(false)} className="close-postcode">닫기</button>
+                  </div>
+                </div>
+              )}
+
+              <input
+                value={receiver.addressDetail}
+                onChange={e => _setReceiver(prev => ({ ...prev, addressDetail: e.target.value }))}
+                placeholder="상세주소"
+                className="full-input"
+              />
+              <input
+                value={receiver.zip}
+                onChange={e => _setReceiver(prev => ({ ...prev, zip: e.target.value }))}
+                placeholder="우편번호"
+                className="full-input"
+                readOnly
+              />
+              <div className="inline-row">
+                <input
+                  value={receiver.name}
+                  onChange={e => _setReceiver(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="받는 분 이름"
+                />
+                <input
+                  value={receiver.phone}
+                  onChange={e => _setReceiver(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="연락처"
+                />
+              </div>
+              <textarea
+                value={requestMsg}
+                onChange={e => setRequestMsg(e.target.value)}
+                placeholder="배송 요청사항을 입력하세요"
+                className="memo"
+              />
+            </section>
+
+            <button type="button" className="pay-btn" onClick={handleOrderSubmit}>결제하기</button>
+          </main>
+        </div>
       </div>
       <Footer />
-    </>
+    </div>
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import '../../styles/CategoryMenu.css';
 
 const CategoryMenu = ({ 
   categories = [], 
@@ -69,13 +68,16 @@ const CategoryMenu = ({
             <button 
               className="special-button best-items"
               onClick={() => handleCategorySelect('베스트')}
-            >
+              >
               🏆 베스트
             </button>
             <button 
               className="special-button sale-items"
               onClick={() => handleCategorySelect('할인상품')}
-            >
+              style={{
+                background: 'linear-gradient(90deg, #00c97b 0%,rgb(118, 127, 255) 100%)',
+                color: '#fff',
+              }}>
               🎯 할인상품
             </button>
           </div>
