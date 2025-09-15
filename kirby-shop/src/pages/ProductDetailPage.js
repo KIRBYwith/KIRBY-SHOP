@@ -1,76 +1,144 @@
-import React, { useState, useMemo } from 'react';
+// src/pages/ProductDetailPage.js
+
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { productsData } from '../data/products';
+import { Share2, Heart, ShoppingCart } from 'lucide-react';
 
-import Header from '../components/common/Header';
-import Footer from '../components/common/Footer';
-import ProductModal from '../components/product/ProductModal';
-
-// 상품 및 카테고리 데이터
-import { productsData, getProductById } from '../data/products';
-
-// 커스텀 훅
-import { useCart } from '../hooks/useCart';
-import { useWishlist } from '../hooks/useWishlist';
-import { useAuth } from '../contexts/AuthContext';
-
-// 경로: React Router(예시용) → 실제 app에선 useParams 등 조정
-// import { useParams } from 'react-router-dom';
+import Header from '../components/common/Header'; // Header 추가
+import ProductImages from '../components/detail/ProductImages';
+import ProductInfo from '../components/detail/ProductInfo';
+import ProductTabs from '../components/detail/ProductTabs';
+import RelatedProducts from '../components/detail/RelatedProducts.js';
+import ProductModal from '../components/product/ProductModal'; // ProductModal 추가
 
 const ProductDetailPage = () => {
-  const { productId } = useParams();
-  const { user } = useAuth();  // 실제 라우팅 환경에서는 productId를 useParams()로 받는다.
-  // 예시: const { productId } = useParams();
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedOption, setSelectedOption] = useState('');
   
-  // product 조회
-  const product = useMemo(() => getProductById(productId), [productId]);
+  // 모달 관련 state 추가
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Hooks에 user 전달
-  const { addToCart, isInCart, getCartQuantity } = useCart(user);
-  const { isInWishlist, toggleWishlist } = useWishlist(user);
+  useEffect(() => {
+    const foundProduct = productsData.find(p => p.id === parseInt(id));
 
-  // 모달 띄우기용 상태, 모바일 지원 등 커스텀 가능
-  const [showModal, setShowModal] = useState(true);
+    if (foundProduct) {
+      setProduct(foundProduct);
+      const related = productsData.filter(
+        (p) => p.category === foundProduct.category && p.id !== foundProduct.id
+      ).slice(0, 4);
+      setRelatedProducts(related);
+    } else {
+      setProduct(null);
+    }
+  }, [id]);
 
   if (!product) {
-    return (
-      <>
-        <Header />
-        <div style={{ minHeight: 300, padding: 32, textAlign: 'center' }}>
-          <h2>상품이 존재하지 않습니다.</h2>
-          <p>요청하신 상품을 찾을 수 없습니다.</p>
-        </div>
-        <Footer />
-      </>
-    );
+    return <div>상품 정보를 불러오는 중입니다...</div>;
   }
+  
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product?.title,
+          text: product?.description,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('공유 취소됨');
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('링크가 복사되었습니다!');
+    }
+  };
 
-  // 관련 상품 예시: 동일 카테고리 상품 중 일부
-  const relatedProducts = productsData.filter(
-    p => p.category === product.category && p.id !== product.id
-  ).slice(0, 4);
+  const handleAddToCart = () => {
+    console.log(`장바구니에 ${product.title} ${quantity}개, 옵션: ${selectedOption} 추가`);
+  };
 
-  const handleCartAdd = (prod, qty, option) => addToCart(prod, qty, option);
-  const handleWishlist = (id) => toggleWishlist(product);
+  const handleBuyNow = () => {
+    console.log(`바로구매: ${product.title}, 수량: ${quantity}, 옵션: ${selectedOption}`);
+  };
+
+  const handleWishlist = () => {
+    console.log(`찜하기 토글: ${product.id}`);
+  };
+
+  // 모달 열기 함수 추가
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // 모달 닫기 함수 추가
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <>
-      <Header />
-      <div style={{ maxWidth: 1300, margin: '0 auto', padding: 24 }}>
-        {/* ProductModal은 상세설명/구매/찜/장바구니 모두 포함 */}
-        <ProductModal
-          product={product}
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          isWishlisted={isInWishlist(product.id)}
-          cartQuantity={getCartQuantity(product.id)}
-          onWishlistToggle={handleWishlist}
-          onCartAdd={handleCartAdd}
-          onBuyNow={handleCartAdd}
-          relatedProducts={relatedProducts}
-        />
-        {/* 모달 외 상세뷰라면, 원하는 스타일로 컴포넌트 추가 가능 */}
+      {/* 모달이 열려있지 않을 때만 Header 표시 */}
+      {!isModalOpen && <Header />}
+      
+      <div className="product-detail-page">
+        <div className="product-top">
+          <ProductImages images={product?.images || [product?.image]} />
+
+          <div className="product-top-info">
+            <h1>{product.title}</h1>
+            <p className="product-price">
+              {product.discount > 0 ? (
+                <>
+                  <span className="discounted">
+                    {(product.price * (1 - product.discount / 100)).toLocaleString()}원
+                  </span>
+                  <span className="original">{product.price.toLocaleString()}원</span>
+                </>
+              ) : (
+                <span>{product.price?.toLocaleString()}원</span>
+              )}
+            </p>
+
+            <ProductInfo
+              product={product}
+              quantity={quantity}
+              setQuantity={setQuantity}
+              selectedOption={selectedOption}
+              setSelectedOption={setSelectedOption}
+            />
+
+            <div className="product-actions">
+              <button onClick={handleShare} className="share-btn"><Share2 size={18}/></button>
+              <button onClick={handleWishlist} className="wishlist-btn"><Heart size={18}/></button>
+              <button onClick={handleAddToCart} className="cart-btn"><ShoppingCart size={18}/> 장바구니</button>
+              <button onClick={handleBuyNow} className="buy-btn">바로구매</button>
+            </div>
+          </div>
+        </div>
+
+        <ProductTabs product={product} />
+
+        {relatedProducts?.length > 0 && (
+          <RelatedProducts products={relatedProducts} />
+        )}
       </div>
-      <Footer />
+
+      {/* ProductModal 추가 */}
+      <ProductModal
+        product={product}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        isWishlisted={false} // 찜 상태에 따라 조정
+        cartQuantity={0} // 장바구니 수량에 따라 조정
+        onWishlistToggle={handleWishlist}
+        onCartAdd={handleAddToCart}
+        onBuyNow={handleBuyNow}
+        relatedProducts={relatedProducts}
+      />
     </>
   );
 };

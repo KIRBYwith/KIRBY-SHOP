@@ -1,11 +1,13 @@
-// src/components/product/ProductModal.js
-
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  X, Star, Heart, ShoppingCart, Plus, Minus, Share2, 
+
+import {
+  X, Star, Heart, ShoppingCart, Plus, Minus, Share2,
   Truck, Shield, RotateCcw, ChevronLeft, ChevronRight,
   Zap, Crown, Sparkles, MessageCircle, ThumbsUp, Award, Info
 } from 'lucide-react';
+
+import Header from '../common/Header';
+import '../../styles/ProductModal.css';
 
 const ProductModal = ({
   product,
@@ -21,81 +23,65 @@ const ProductModal = ({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedOption, setSelectedOption] = useState('');
-  const [activeTab, setActiveTab] = useState('description'); // 'description', 'specs', 'reviews'
-  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [activeTab, setActiveTab] = useState('description');
   const [isImageZoomed, setIsImageZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
   const modalRef = useRef(null);
   const imageRef = useRef(null);
 
-  // 이미지 배열 (메인 이미지 + 추가 이미지들)
   const images = product?.images || [product?.image].filter(Boolean);
-
-  // 할인된 가격 계산
-  const discountedPrice = product?.discount > 0 
+  const discountedPrice = product?.discount > 0
     ? product.price * (1 - product.discount / 100)
     : product?.price || 0;
-
-  // 총 가격 계산
   const totalPrice = discountedPrice * quantity;
 
-  // 모달 열림/닫힘 처리
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      // 포커스 트랩
       modalRef.current?.focus();
     } else {
       document.body.style.overflow = 'unset';
     }
-
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
 
-  // ESC 키로 모달 닫기
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
-
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  // 수량 변경
   const handleQuantityChange = (newQuantity) => {
     if (newQuantity >= 1 && newQuantity <= (product?.stock || 999)) {
       setQuantity(newQuantity);
     }
   };
 
-  // 장바구니 추가
   const handleAddToCart = () => {
     if (onCartAdd && product) {
       onCartAdd(product, quantity, selectedOption);
     }
   };
 
-  // 바로 구매
   const handleBuyNow = () => {
     if (onBuyNow && product) {
       onBuyNow(product, quantity, selectedOption);
     }
   };
 
-  // 찜하기 토글
   const handleWishlistToggle = () => {
     if (onWishlistToggle && product) {
       onWishlistToggle(product.id);
     }
   };
 
-  // 공유하기
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -108,24 +94,19 @@ const ProductModal = ({
         console.log('공유 취소됨');
       }
     } else {
-      // 폴백: 클립보드에 복사
       navigator.clipboard.writeText(window.location.href);
       alert('링크가 클립보드에 복사되었습니다!');
     }
   };
 
-  // 이미지 확대/축소
   const handleImageMouseMove = (e) => {
     if (!isImageZoomed || !imageRef.current) return;
-
     const rect = imageRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
     setZoomPosition({ x: Math.min(Math.max(x, 0), 100), y: Math.min(Math.max(y, 0), 100) });
   };
 
-  // 이미지 네비게이션
   const goToPrevImage = () => {
     setSelectedImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
   };
@@ -134,7 +115,6 @@ const ProductModal = ({
     setSelectedImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
   };
 
-  // 평점 별 렌더링
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
       <Star
@@ -146,17 +126,17 @@ const ProductModal = ({
     ));
   };
 
-  // 배지 정보
   const badges = [];
   if (product?.isNew) badges.push({ text: 'NEW', type: 'new', icon: Sparkles });
-  if (product?.isBest) badges.push({ text: 'BEST', type: 'best', icon: Crown });
-  if (product?.isHot) badges.push({ text: 'HOT', type: 'hot', icon: Zap });
+  if (product?.isBestSeller) badges.push({ text: 'BEST', type: 'best', icon: Crown });
+  if (product?.isLimited) badges.push({ text: 'LIMITED', type: 'limited', icon: Zap });
 
   if (!isOpen || !product) return null;
 
   return (
     <div className="product-modal-overlay" onClick={onClose}>
-      <div 
+      <Header />
+      <div
         className="product-modal"
         onClick={e => e.stopPropagation()}
         ref={modalRef}
@@ -180,7 +160,6 @@ const ProductModal = ({
               </div>
             )}
           </div>
-          
           <div className="modal-actions">
             <button className="share-btn" onClick={handleShare} aria-label="공유하기">
               <Share2 size={20} />
@@ -190,7 +169,6 @@ const ProductModal = ({
             </button>
           </div>
         </div>
-
         {/* 모달 콘텐츠 */}
         <div className="modal-content">
           {/* 이미지 영역 */}
@@ -201,8 +179,7 @@ const ProductModal = ({
                   <ChevronLeft size={24} />
                 </button>
               )}
-              
-              <div 
+              <div
                 className={`main-image-wrapper ${isImageZoomed ? 'zoomed' : ''}`}
                 onClick={() => setIsImageZoomed(!isImageZoomed)}
               >
@@ -218,20 +195,15 @@ const ProductModal = ({
                   } : {}}
                 />
               </div>
-
               {images.length > 1 && (
                 <button className="image-nav-btn next" onClick={goToNextImage}>
                   <ChevronRight size={24} />
                 </button>
               )}
-
-              {/* 이미지 확대 안내 */}
               <div className="zoom-hint">
                 클릭하여 {isImageZoomed ? '축소' : '확대'}
               </div>
             </div>
-
-            {/* 썸네일 이미지들 */}
             {images.length > 1 && (
               <div className="thumbnail-images">
                 {images.map((image, index) => (
@@ -246,21 +218,14 @@ const ProductModal = ({
               </div>
             )}
           </div>
-
           {/* 상품 정보 영역 */}
           <div className="modal-info-section">
-            {/* 기본 정보 */}
             <div className="product-basic-info">
-              {/* 평점 및 리뷰 */}
               <div className="product-rating">
-                <div className="stars">
-                  {renderStars(product.rating)}
-                </div>
+                <div className="stars">{renderStars(product.rating)}</div>
                 <span className="rating-score">{product.rating}</span>
-                <span className="review-count">({product.reviews}개 리뷰)</span>
+                <span className="review-count">({product.reviewCount}개 리뷰)</span>
               </div>
-
-              {/* 가격 */}
               <div className="price-section">
                 {product.discount > 0 && (
                   <div className="original-price-section">
@@ -274,8 +239,6 @@ const ProductModal = ({
                   {Math.floor(discountedPrice).toLocaleString()}원
                 </div>
               </div>
-
-              {/* 배송 정보 */}
               <div className="shipping-info">
                 <div className="shipping-item">
                   <Truck size={16} />
@@ -292,31 +255,10 @@ const ProductModal = ({
                   <span>7일 무료 교환/반품</span>
                 </div>
               </div>
-
-              {/* 옵션 선택 (있는 경우) */}
-              {product.options && product.options.length > 0 && (
-                <div className="product-options">
-                  <h4>옵션 선택</h4>
-                  <select 
-                    value={selectedOption} 
-                    onChange={(e) => setSelectedOption(e.target.value)}
-                    required
-                  >
-                    <option value="">옵션을 선택해주세요</option>
-                    {product.options.map((option, index) => (
-                      <option key={index} value={option.value}>
-                        {option.name} {option.price && `(+${option.price.toLocaleString()}원)`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* 수량 선택 */}
               <div className="quantity-section">
                 <h4>수량</h4>
                 <div className="quantity-controls">
-                  <button 
+                  <button
                     className="quantity-btn"
                     onClick={() => handleQuantityChange(quantity - 1)}
                     disabled={quantity <= 1}
@@ -331,7 +273,7 @@ const ProductModal = ({
                     min="1"
                     max={product.stock}
                   />
-                  <button 
+                  <button
                     className="quantity-btn"
                     onClick={() => handleQuantityChange(quantity + 1)}
                     disabled={quantity >= (product.stock || 999)}
@@ -349,8 +291,6 @@ const ProductModal = ({
                   )}
                 </div>
               </div>
-
-              {/* 총 가격 */}
               <div className="total-price-section">
                 <div className="total-price">
                   <span>총 금액</span>
@@ -359,17 +299,14 @@ const ProductModal = ({
                   </span>
                 </div>
               </div>
-
-              {/* 액션 버튼들 */}
               <div className="modal-actions-section">
                 <button
                   className={`wishlist-btn ${isWishlisted ? 'active' : ''}`}
                   onClick={handleWishlistToggle}
+                  aria-label={isWishlisted ? "찜 해제" : "찜하기"}
                 >
                   <Heart size={20} fill={isWishlisted ? '#ff69b4' : 'none'} />
-                  {isWishlisted ? '찜 해제' : '찜하기'}
                 </button>
-
                 <button
                   className="cart-btn"
                   onClick={handleAddToCart}
@@ -381,7 +318,6 @@ const ProductModal = ({
                     <span className="cart-count">({cartQuantity})</span>
                   )}
                 </button>
-
                 <button
                   className="buy-btn"
                   onClick={handleBuyNow}
@@ -391,8 +327,6 @@ const ProductModal = ({
                 </button>
               </div>
             </div>
-
-            {/* 상세 정보 탭 */}
             <div className="product-details">
               <div className="tab-headers">
                 <button
@@ -414,32 +348,13 @@ const ProductModal = ({
                   onClick={() => setActiveTab('reviews')}
                 >
                   <MessageCircle size={16} />
-                  리뷰 ({product.reviews})
+                  리뷰 ({product.reviewCount})
                 </button>
               </div>
-
               <div className="tab-content">
-                {/* 상품 설명 */}
                 {activeTab === 'description' && (
                   <div className="description-content">
                     <p className="product-description">{product.description}</p>
-                    {product.detailDescription && (
-                      <div className={`detail-description ${showFullDescription ? 'expanded' : ''}`}>
-                        <div dangerouslySetInnerHTML={{ 
-                          __html: product.detailDescription.replace(/\n/g, '<br>') 
-                        }} />
-                        {!showFullDescription && (
-                          <button 
-                            className="show-more-btn"
-                            onClick={() => setShowFullDescription(true)}
-                          >
-                            더보기
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* 태그들 */}
                     {product.tags && product.tags.length > 0 && (
                       <div className="product-tags">
                         <h5>관련 태그</h5>
@@ -454,14 +369,12 @@ const ProductModal = ({
                     )}
                   </div>
                 )}
-
-                {/* 상품 정보 */}
                 {activeTab === 'specs' && (
                   <div className="specs-content">
-                    {product.specifications ? (
+                    {product.specs ? (
                       <table className="specs-table">
                         <tbody>
-                          {Object.entries(product.specifications).map(([key, value]) => (
+                          {Object.entries(product.specs).map(([key, value]) => (
                             <tr key={key}>
                               <td className="spec-label">{key}</td>
                               <td className="spec-value">{value}</td>
@@ -474,32 +387,24 @@ const ProductModal = ({
                     )}
                   </div>
                 )}
-
-                {/* 리뷰 */}
                 {activeTab === 'reviews' && (
                   <div className="reviews-content">
                     <div className="reviews-summary">
                       <div className="rating-summary">
                         <div className="rating-score-large">{product.rating}</div>
                         <div className="rating-details">
-                          <div className="stars-large">
-                            {renderStars(product.rating)}
-                          </div>
-                          <div className="review-count">{product.reviews}개의 리뷰</div>
+                          <div className="stars-large">{renderStars(product.rating)}</div>
+                          <div className="review-count">{product.reviewCount}개의 리뷰</div>
                         </div>
                       </div>
                     </div>
-                    
-                    {/* 리뷰 목록 (샘플) */}
                     <div className="reviews-list">
                       {[...Array(3)].map((_, index) => (
                         <div key={index} className="review-item">
                           <div className="review-header">
                             <div className="reviewer-info">
                               <span className="reviewer-name">구매자 {index + 1}</span>
-                              <div className="review-rating">
-                                {renderStars(4.5)}
-                              </div>
+                              <div className="review-rating">{renderStars(4.5)}</div>
                             </div>
                             <span className="review-date">2024.03.{15 + index}</span>
                           </div>
@@ -514,17 +419,14 @@ const ProductModal = ({
                           </div>
                         </div>
                       ))}
-                      
                       <button className="view-all-reviews">
-                        모든 리뷰 보기 ({product.reviews}개)
+                        모든 리뷰 보기 ({product.reviewCount}개)
                       </button>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* 관련 상품 (있는 경우) */}
             {relatedProducts.length > 0 && (
               <div className="related-products">
                 <h4>함께 보면 좋은 상품</h4>
