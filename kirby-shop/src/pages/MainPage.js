@@ -79,9 +79,9 @@ const promoBanners = [
 
 const MainPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
-  const { cartItems, addToCart, totalQuantity } = useCart();
-  const { wishlistIds, toggleWishlist } = useWishlist();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { cartItems, addToCart, totalQuantity } = useCart(user);
+  const { wishlistIds, toggleWishlist } = useWishlist(user);
 
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchQuery, setSearchQuery] = useState('');
@@ -149,10 +149,34 @@ const MainPage = () => {
 
   // 바로구매 함수 추가
   const handleBuyNow = (product, quantity, option) => {
-    showNotification(`${product.title} ${quantity}개를 구매 페이지로 이동합니다.`);
+    if (!product) return;
+    
+    // 안전한 상품 데이터만 추출
+    const safeProductData = {
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      discount: product.discount || 0,
+      image: product.image,
+      category: product.category,
+      stock: product.stock,
+      rating: product.rating,
+      reviewCount: product.reviewCount,
+      description: product.description,
+      quantity: quantity || 1,
+      selectedOption: option || ''
+    };
+    
+    showNotification(`${product.title} ${quantity || 1}개를 구매 페이지로 이동합니다.`);
     setIsModalOpen(false);
-    // 실제로는 구매 페이지로 이동
-    // navigate('/checkout', { state: { product, quantity, option } });
+    
+    // 바로구매 페이지로 이동
+    navigate('/order', { 
+      state: { 
+        items: [safeProductData],
+        isDirectBuy: true 
+      } 
+    });
   };
 
   // 관련 상품 가져오기 함수 추가
@@ -244,7 +268,7 @@ const MainPage = () => {
       {!isModalOpen && (
         <Header
           isLoggedIn={isAuthenticated}
-          wishlistCount={wishlistIds.length}
+          wishlistCount={wishlistIds ? wishlistIds.length : 0}
           cartCount={totalQuantity}
           onSearchSubmit={handleSearchSubmit}
           onCartClick={() => setShowFloatingCart(true)}
@@ -283,7 +307,7 @@ const MainPage = () => {
             onProductClick={handleProductClick}
             onWishlistToggle={handleWishlistToggle}
             onCartAdd={handleCartAdd}
-            wishlist={wishlistIds}
+            wishlist={wishlistIds || []}
             cart={cartItems}
           />
         </section>
@@ -295,7 +319,7 @@ const MainPage = () => {
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        isWishlisted={selectedProduct ? wishlistIds.includes(selectedProduct.id) : false}
+        isWishlisted={selectedProduct && wishlistIds ? wishlistIds.includes(selectedProduct.id) : false}
         cartQuantity={selectedProduct ?
           cartItems.find(item => item.id === selectedProduct.id)?.quantity || 0 : 0}
         onWishlistToggle={handleWishlistToggle}

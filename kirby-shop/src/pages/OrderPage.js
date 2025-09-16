@@ -1,5 +1,5 @@
 // src/pages/OrderPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
@@ -8,13 +8,23 @@ import DaumPostcode from 'react-daum-postcode';
 import { useCart } from '../hooks/useCart';
 import { useOrder } from '../hooks/useOrder';
 import { useAuth } from '../contexts/AuthContext';
-import ProductListItem from '../components/product/ProductListItem';
+// import ProductListItem from '../components/product/ProductListItemOrder';
+import ProductInfoAnother from '../components/detail/ProductInfoAnother';
+import ProductImages from '../components/detail/ProductImages';
 import '../styles/OrderPage.css';
 
 const OrderPage = () => {
   const { user } = useAuth();
-  const { cartItems } = useCart(user);
+  const { cartItems, removeFromCart, updateQuantity } = useCart(user);
   const { setOrder, getSummary, submitOrder } = useOrder(cartItems);
+
+  // --- 추가: selectedOption 상태 선언 ---
+  const [selectedOption, setSelectedOption] = useState('');
+
+  // --- 추가: handleShare 함수 정의 ---
+  const handleShare = () => {
+    alert('공유 버튼 클릭됨');
+  };
 
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -25,6 +35,17 @@ const OrderPage = () => {
   const [requestMsg, setRequestMsg] = useState('');
   const navigate = useNavigate();
 
+  // 수량 변경이나 상품 삭제 시 쿠폰 할인 재계산을 위한 상태
+  const [orderSummary, setOrderSummary] = useState(null);
+
+  // cartItems나 appliedCoupon이 변경될 때마다 주문 요약 업데이트
+  useEffect(() => {
+    if (getSummary) {
+      const summary = getSummary();
+      setOrderSummary(summary);
+    }
+  }, [cartItems, getSummary]);
+
   const handleCompletePostCode = (data) => {
     _setReceiver(prev => ({
       ...prev,
@@ -34,11 +55,27 @@ const OrderPage = () => {
     setShowPostCode(false);
   };
 
+  // 개별 아이템 삭제 함수
+  const handleRemoveItem = (cartItemId) => {
+    if (window.confirm('이 상품을 주문에서 제외하시겠습니까?')) {
+      removeFromCart(cartItemId);
+    }
+  };
+
+  // 수량 변경 핸들러
+  const handleQuantityChange = (cartItemId, newQuantity) => {
+    if (newQuantity <= 0) {
+      handleRemoveItem(cartItemId);
+    } else {
+      updateQuantity(cartItemId, newQuantity);
+    }
+  };
+
   // ★ 중요: appliedCoupon이 null 또는 undefined일 경우를 대비해 optional chaining을 사용합니다.
   const couponDiscount = appliedCoupon?.discountInfo?.discount || 0;
 
   const handleOrderSubmit = () => {
-    const summary = getSummary ? getSummary() : { payable: 0 };
+    const summary = orderSummary || (getSummary ? getSummary() : { payable: 0 });
     const baseAmount = summary.payable ?? 0;
     const finalAmount = baseAmount - couponDiscount;
 
@@ -56,7 +93,7 @@ const OrderPage = () => {
       receiver,
       requestMsg,
       couponId: appliedCoupon?.couponId ?? null,
-      discountAmount: couponDiscount, // 안전하게 계산된 값 사용
+      discountAmount: couponDiscount,
       status: "REQUESTED"
     };
 
@@ -68,7 +105,7 @@ const OrderPage = () => {
     navigate('/payment');
   };
 
-  const summary = getSummary ? getSummary() : { payable: 0 };
+  const summary = orderSummary || (getSummary ? getSummary() : { payable: 0 });
   const baseAmount = summary.payable ?? 0;
   const finalAmount = baseAmount - couponDiscount;
 
@@ -101,7 +138,31 @@ const OrderPage = () => {
               <h3 className="section-title">주문 상품</h3>
               <div className="order-items">
                 {cartItems.map(item => (
-                  <ProductListItem key={item.id} product={item} />
+                  <div key={item.cartItemId || item.id} className="order-item-wrapper">
+                    {/* Add ProductImages here */}
+                    <ProductImages images={item.images || [item.image]} />
+
+                    <ProductInfoAnother
+                      product={item}
+                      quantity={item.quantity}
+                      setQuantity={(newQty) => handleQuantityChange(item.cartItemId, newQty)}
+                      selectedOption={selectedOption}
+                      setSelectedOption={setSelectedOption}
+                      handleShare={handleShare}
+                      showRating={true}
+                      showStock={true}
+                      showDescription={true}
+                      showShippingInfo={true}
+                      layout="detail"
+                    />
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleRemoveItem(item.cartItemId)}
+                      title="상품 제외"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 ))}
               </div>
             </section>

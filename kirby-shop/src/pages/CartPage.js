@@ -4,10 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 // 장바구니 목록: ProductListItem, ProductCard 등 원하는 컴포넌트 사용
-import ProductListItem from '../components/product/ProductListItem'; // 리스트형
-import ProductCard from '../components/product/ProductCard'; // 카드형
+import ProductListItem from '../components/product/ProductListItemOrder'; // 리스트형
 import '../styles/CartPage.css';
-
 
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
@@ -24,6 +22,13 @@ const CartPage = () => {
       return;
     }
     navigate('/order');
+  };
+
+  // 개별 아이템 삭제 함수
+  const handleRemoveItem = (cartItemId) => {
+    if (window.confirm('이 상품을 장바구니에서 삭제하시겠습니까?')) {
+      removeFromCart(cartItemId);
+    }
   };
 
   if (cartSummary.isEmpty) {
@@ -56,16 +61,38 @@ const CartPage = () => {
           <div className="cart-items-container">
             <div className="cart-items-list">
               {cartItems.map(item => (
-                <ProductListItem
-                  key={item.cartItemId || item.id}
-                  product={item}
-                  cartQuantity={item.quantity}
-                  onCartAdd={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                  onWishlistToggle={null}
-                  showRating={false}
-                  showStock={true}
-                  onProductClick={null}
-                />
+                <div key={item.cartItemId || item.id} className="cart-item-wrapper">
+                  <ProductListItem
+                    product={item}
+                    cartQuantity={item.quantity}
+                    onCartAdd={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                    onQuantityChange={(productId, newQuantity) => {
+                      // 수량이 0 이하가 되면 삭제 확인
+                      if (newQuantity <= 0) {
+                        handleRemoveItem(item.cartItemId);
+                      } else {
+                        updateQuantity(item.cartItemId, newQuantity);
+                      }
+                    }}
+                    onWishlistToggle={null}
+                    showRating={true}
+                    showStock={true}
+                    showDescription={true}
+                    showShippingInfo={true}
+                    layout="detail"
+                    onProductClick={null}
+                    wishlistIds={[]}
+                    cartItems={cartItems}
+                  />
+                  {/* 개별 삭제 버튼 */}
+                  <button 
+                    className="remove-item-btn" 
+                    onClick={() => handleRemoveItem(item.cartItemId)}
+                    title="상품 삭제"
+                  >
+                    ✕
+                  </button>
+                </div>
               ))}
             </div>
           </div>

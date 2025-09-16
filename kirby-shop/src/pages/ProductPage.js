@@ -285,7 +285,7 @@ const ProductPage = ({
             </button>
             <button
               className="buy-btn"
-              onClick={handleBuyNow}
+              onClick={(e) => { e.preventDefault(); handleBuyNow(); }}
               disabled={product.stock <= 0}
             >
               바로 구매하기

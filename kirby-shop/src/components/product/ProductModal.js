@@ -66,19 +66,19 @@ const ProductModal = ({
 
   const handleAddToCart = () => {
     if (onCartAdd && product) {
-      onCartAdd(product, quantity, selectedOption);
+      onCartAdd(quantity, selectedOption);
     }
   };
 
   const handleBuyNow = () => {
     if (onBuyNow && product) {
-      onBuyNow(product, quantity, selectedOption);
+      onBuyNow(quantity, selectedOption);
     }
   };
 
   const handleWishlistToggle = () => {
     if (onWishlistToggle && product) {
-      onWishlistToggle(product.id);
+      onWishlistToggle();
     }
   };
 
@@ -320,7 +320,7 @@ const ProductModal = ({
                 </button>
                 <button
                   className="buy-btn"
-                  onClick={handleBuyNow}
+                  onClick={(e) => { e.preventDefault(); handleBuyNow(); }}
                   disabled={product.stock <= 0}
                 >
                   바로 구매하기
