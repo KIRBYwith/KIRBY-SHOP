@@ -1,6 +1,7 @@
 // src/pages/LoginPage.js
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/MainPage.css';
 import '../styles/LoginPage.css';
 
@@ -41,7 +42,7 @@ const LoginForm = ({ onLogin, loading, error }) => {
     <div className="login-container">
       <div className="page-header">
         <div className="page-title">
-          <span className="title-icon" style={{ color: '#ffe100' }}>⭐</span>
+          <span className="title-icon" style={{ color: '#ffe100' }}>✨</span>
           <h2>로그인</h2>
           <span style={{ marginLeft: 8, color: "#fd4766", fontWeight: 700, fontSize: "1.07rem" }}>
             {/* D-day 남았으면 자동 변환 */}
@@ -122,12 +123,17 @@ const LoginForm = ({ onLogin, loading, error }) => {
 const LoginPage = () => {
   const { login, isLoading, error } = useAuth();
   const [loginError, setLoginError] = useState(null);
+  const navigate = useNavigate();
 
   const handleLogin = async (credentials) => {
     setLoginError(null);
     const result = await login(credentials);
-    if (!result.success) setLoginError(result.message);
-    // 성공 시 이동처리 등 구현 가능
+    if (result.success) {
+      // 로그인 성공 시 메인 페이지로 이동
+      navigate('/');
+    } else {
+      setLoginError(result.message);
+    }
   };
 
   return (

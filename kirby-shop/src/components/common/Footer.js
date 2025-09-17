@@ -93,7 +93,7 @@ const Footer = () => {
             </button>
             <button 
               className="footer-link"
-              onClick={() => handleLinkClick('page', '/faq')}
+              onClick={() => handleLinkClick('page', '/qna')}
             >
               ❓ 자주 묻는 질문
             </button>
@@ -113,12 +113,6 @@ const Footer = () => {
             커비숍
           </h3>
           <div className="footer-links">
-            <button 
-              className="footer-link"
-              onClick={() => handleLinkClick('page', '/about')}
-            >
-              🏢 회사소개
-            </button>
             <button 
               className="footer-link"
               onClick={() => handleLinkClick('page', '/careers')}

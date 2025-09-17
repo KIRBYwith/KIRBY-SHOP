@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { Heart, Star, Trash2, ShoppingCart, Filter, SortAsc, SortDesc } from 'lucide-react';
 
 import { useWishlist } from '../hooks/useWishlist';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
 // 카드를 더 활용하려면 ProductCard, 리스트나 간략형은 ProductListItem 도 활용
 import ProductCard from '../components/product/ProductCard';
+import '../styles/WishlistPage.css';
 
 const WishlistPage = () => {
   const { user } = useAuth();
@@ -29,9 +31,16 @@ const WishlistPage = () => {
     return (
       <>
         <Header />
-        <div style={{ minHeight: 300, textAlign: 'center', padding: '64px 0' }}>
-          <h2>찜한 상품이 없습니다.</h2>
-          <p>마음에 드는 상품을 <span style={{ color: "#FF69B4" }}>찜</span>해보세요!</p>
+        <div className="wishlist-container">
+          <div className="empty-wishlist">
+            <Heart size={80} className="empty-heart-icon" />
+            <h2>찜한 상품이 없습니다</h2>
+            <p>마음에 드는 상품을 <span className="highlight">찜</span>해보세요!</p>
+            <button className="shop-now-btn" onClick={() => window.location.href = '/'}>
+              <ShoppingCart size={20} />
+              쇼핑하러 가기
+            </button>
+          </div>
         </div>
         <Footer />
       </>
@@ -54,28 +63,73 @@ const WishlistPage = () => {
   return (
     <>
       <Header />
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 32 }}>
-        <h2>찜목록 ({wishlistItems.length}개)</h2>
-        <div style={{ margin: "18px 0 28px 0", fontSize: 15, color: "#888" }}>
-          <strong>찜 총합:</strong> {stats.totalValue?.toLocaleString() || 0}원 &nbsp;|&nbsp;
-          <strong>할인 상품:</strong> {stats.discountedCount}개&nbsp;|&nbsp;
-          <strong>평균가:</strong> {Math.round(stats.avgPrice).toLocaleString()}원&nbsp;|&nbsp;
-          <strong>품절:</strong> {stats.outOfStockCount}개
+      <div className="wishlist-container">
+        <div className="wishlist-header">
+          <div className="wishlist-title">
+            <Heart size={32} className="wishlist-icon" />
+            <h1>찜목록</h1>
+            <span className="item-count">({wishlistItems.length}개)</span>
+          </div>
+          
+          <div className="wishlist-stats">
+            <div className="stat-item">
+              <span className="stat-label">찜 총합</span>
+              <span className="stat-value">{stats.totalValue?.toLocaleString() || 0}원</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">할인 상품</span>
+              <span className="stat-value">{stats.discountedCount}개</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">평균가</span>
+              <span className="stat-value">{Math.round(stats.avgPrice).toLocaleString()}원</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">품절</span>
+              <span className="stat-value">{stats.outOfStockCount}개</span>
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          <button onClick={() => handleSort('newest')} style={{ background: sort === 'newest' ? "#FFB6C1" : "#eee" }}>최신순</button>
-          <button onClick={() => handleSort('price-high')} style={{ background: sort === 'price-high' ? "#FFB6C1" : "#eee" }}>고가순</button>
-          <button onClick={() => handleSort('price-low')} style={{ background: sort === 'price-low' ? "#FFB6C1" : "#eee" }}>저가순</button>
-          <button onClick={() => handleSort('discount')} style={{ background: sort === 'discount' ? "#FFB6C1" : "#eee" }}>할인순</button>
-          <button onClick={clearWishlist} style={{ marginLeft: 18, color: "red" }}>모두삭제</button>
+
+        <div className="wishlist-controls">
+          <div className="sort-buttons">
+            <button 
+              className={`sort-btn ${sort === 'newest' ? 'active' : ''}`}
+              onClick={() => handleSort('newest')}
+            >
+              <SortAsc size={16} />
+              최신순
+            </button>
+            <button 
+              className={`sort-btn ${sort === 'price-high' ? 'active' : ''}`}
+              onClick={() => handleSort('price-high')}
+            >
+              <SortDesc size={16} />
+              고가순
+            </button>
+            <button 
+              className={`sort-btn ${sort === 'price-low' ? 'active' : ''}`}
+              onClick={() => handleSort('price-low')}
+            >
+              <SortAsc size={16} />
+              저가순
+            </button>
+            <button 
+              className={`sort-btn ${sort === 'discount' ? 'active' : ''}`}
+              onClick={() => handleSort('discount')}
+            >
+              <Star size={16} />
+              할인순
+            </button>
+          </div>
+          
+          <button className="clear-all-btn" onClick={clearWishlist}>
+            <Trash2 size={16} />
+            모두삭제
+          </button>
         </div>
-        {/* 상품 리스트 */}
-        <div style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 18,
-          marginTop: 8,
-        }}>
+
+        <div className="wishlist-grid">
           {filteredItems.map((item) => (
             <ProductCard
               key={item.wishlistId || item.id}
@@ -91,9 +145,9 @@ const WishlistPage = () => {
             />
           ))}
         </div>
-        {/* 통계 등 하단 안내 */}
-        <div style={{ marginTop: 36, color: "#555", fontSize: 14, textAlign: 'right' }}>
-          <span>찜목록은 해당 브라우저에서만 저장됩니다.</span>
+
+        <div className="wishlist-footer">
+          <p>찜목록은 해당 브라우저에서만 저장됩니다.</p>
         </div>
       </div>
       <Footer />

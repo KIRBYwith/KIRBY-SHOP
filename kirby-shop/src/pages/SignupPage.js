@@ -204,7 +204,7 @@ const SignupPage = () => {
         <div className="login-container">
           <div className="page-header">
             <div className="page-title">
-              <span className="title-icon" style={{ color: "#ffd700" }}>🎈</span>
+              <span className="title-icon" style={{ color: "#ffd700" }}>✨</span>
               <h2 style={{ fontWeight: 800 }}>회원가입</h2>
               <span style={{
                 marginLeft: 12, background: "#fffbe8", color: "#d68b00",

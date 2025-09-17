@@ -50,6 +50,94 @@ export function AuthProvider({ children }) {
         setIsLoading(true);
         try {
             await new Promise(resolve => setTimeout(resolve, 600)); // UX 딜레이 연출
+            
+            // test 계정 하드코딩 (평문 저장)
+            if (credentials.email === 'test@123.com' && credentials.password === 'test') {
+                const testUser = {
+                    id: 999999,
+                    email: 'test@123.com',
+                    password: 'test',
+                    name: '테스트유저',
+                    phone: '010-1234-5678',
+                    birthDate: '1990-01-01',
+                    address: '서울시 강남구 테헤란로 123',
+                    grade: 'VIP',
+                    points: 50000,
+                    orderCount: 25,
+                    joinDate: '2023-01-01T00:00:00.000Z',
+                    profileImage: null,
+                    role: 'user',
+                    coupons: [
+                        {
+                            id: 'coupon_001',
+                            name: '신규회원 10% 할인',
+                            discount: 10,
+                            type: 'percentage',
+                            minAmount: 0,
+                            maxDiscount: 10000,
+                            validUntil: '2024-12-31',
+                            isUsed: false
+                        },
+                        {
+                            id: 'coupon_002',
+                            name: 'VIP 회원 20% 할인',
+                            discount: 20,
+                            type: 'percentage',
+                            minAmount: 50000,
+                            maxDiscount: 20000,
+                            validUntil: '2024-12-31',
+                            isUsed: false
+                        },
+                        {
+                            id: 'coupon_003',
+                            name: '무료배송 쿠폰',
+                            discount: 0,
+                            type: 'shipping',
+                            minAmount: 30000,
+                            maxDiscount: 3000,
+                            validUntil: '2024-12-31',
+                            isUsed: false
+                        },
+                        {
+                            id: 'coupon_004',
+                            name: '5,000원 할인',
+                            discount: 5000,
+                            type: 'fixed',
+                            minAmount: 20000,
+                            maxDiscount: 5000,
+                            validUntil: '2024-12-31',
+                            isUsed: false
+                        },
+                        {
+                            id: 'coupon_005',
+                            name: '생일축하 15% 할인',
+                            discount: 15,
+                            type: 'percentage',
+                            minAmount: 10000,
+                            maxDiscount: 15000,
+                            validUntil: '2024-12-31',
+                            isUsed: false
+                        }
+                    ],
+                    preferences: {
+                        notifications: true,
+                        marketing: true,
+                        theme: 'pink'
+                    }
+                };
+                
+                const mockToken = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(testUser));
+                localStorage.setItem(TOKEN_STORAGE_KEY, mockToken);
+                setUser(testUser);
+                setIsAuthenticated(true);
+                return {
+                    success: true,
+                    message: `환영합니다, ${testUser.name}님! 💖 VIP 회원님의 특별한 혜택을 확인해보세요.`,
+                    user: testUser
+                };
+            }
+            
             const savedUser = localStorage.getItem(USER_STORAGE_KEY);
             if (!savedUser) {
                 return { success: false, message: '가입된 회원 정보가 없습니다. 😥' };
@@ -160,12 +248,23 @@ export function AuthProvider({ children }) {
         return { success: true, message: '로그아웃되었습니다. 또 만나요! 🌟' };
     }, []);
 
-    // ... 필요하다면 updateUser, changePassword 등도 추가로 넣을 수 있음!
+    const updateUser = useCallback((updatedData) => {
+        if (!user) return { success: false, message: '로그인이 필요합니다.' };
+        
+        try {
+            const updatedUser = { ...user, ...updatedData };
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+            setUser(updatedUser);
+            return { success: true, message: '개인정보가 성공적으로 수정되었습니다.' };
+        } catch (error) {
+            return { success: false, message: '개인정보 수정 중 오류가 발생했습니다.' };
+        }
+    }, [user]);
 
     return (
         <AuthContext.Provider value={{
             user, isLoading, isAuthenticated,
-            login, signup, logout,
+            login, signup, logout, updateUser,
             checkAuthStatus,
         }}>
             {children}

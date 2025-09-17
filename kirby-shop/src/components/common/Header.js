@@ -1,7 +1,7 @@
 // src/components/common/Header.js
 
 import React, { useState } from 'react';
-import { Star, Heart, ShoppingCart, User, Menu, Sparkles } from 'lucide-react';
+import { Star, Heart, ShoppingCart, User, Menu, Sparkles, UserCircle, Package, Gift, MessageCircle, Settings, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchBox from './SearchBox';
 import { useAuth } from '../../contexts/AuthContext';
@@ -65,7 +65,10 @@ const Header = ({
 
       {/* 2. 검색 */}
       <div className="nav-center">
-        <SearchBox onSearchSubmit={onSearch} />
+        <SearchBox
+          onSearchSubmit={onSearch || (() => { })}
+          placeholder="      커비 굿즈를 검색해보세요 ✨"
+        />
       </div>
 
       {/* 3. 사용자 메뉴/모바일 메뉴 버튼 */}
@@ -97,6 +100,7 @@ const Header = ({
                       onClick={handleMyPageClick}
                       type="button"
                     >
+                      <UserCircle size={18} />
                       마이페이지
                     </button>
                     <Link
@@ -104,6 +108,7 @@ const Header = ({
                       className="dropdown-item"
                       onClick={() => setDropdownOpen(false)}
                     >
+                      <Package size={18} />
                       주문내역
                     </Link>
                     <Link
@@ -111,13 +116,24 @@ const Header = ({
                       className="dropdown-item"
                       onClick={() => setDropdownOpen(false)}
                     >
+                      <Gift size={18} />
                       쿠폰함
                     </Link>
+                    <Link
+                      to="/qna"
+                      className="dropdown-item"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <MessageCircle size={18} />
+                      고객센터
+                    </Link>
+                    <div className="dropdown-divider"></div>
                     <button
                       className="dropdown-item logout"
                       onClick={handleLogout}
                       type="button"
                     >
+                      <LogOut size={18} />
                       로그아웃
                     </button>
                   </>
@@ -171,3 +187,4 @@ const Header = ({
 };
 
 export default Header;
+

@@ -170,9 +170,11 @@
 .login-modal .agreement-all { padding-bottom: 10px; border-bottom: 1px solid #eaeaea; margin-bottom: 10px; }
 .login-modal .agreement-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 7px; cursor: pointer;}
 .login-modal .agreement-item input[type="checkbox"] { margin: 0;}
+.login-modal input[type="checkbox"] { accent-color: #ff1493; }
+.login-modal input[type="radio"] { accent-color: #ff1493; }
 .login-modal .checkmark { height: 18px; width: 18px; background-color: #fff; border: 2px solid #ff69b4;
   border-radius: 4px; margin-right: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-.login-modal .agreement-item input:checked ~ .checkmark { background-color: #ff69b4; border-color: #ff69b4;}
+.login-modal .agreement-item input:checked ~ .checkmark { background-color: #ff1493; border-color: #ff1493;}
 .login-modal .agreement-item input:checked ~ .checkmark::after { content: '✓'; color: white; font-size: 12px; font-weight: bold; }
 .login-modal .agreement-text { flex: 1; font-size: 0.98rem; line-height: 1.42; }
 .login-modal .agreement-item.required .agreement-text { font-weight: 600; }

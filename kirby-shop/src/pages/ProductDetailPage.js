@@ -42,6 +42,14 @@ const ProductDetailPage = () => {
         (p) => p.category === foundProduct.category && p.id !== foundProduct.id
       ).slice(0, 4);
       setRelatedProducts(related);
+      
+      // 페이지 로드 시 맨 아래로 스크롤
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 100);
     } else {
       setProduct(null);
     }

@@ -15,6 +15,10 @@ import NotFound from './pages/NotFound';
 import { AuthProvider } from './contexts/AuthContext';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import CouponBoxPage from './pages/CouponBoxPage';
+import QnAPage from './pages/QnaPage';
+import ReviewPage from './pages/ReviewPage';
+import AdminPage from './pages/AdminPage';
+import AdminLoginPage from './pages/AdminLoginPage';
 
 function App() {
   return (
@@ -33,6 +37,10 @@ function App() {
           <Route path="/coupon" element={<CouponBoxPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/review" element={<ReviewPage />} />
+          <Route path="/qna" element={<QnAPage />} />
+          <Route path="/admin" element={<AdminLoginPage />} />
+          <Route path="/admin/dashboard" element={<AdminPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

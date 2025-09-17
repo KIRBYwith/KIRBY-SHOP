@@ -8,7 +8,6 @@ import DaumPostcode from 'react-daum-postcode';
 import { useCart } from '../hooks/useCart';
 import { useOrder } from '../hooks/useOrder';
 import { useAuth } from '../contexts/AuthContext';
-// import ProductListItem from '../components/product/ProductListItemOrder';
 import ProductInfoAnother from '../components/detail/ProductInfoAnother';
 import ProductImages from '../components/detail/ProductImages';
 import '../styles/OrderPage.css';
@@ -224,19 +223,35 @@ const OrderPage = () => {
                 회원정보와 동일하게 입력
               </label>
 
-              <div className="address-row">
+              <div className="address-input-group">
                 <input
                   value={receiver.address}
                   onChange={e => _setReceiver(prev => ({ ...prev, address: e.target.value }))}
                   placeholder="주소"
                   readOnly
+                  className="address-input"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPostCode(true)}
-                  className="search-btn"
+                  className="address-search-btn"
                 >주소 검색</button>
               </div>
+
+              <input
+                value={receiver.addressDetail}
+                onChange={e => _setReceiver(prev => ({ ...prev, addressDetail: e.target.value }))}
+                placeholder="상세주소"
+                className="full-input"
+              />
+
+              <input
+                value={receiver.zip}
+                onChange={e => _setReceiver(prev => ({ ...prev, zip: e.target.value }))}
+                placeholder="우편번호"
+                className="full-input"
+                readOnly
+              />
 
               {showPostCode && (
                 <div className="postcode-overlay">
@@ -249,20 +264,6 @@ const OrderPage = () => {
                   </div>
                 </div>
               )}
-
-              <input
-                value={receiver.addressDetail}
-                onChange={e => _setReceiver(prev => ({ ...prev, addressDetail: e.target.value }))}
-                placeholder="상세주소"
-                className="full-input"
-              />
-              <input
-                value={receiver.zip}
-                onChange={e => _setReceiver(prev => ({ ...prev, zip: e.target.value }))}
-                placeholder="우편번호"
-                className="full-input"
-                readOnly
-              />
               <div className="inline-row">
                 <input
                   value={receiver.name}

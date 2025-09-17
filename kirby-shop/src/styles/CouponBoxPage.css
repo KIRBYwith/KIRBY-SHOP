@@ -1,0 +1,371 @@
+/* ======================
+   쿠폰함 페이지 스타일
+   ====================== */
+
+.coupon-page-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffeef8 0%, #f8f4ff 100%);
+  padding: 2rem 0;
+}
+
+.coupon-page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.coupon-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.coupon-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ff1493;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.coupon-subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+.empty-coupon {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+  border: 3px solid #ffb6c1;
+}
+
+.empty-icon {
+  color: #ffb6c1;
+  margin-bottom: 1.5rem;
+}
+
+.empty-coupon h3 {
+  font-size: 1.5rem;
+  color: #ff1493;
+  margin-bottom: 1rem;
+}
+
+.empty-coupon p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.coupon-stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.stat-item {
+  background: linear-gradient(135deg, #ff69b4, #ff1493);
+  color: white;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+  min-width: 150px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.coupon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.coupon-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+  border: 3px solid #ffb6c1;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.coupon-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff69b4, #ff1493);
+}
+
+.coupon-card.active {
+  border-color: #ff69b4;
+}
+
+.coupon-card.active:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(255, 105, 180, 0.25);
+}
+
+.coupon-card.used {
+  opacity: 0.7;
+  border-color: #ccc;
+  background: #f8f9fa;
+}
+
+.coupon-header-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.coupon-icon {
+  background: linear-gradient(135deg, #ff69b4, #ff1493);
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coupon-info {
+  flex: 1;
+}
+
+.coupon-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ff1493;
+  margin: 0 0 0.5rem 0;
+}
+
+.coupon-type {
+  font-size: 0.9rem;
+  color: #666;
+  background: rgba(255, 105, 180, 0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.used-badge {
+  background: #28a745;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.coupon-discount {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ff1493;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 105, 180, 0.1), rgba(255, 182, 193, 0.1));
+  border-radius: 12px;
+}
+
+.coupon-details {
+  margin-bottom: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.detail-item svg {
+  color: #ff69b4;
+}
+
+.coupon-status {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.status-available {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.status-used {
+  color: #6c757d;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ======================
+   반응형 디자인
+   ====================== */
+
+@media (max-width: 768px) {
+  .coupon-page-container {
+    padding: 1rem 0;
+  }
+  
+  .coupon-page-content {
+    padding: 0 0.5rem;
+  }
+  
+  .coupon-title {
+    font-size: 2rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .coupon-stats {
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-item {
+    padding: 1rem 1.5rem;
+  }
+  
+  .coupon-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .coupon-card {
+    padding: 1.5rem;
+  }
+  
+  .coupon-discount {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .coupon-header {
+    margin-bottom: 2rem;
+  }
+  
+  .coupon-title {
+    font-size: 1.8rem;
+  }
+  
+  .coupon-subtitle {
+    font-size: 1rem;
+  }
+  
+  .coupon-card {
+    padding: 1rem;
+  }
+  
+  .coupon-header-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.8rem;
+  }
+  
+  .coupon-icon {
+    padding: 10px;
+  }
+  
+  .coupon-name {
+    font-size: 1.1rem;
+  }
+  
+  .coupon-discount {
+    font-size: 1.3rem;
+    padding: 0.8rem;
+  }
+}
+
+/* ======================
+   다크모드 지원
+   ====================== */
+
+@media (prefers-color-scheme: dark) {
+  .coupon-page-container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+  
+  .coupon-card,
+  .empty-coupon {
+    background-color: #2d3748;
+    color: #e0e0e0;
+    border-color: #4a5568;
+  }
+  
+  .coupon-name {
+    color: #ff69b4;
+  }
+  
+  .coupon-type {
+    background: rgba(255, 105, 180, 0.2);
+    color: #e0e0e0;
+  }
+  
+  .detail-item {
+    color: #a0aec0;
+  }
+  
+  .coupon-status {
+    border-top-color: #4a5568;
+  }
+}
+
+/* ======================
+   접근성
+   ====================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .coupon-card {
+    transition: none;
+  }
+  
+  .coupon-card.active:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .coupon-card {
+    border-width: 4px;
+  }
+  
+  .coupon-card.active {
+    border-color: #ff1493;
+  }
+  
+  .coupon-card.used {
+    border-color: #666;
+  }
+}
+

@@ -143,8 +143,8 @@ const SearchBox = ({ onSearchSubmit, placeholder = "커비 굿즈를 검색해�
   return (
     <div className="search-box-container" ref={searchBoxRef}>
       <form className="search-box" onSubmit={handleSubmit}>
+        <div className="pink-box"></div>
         <Search className="search-icon" size={20} />
-        
         <input 
           ref={searchInputRef}
           type="text" 
@@ -269,9 +269,9 @@ const SearchBox = ({ onSearchSubmit, placeholder = "커비 굿즈를 검색해�
                 <span>💡 검색 팁</span>
               </div>
               <div className="search-tip-content">
-                <p>• 상품명이나 브랜드명으로 검색해보세요</p>
-                <p>• '커비 인형', '핑크 머그컵' 등 구체적으로 검색하면 더 정확해요</p>
-                <p>• 카테고리별로 찾으시려면 상단 메뉴를 이용해주세요</p>
+                <p>상품명이나 브랜드명으로 검색해보세요</p>
+                <p>'커비 인형', '핑크 머그컵' 등 구체적으로 검색하면 더 정확해요</p>
+                <p>카테고리별로 찾으시려면 상단 메뉴를 이용해주세요</p>
               </div>
             </div>
           )}

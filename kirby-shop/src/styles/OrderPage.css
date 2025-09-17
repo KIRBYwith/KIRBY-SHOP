@@ -5,41 +5,7 @@
     재사용 가능한 컴포넌트 스타일
     ===================== */
 
-/* 개선된 삭제 버튼 스타일 - 옵션 1 */
-.order-items .product-list-item .delete-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #ff1493, #e6007a);
-  border: none;
-  border-radius: 50%;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
-  transition: all 0.3s ease;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-}
 
-/* 삭제 버튼 호버 효과 */
-.order-items .product-list-item .delete-btn:hover {
-  transform: translateY(-2px) scale(1.1);
-  box-shadow: 0 6px 20px rgba(230, 0, 122, 0.6);
-  background: linear-gradient(135deg, #e6007a, #cc0066);
-}
-
-/* 삭제 버튼 포커스 시 아웃라인 추가 (접근성) */
-.order-items .product-list-item .delete-btn:focus {
-  outline: 2px solid #ff69b4;
-  outline-offset: 2px;
-}
 
 /* 수량 조절 버튼 및 인풋 스타일 (중복 제거, 일관성 유지) */
 .quantity-controls {
@@ -219,22 +185,26 @@
   margin-top: 1rem;
 }
 
-.order-items .product-list-item {
+/* 기존 삭제 버튼 스타일 대신 이것으로 교체 */
+
+/* order-item-wrapper div 스타일 추가 */
+.order-item-wrapper {
+  position: relative;
   background: white;
   border-radius: 20px;
   padding: 2rem;
   border: 2px solid #f0f0f0;
   transition: all 0.3s ease;
-  position: relative;
   overflow: hidden;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   align-items: start;
+  margin-bottom: 2rem;
 }
 
-.order-items .product-list-item::before {
+.order-item-wrapper::before {
   content: '';
   position: absolute;
   top: 0;
@@ -245,130 +215,65 @@
   transition: left 0.6s ease;
 }
 
-.order-items .product-list-item:hover::before {
+.order-item-wrapper:hover::before {
   left: 100%;
 }
 
-.order-items .product-list-item:hover {
+.order-item-wrapper:hover {
   border-color: #ffb6c1;
   transform: translateY(-5px);
   box-shadow: 0 15px 40px rgba(255, 105, 180, 0.2);
 }
 
-/* 왼쪽: 상품 이미지 갤러리 */
-.order-items .product-list-item .image-container {
-  position: relative;
-}
-
-.order-items .product-list-item img,
-.order-items .product-image,
-.order-item-image {
-  width: 100%;
-  max-width: 300px;
-  height: 300px;
-  object-fit: cover;
-  border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease;
-}
-
-.order-items .product-list-item:hover img,
-.order-items .product-list-item:hover .product-image {
-  transform: scale(1.02);
-}
-
-/* 오른쪽: 상품 정보 */
-.order-items .product-list-item .info {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.order-items .product-list-item .title {
-  font-size: 1.5rem;
+/* 삭제 버튼 스타일 - order-item-wrapper 기준 */
+.order-item-wrapper .delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #ff1493, #e6007a);
+  border: none;
+  border-radius: 50%;
+  color: white;
   font-weight: bold;
-  color: #333;
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
-}
-
-.order-items .product-list-item .price {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #ff1493;
-  margin-bottom: 0.5rem;
-}
-
-.order-items .product-list-item .rating {
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+  transition: all 0.3s ease;
+  z-index: 10;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  justify-content: center;
+  user-select: none;
 }
 
-.order-items .product-list-item .rating .stars {
-  color: #ffd700;
-  font-size: 1.2rem;
+.order-item-wrapper .delete-btn:hover {
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: 0 6px 20px rgba(230, 0, 122, 0.6);
+  background: linear-gradient(135deg, #e6007a, #cc0066);
 }
 
-.order-items .product-list-item .rating .review-count {
-  color: #666;
-  font-size: 0.9rem;
+.order-item-wrapper .delete-btn:focus {
+  outline: 2px solid #ff69b4;
+  outline-offset: 2px;
 }
 
-.order-items .product-list-item .description {
-  color: #666;
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: 1rem;
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .order-item-wrapper {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
 }
 
-/* 재고 정보 */
-.order-items .product-list-item .stock {
-  font-size: 1rem;
-  color: #28a745;
-  font-weight: 500;
-  margin-bottom: 1rem;
+@media (max-width: 480px) {
+  .order-item-wrapper {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
 }
-
-/* 하단 오른쪽: 배송/반품 정보 박스 */
-.order-items .product-list-item .shipping-info {
-  background: #f8f9fa;
-  border-radius: 15px;
-  padding: 1rem;
-  margin-top: 1rem;
-  border: 1px solid #e9ecef;
-}
-
-.order-items .product-list-item .shipping-info h4 {
-  color: #333;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-.order-items .product-list-item .shipping-info ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.order-items .product-list-item .shipping-info li {
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 0.3rem;
-}
-
-.order-items .product-list-item .shipping-info li:before {
-  content: '• ';
-  color: #ff1493;
-  font-weight: bold;
-}
-
-/* 액션 버튼들 숨기기 */
-.order-items .product-list-item .actions {
-  display: none;
-}
-
 /* ======================
     상품 상세 페이지 스타일 (주문 페이지 내부에 있을 경우)
     ===================== */
@@ -584,15 +489,15 @@
   margin: 0;
 }
 
-.address-row {
+.address-input-group {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.8rem;
   margin-bottom: 1rem;
-  align-items: stretch;
 }
 
-.address-row input {
-  flex: 2;
+.address-input {
+  width: 100%;
   padding: 0.8rem;
   border: 2px solid #e0e0e0;
   border-radius: 12px;
@@ -601,27 +506,52 @@
   background: #f8f9fa;
 }
 
-.address-row input:focus {
+.address-input:focus {
   outline: none;
   border-color: #ff69b4;
   box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
 }
 
-.search-btn {
-  background: #3182f6;
+.address-search-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
   color: white;
   border: none;
   border-radius: 12px;
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-.search-btn:hover {
-  background: #2563eb;
+.address-search-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.address-search-btn:hover {
+  background: linear-gradient(135deg, #ff1493 0%, #dc143c 100%);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+}
+
+.address-search-btn:hover::before {
+  left: 100%;
+}
+
+.address-search-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(255, 105, 180, 0.3);
 }
 
 .full-input {
@@ -847,13 +777,8 @@
     font-size: 1.3rem;
   }
 
-  .address-row {
-    flex-direction: column;
+  .address-input-group {
     gap: 0.5rem;
-  }
-
-  .address-row input {
-    margin-bottom: 0.5rem;
   }
 
   .inline-row {
@@ -944,7 +869,7 @@
 
   .full-input,
   .inline-row input,
-  .address-row input,
+  .address-input,
   .memo {
     background: #4a5568;
     color: #e0e0e0;

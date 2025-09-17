@@ -8,8 +8,8 @@
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 182, 193, 0.3);
     position: sticky;
-    top: 78px;
-    z-index: 500;
+    top: 110px;
+    z-index: 999;
     margin-bottom: 2rem;
     box-shadow: 0 4px 20px rgba(255, 105, 180, 0.1);
   }
@@ -240,6 +240,10 @@
      반응형 스타일
      ====================== */
   @media screen and (max-width: 768px) {
+    .category-menu {
+      top: 120px;
+    }
+    
     .category-container {
       padding: 1rem;
     }
