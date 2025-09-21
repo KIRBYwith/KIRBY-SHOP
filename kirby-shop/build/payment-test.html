@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 테스트</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #f8f4ff 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .payment-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        .payment-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+        }
+        .toss-icon {
+            background: linear-gradient(135deg, #0064FF, #00D4FF);
+        }
+        .kakao-icon {
+            background: #FFEB00;
+            color: #3c1e1e;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff69b4;
+            margin: 20px 0;
+        }
+        .payment-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #45a049;
+        }
+        .btn-cancel {
+            background: #f44336;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background: #da190b;
+        }
+        .payment-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .info-value {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div id="payment-icon" class="payment-icon toss-icon">T</div>
+        <h1 id="payment-title">토스페이먼츠 결제</h1>
+        <div class="amount" id="amount">10,000원</div>
+        
+        <div class="payment-info">
+            <div class="info-row">
+                <span class="info-label">주문번호:</span>
+                <span class="info-value" id="order-id">TEST_ORDER_001</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">상품명:</span>
+                <span class="info-value">커비 상품 주문</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">결제수단:</span>
+                <span class="info-value" id="payment-method">토스페이먼츠</span>
+            </div>
+        </div>
+        
+        <div class="payment-buttons">
+            <button class="btn btn-success" onclick="completePayment()">결제 완료</button>
+            <button class="btn btn-cancel" onclick="cancelPayment()">결제 취소</button>
+        </div>
+    </div>
+
+    <script>
+        // URL 파라미터에서 정보 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const method = urlParams.get('method') || 'toss';
+        const amount = urlParams.get('amount') || '10000';
+        const orderId = urlParams.get('orderId') || 'TEST_ORDER_001';
+        
+        // 결제 수단에 따라 UI 변경
+        const icon = document.getElementById('payment-icon');
+        const title = document.getElementById('payment-title');
+        const paymentMethod = document.getElementById('payment-method');
+        const amountElement = document.getElementById('amount');
+        const orderIdElement = document.getElementById('order-id');
+        
+        if (method === 'kakao') {
+            icon.className = 'payment-icon kakao-icon';
+            icon.textContent = 'K';
+            title.textContent = '카카오페이 결제';
+            paymentMethod.textContent = '카카오페이';
+        }
+        
+        amountElement.textContent = parseInt(amount).toLocaleString() + '원';
+        orderIdElement.textContent = orderId;
+        
+        function completePayment() {
+            // 결제 성공 메시지를 부모 창에 전송
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'payment_completed',
+                    success: true,
+                    data: {
+                        paymentKey: 'test_paymentKey_' + orderId,
+                        tid: 'T' + orderId,
+                        amount: parseInt(amount),
+                        orderId: orderId,
+                        method: method
+                    }
+                }, window.location.origin);
+            }
+            window.close();
+        }
+        
+        function cancelPayment() {
+            // 결제 취소 메시지를 부모 창에 전송
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'payment_cancelled',
+                    success: false,
+                    error: '사용자가 결제를 취소했습니다.'
+                }, window.location.origin);
+            }
+            window.close();
+        }
+        
+        // 페이지 로드 시 자동으로 결제창이 열렸음을 알림
+        console.log('결제 테스트 페이지 로드됨:', { method, amount, orderId });
+    </script>
+</body>
+</html>

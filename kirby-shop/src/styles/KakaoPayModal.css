@@ -1,0 +1,416 @@
+/* src/styles/KakaoPayModal.css */
+
+.kakao-pay-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.kakao-pay-modal {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  width: auto;
+  min-width: 500px;
+  max-width: 600px;
+  height: auto;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 헤더 */
+.modal-header {
+  background: linear-gradient(135deg, #fee500 0%, #ffc107 100%);
+  color: #3c1e1e;
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon.kakao-icon {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.modal-header p {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.close-button {
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 10px;
+  padding: 8px;
+  color: #3c1e1e;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.close-button:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* 결제 정보 */
+.payment-info {
+  padding: 24px 32px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-row.total {
+  padding-top: 12px;
+  border-top: 1px solid #f1f3f4;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.info-row.total .amount {
+  color: #fee500;
+  font-weight: 700;
+  background: #3c1e1e;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* 카카오페이 안내 */
+.kakao-info {
+  padding: 24px 32px;
+  background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+}
+
+.info-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.info-icon {
+  color: #4caf50;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-text h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3c1e1e;
+}
+
+.info-text ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.info-text li {
+  position: relative;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.info-text li:before {
+  content: '✓';
+  position: absolute;
+  left: -20px;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* 결제 방법 선택 */
+.payment-methods {
+  padding: 24px 32px;
+}
+
+.payment-methods h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.method-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.method-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border: 2px solid #f1f3f4;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.method-btn:hover:not(:disabled) {
+  border-color: #fee500;
+  background: #fffbf0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(254, 229, 0, 0.2);
+}
+
+.method-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.method-btn svg:first-child {
+  color: #fee500;
+  flex-shrink: 0;
+}
+
+.method-btn div {
+  flex: 1;
+}
+
+.method-btn h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.method-btn p {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.method-btn svg:last-child {
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.pc-btn:hover:not(:disabled) svg:first-child {
+  color: #ffc107;
+}
+
+.mobile-btn:hover:not(:disabled) svg:first-child {
+  color: #ffc107;
+}
+
+/* 보안 안내 */
+.security-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px;
+  background: #f8f9fa;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.security-notice svg {
+  color: #ff9800;
+  flex-shrink: 0;
+}
+
+/* 결제 버튼 */
+.payment-actions {
+  padding: 24px 32px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancel-btn,
+.kakao-pay-btn {
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.cancel-btn {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 2px solid #e9ecef;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.kakao-pay-btn {
+  background: linear-gradient(135deg, #fee500 0%, #ffc107 100%);
+  color: #3c1e1e;
+  box-shadow: 0 4px 12px rgba(254, 229, 0, 0.3);
+}
+
+.kakao-pay-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(254, 229, 0, 0.4);
+}
+
+.kakao-pay-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 애니메이션 */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .kakao-pay-modal {
+    width: 95%;
+    min-width: auto;
+    max-width: calc(100vw - 24px);
+    height: auto;
+    max-height: calc(100vh - 24px);
+  }
+  
+  .modal-header {
+    padding: 20px 24px;
+  }
+  
+  .modal-header h2 {
+    font-size: 18px;
+  }
+  
+  .payment-info,
+  .kakao-info,
+  .payment-methods,
+  .payment-actions {
+    padding: 20px 24px;
+  }
+  
+  .payment-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .cancel-btn,
+  .kakao-pay-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .kakao-pay-modal-overlay {
+    padding: 0;
+  }
+  
+  .kakao-pay-modal {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .modal-header {
+    padding: 16px 20px;
+  }
+  
+  .header-content {
+    gap: 12px;
+  }
+  
+  .header-icon.kakao-icon {
+    padding: 8px;
+  }
+  
+  .modal-header h2 {
+    font-size: 16px;
+  }
+  
+  .modal-header p {
+    font-size: 13px;
+  }
+  
+  .payment-info,
+  .kakao-info,
+  .payment-methods,
+  .payment-actions {
+    padding: 16px 20px;
+  }
+  
+  .method-btn {
+    padding: 12px 16px;
+  }
+  
+  .method-btn h4 {
+    font-size: 15px;
+  }
+  
+  .method-btn p {
+    font-size: 13px;
+  }
+  
+  .cancel-btn,
+  .kakao-pay-btn {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+}

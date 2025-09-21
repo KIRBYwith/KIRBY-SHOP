@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오페이 QR 결제</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #FFEB00;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 배경 로고 */
+        .bg-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 200px;
+            color: rgba(0, 0, 0, 0.05);
+            font-weight: bold;
+            z-index: 0;
+        }
+        
+        .payment-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .kakao-logo {
+            width: 60px;
+            height: 60px;
+            background: #FFEB00;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #3c1e1e;
+        }
+        
+        .payment-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3c1e1e;
+            margin-bottom: 10px;
+        }
+        
+        .payment-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .qr-container {
+            background: white;
+            border: 3px solid #FFEB00;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .payment-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .info-label {
+            color: #666;
+        }
+        
+        .info-value {
+            font-weight: bold;
+            color: #3c1e1e;
+        }
+        
+        .scan-button {
+            background: linear-gradient(135deg, #FFEB00 0%, #FFD700 100%);
+            color: #3c1e1e;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(255, 235, 0, 0.3);
+        }
+        
+        .scan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 235, 0, 0.4);
+        }
+        
+        .scan-button:active {
+            transform: translateY(0);
+        }
+        
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #FFEB00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            display: none;
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        .instructions h4 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #333;
+        }
+        
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-logo">KAKAO</div>
+    
+    <div class="payment-container">
+        <div class="kakao-logo">K</div>
+        <h1 class="payment-title">카카오페이 QR 결제</h1>
+        <p class="payment-subtitle">QR 코드를 스캔하여 결제를 완료하세요</p>
+        
+        <div class="qr-container">
+            <div id="qrcode"></div>
+        </div>
+        
+        <div class="payment-info">
+            <div class="info-row">
+                <span class="info-label">상품명</span>
+                <span class="info-value">커비 상품</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">결제금액</span>
+                <span class="info-value" id="amount">1,000원</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">주문번호</span>
+                <span class="info-value" id="orderId">-</span>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h4>📱 결제 방법</h4>
+            <ol>
+                <li>카카오톡 앱을 실행하세요</li>
+                <li>우측 상단 '+' 버튼을 누르세요</li>
+                <li>'카카오페이'를 선택하세요</li>
+                <li>'QR 스캔' 기능을 사용하세요</li>
+                <li>아래 QR 코드를 스캔하세요</li>
+            </ol>
+        </div>
+        
+        <button class="scan-button" onclick="simulateScan()">
+            📱 QR 스캔 시뮬레이션
+        </button>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>결제 처리 중...</p>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            ✅ 결제가 완료되었습니다!
+        </div>
+    </div>
+
+    <script>
+        // URL 파라미터에서 금액과 주문번호 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('amount') || '1000';
+        const orderId = urlParams.get('orderId') || 'KAKAO_' + Date.now();
+        
+        // 화면에 정보 표시
+        document.getElementById('amount').textContent = parseInt(amount).toLocaleString() + '원';
+        document.getElementById('orderId').textContent = orderId;
+        
+        // QR 코드 생성
+        const qrData = `kakaopay://payment?amount=${amount}&orderId=${orderId}&merchant=KIRBY_SHOP`;
+        
+        QRCode.toCanvas(document.getElementById('qrcode'), qrData, {
+            width: 200,
+            height: 200,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            },
+            errorCorrectionLevel: 'M'
+        }, function (error) {
+            if (error) {
+                console.error('QR 코드 생성 오류:', error);
+                document.getElementById('qrcode').innerHTML = '<p>QR 코드 생성 실패</p>';
+            } else {
+                console.log('QR 코드 생성 완료');
+            }
+        });
+        
+        // QR 스캔 시뮬레이션
+        function simulateScan() {
+            const button = document.querySelector('.scan-button');
+            const loading = document.getElementById('loading');
+            const successMessage = document.getElementById('successMessage');
+            
+            // 버튼 숨기기
+            button.style.display = 'none';
+            
+            // 로딩 표시
+            loading.style.display = 'block';
+            
+            // 2초 후 성공 메시지 표시
+            setTimeout(() => {
+                loading.style.display = 'none';
+                successMessage.style.display = 'block';
+                
+                // 부모 창에 결제 완료 메시지 전송
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'payment_completed',
+                        success: true,
+                        data: {
+                            paymentId: orderId,
+                            amount: amount,
+                            method: 'kakao',
+                            timestamp: new Date().toISOString()
+                        }
+                    }, window.location.origin);
+                }
+                
+                // 3초 후 창 닫기
+                setTimeout(() => {
+                    window.close();
+                }, 3000);
+                
+            }, 2000);
+        }
+        
+        // 창이 닫힐 때 메시지 전송
+        window.addEventListener('beforeunload', function() {
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'payment_cancelled',
+                    success: false
+                }, window.location.origin);
+            }
+        });
+    </script>
+</body>
+</html>
