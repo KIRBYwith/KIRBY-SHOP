@@ -107,13 +107,83 @@ export const useCoupon = (user) => {
     ? `kirby-shop-coupons-${user.id}` 
     : 'kirby-shop-guest-coupons';
 
-  // 사용자 쿠폰 로드
-  useEffect(() => {
-    try {
+  // 쿠폰 목록 새로고침 함수
+  const refreshCoupons = useCallback(async () => {
+    const loadUserCoupons = async () => {
+      if (!user || !user.id) {
+        setUserCoupons([]);
+        return;
+      }
+
+      try {
+        // 백엔드에서 사용자 쿠폰 조회
+        const token = localStorage.getItem('kirby-shop-token') || 
+                     localStorage.getItem('token') || 
+                     localStorage.getItem('access_token');
+        
+        // 토큰 없이도 쿠폰 목록 조회 가능하도록 수정
+        const response = await fetch('http://localhost:8000/api/coupons/my-coupons', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+          
+        if (response.ok) {
+          const userCouponsData = await response.json();
+          // 백엔드 데이터를 프론트엔드 형식으로 변환
+          const formattedCoupons = userCouponsData.map(userCoupon => ({
+            id: userCoupon.coupon.code,
+            name: userCoupon.coupon.name,
+            description: userCoupon.coupon.description,
+            type: userCoupon.coupon.discount_type,
+            value: userCoupon.coupon.discount_value,
+            minOrderAmount: userCoupon.coupon.min_order_amount || 0,
+            maxDiscountAmount: userCoupon.coupon.max_discount_amount || 0,
+            validFrom: userCoupon.coupon.valid_from,
+            validUntil: userCoupon.coupon.valid_until,
+            isActive: userCoupon.coupon.is_active,
+            usageLimit: userCoupon.coupon.usage_limit || 1,
+            isUsed: userCoupon.is_used,
+            userCouponId: userCoupon.id,
+            acquiredAt: userCoupon.obtained_at,
+            remainingUses: userCoupon.coupon.usage_limit || 1,
+            icon: '🎫'
+          }));
+          
+          setUserCoupons(formattedCoupons);
+          localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(formattedCoupons));
+          return;
+        }
+      } catch (error) {
+        console.error('쿠폰 목록 로드 오류:', error);
+      }
+      
+      // 백엔드 조회 실패 시 로컬 스토리지에서 로드
       const savedCoupons = localStorage.getItem(COUPON_STORAGE_KEY);
-      if (savedCoupons) {
-        setUserCoupons(JSON.parse(savedCoupons));
-      } else if (user && user.id) {
+      let existingCoupons = savedCoupons ? JSON.parse(savedCoupons) : [];
+      
+      // 등록된 쿠폰 로드 (CouponBoxPage에서 등록한 쿠폰들)
+      const registeredCoupons = JSON.parse(localStorage.getItem('kirby-shop-user-coupons') || '[]');
+      
+      // 두 쿠폰 목록을 합치고 중복 제거
+      const allCoupons = [...existingCoupons];
+      registeredCoupons.forEach(regCoupon => {
+        const exists = allCoupons.find(c => c.id === regCoupon.id);
+        if (!exists) {
+          allCoupons.push({
+            ...regCoupon,
+            userCouponId: `${regCoupon.id}-${Date.now()}`,
+            acquiredAt: regCoupon.obtainedAt || new Date().toISOString(),
+            remainingUses: regCoupon.usageLimit || 1,
+            isUsed: regCoupon.isUsed || false
+          });
+        }
+      });
+      
+      if (allCoupons.length > 0) {
+        setUserCoupons(allCoupons);
+        localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(allCoupons));
+      } else {
         // 신규 회원에게 기본 쿠폰 지급
         const welcomeCoupons = defaultCoupons.filter(coupon => 
           coupon.newMemberOnly || coupon.id === 'FREESHIP'
@@ -127,11 +197,15 @@ export const useCoupon = (user) => {
         setUserCoupons(welcomeCoupons);
         localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(welcomeCoupons));
       }
-    } catch (error) {
-      console.error('쿠폰 데이터 로드 오류:', error);
-      setUserCoupons([]);
-    }
+    };
+
+    await loadUserCoupons();
   }, [user, COUPON_STORAGE_KEY]);
+
+  // 사용자 쿠폰 로드
+  useEffect(() => {
+    refreshCoupons();
+  }, [refreshCoupons]);
 
   // 쿠폰 저장
   const saveCoupons = useCallback((coupons) => {
@@ -143,30 +217,52 @@ export const useCoupon = (user) => {
   }, [COUPON_STORAGE_KEY]);
 
   // 쿠폰 발급
-  const issueCoupon = useCallback((couponId) => {
-    const baseCoupon = defaultCoupons.find(c => c.id === couponId);
-    if (!baseCoupon) return { success: false, message: '존재하지 않는 쿠폰입니다.' };
+  const issueCoupon = useCallback((couponData) => {
+    let userCoupon;
+    
+    // 쿠폰 데이터가 객체인 경우 (등록된 쿠폰)
+    if (typeof couponData === 'object') {
+      userCoupon = {
+        ...couponData,
+        userCouponId: `${couponData.id}-${Date.now()}`,
+        acquiredAt: couponData.obtainedAt || new Date().toISOString(),
+        remainingUses: couponData.usageLimit || 1,
+        isUsed: false,
+        minOrderAmount: couponData.minAmount || couponData.minOrderAmount || 0,
+        maxDiscountAmount: couponData.maxDiscount || couponData.maxDiscountAmount || 0
+      };
+    } else {
+      // 쿠폰 ID인 경우 (기본 쿠폰)
+      const baseCoupon = defaultCoupons.find(c => c.id === couponData);
+      if (!baseCoupon) return { success: false, message: '존재하지 않는 쿠폰입니다.' };
 
-    const userCoupon = {
-      ...baseCoupon,
-      userCouponId: `${couponId}-${Date.now()}`,
-      acquiredAt: new Date().toISOString(),
-      remainingUses: baseCoupon.usageLimit,
-      isUsed: false
-    };
+      userCoupon = {
+        ...baseCoupon,
+        userCouponId: `${couponData}-${Date.now()}`,
+        acquiredAt: new Date().toISOString(),
+        remainingUses: baseCoupon.usageLimit,
+        isUsed: false
+      };
+    }
 
     setUserCoupons(prev => {
+      // 중복 체크
+      const exists = prev.find(c => c.id === userCoupon.id);
+      if (exists) {
+        return prev; // 이미 존재하는 쿠폰은 추가하지 않음
+      }
+      
       const newCoupons = [...prev, userCoupon];
       saveCoupons(newCoupons);
       return newCoupons;
     });
 
-    return { success: true, message: `${baseCoupon.name}이 발급되었습니다!` };
+    return { success: true, message: `${userCoupon.name}이 발급되었습니다!` };
   }, [saveCoupons]);
 
   // 쿠폰 적용 가능 여부 확인
   const validateCoupon = useCallback((couponId, cartItems = [], orderAmount = 0) => {
-    const userCoupon = userCoupons.find(c => c.id === couponId);
+    const userCoupon = (userCoupons || []).find(c => c.id === couponId);
     if (!userCoupon) {
       return { isValid: false, message: '보유하지 않은 쿠폰입니다.' };
     }
@@ -197,22 +293,22 @@ export const useCoupon = (user) => {
     }
 
     // 카테고리 제한 확인
-    if (userCoupon.categoryRestrictions.length > 0) {
+    if ((userCoupon.categoryRestrictions || []).length > 0) {
       const hasValidCategory = cartItems.some(item => item &&
-        userCoupon.categoryRestrictions.includes(item.category)
+        (userCoupon.categoryRestrictions || []).includes(item.category)
       );
       if (!hasValidCategory) {
         return { 
           isValid: false, 
-          message: `${userCoupon.categoryRestrictions.join(', ')} 카테고리 상품만 사용 가능합니다.` 
+          message: `${(userCoupon.categoryRestrictions || []).join(', ')} 카테고리 상품만 사용 가능합니다.` 
         };
       }
     }
 
     // 상품 제한 확인
-    if (userCoupon.productRestrictions.length > 0) {
+    if ((userCoupon.productRestrictions || []).length > 0) {
       const hasValidProduct = cartItems.some(item => item &&
-        userCoupon.productRestrictions.includes(item.id)
+        (userCoupon.productRestrictions || []).includes(item.id)
       );
       if (!hasValidProduct) {
         return { 
@@ -232,15 +328,15 @@ export const useCoupon = (user) => {
       return { discount: 0, message: validation.message };
     }
 
-    const coupon = userCoupons.find(c => c.id === couponId);
+    const coupon = (userCoupons || []).find(c => c.id === couponId);
     let discount = 0;
 
     switch (coupon.type) {
       case COUPON_TYPES.PERCENTAGE:
         // 카테고리 제한이 있는 경우 해당 카테고리 상품만 할인
-        if (coupon.categoryRestrictions.length > 0) {
+        if ((coupon.categoryRestrictions || []).length > 0) {
           const categoryAmount = cartItems
-            .filter(item => item && coupon.categoryRestrictions.includes(item.category))
+            .filter(item => item && (coupon.categoryRestrictions || []).includes(item.category))
             .reduce((sum, item) => {
               const basePrice = Number(item?.price) || 0;
               const percent = Number(item?.discount) || 0;
@@ -311,7 +407,7 @@ export const useCoupon = (user) => {
 
   // 사용 가능한 쿠폰 목록
   const getAvailableCoupons = useCallback((cartItems = [], orderAmount = 0) => {
-    return userCoupons.filter(coupon => {
+    return (userCoupons || []).filter(coupon => {
       const validation = validateCoupon(coupon.id, cartItems, orderAmount);
       return validation.isValid;
     });
@@ -322,7 +418,7 @@ export const useCoupon = (user) => {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() + days);
 
-    return userCoupons.filter(coupon => {
+    return (userCoupons || []).filter(coupon => {
       const validUntil = new Date(coupon.validUntil);
       return validUntil <= cutoffDate && validUntil > new Date() && !coupon.isUsed;
     });
@@ -330,10 +426,11 @@ export const useCoupon = (user) => {
 
   // 쿠폰 통계
   const getCouponStats = useCallback(() => {
-    const total = userCoupons.length;
-    const available = userCoupons.filter(c => !c.isUsed && c.remainingUses > 0).length;
-    const used = userCoupons.filter(c => c.isUsed).length;
-    const expired = userCoupons.filter(c => {
+    const coupons = userCoupons || [];
+    const total = coupons.length;
+    const available = coupons.filter(c => !c.isUsed && c.remainingUses > 0).length;
+    const used = coupons.filter(c => c.isUsed).length;
+    const expired = coupons.filter(c => {
       const validUntil = new Date(c.validUntil);
       return validUntil < new Date() && !c.isUsed;
     }).length;
@@ -373,6 +470,7 @@ export const useCoupon = (user) => {
     getExpiringSoonCoupons,
     getCouponStats,
     issueSpecialCoupon,
+    refreshCoupons, // 쿠폰 목록 새로고침 함수
     defaultCoupons // 관리자용 또는 디버깅용
   };
 };

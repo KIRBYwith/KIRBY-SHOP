@@ -20,6 +20,7 @@ import KirbyLoader from '../components/common/KirbyLoader';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 // 데이터, 유틸
 import { productsData, categories } from '../data/products';
@@ -83,12 +84,12 @@ const MainPage = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { cartItems, addToCart, totalQuantity } = useCart(user);
   const { wishlistIds, toggleWishlist } = useWishlist(user);
+  const { toast } = useToast();
 
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid');
   const [isLoading, setIsLoading] = useState(true);
-  const [notifications, setNotifications] = useState([]);
   const [showFloatingCart, setShowFloatingCart] = useState(false);
   const [showFloatingWishlist, setShowFloatingWishlist] = useState(false);
 
@@ -112,13 +113,6 @@ const MainPage = () => {
     return filtered;
   }, [selectedCategory, searchQuery]);
 
-  const showNotification = (message, type = 'success') => {
-    const notification = { id: Date.now(), message, type, timestamp: Date.now() };
-    setNotifications(prev => [...prev, notification]);
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== notification.id));
-    }, 3000);
-  };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
@@ -168,7 +162,7 @@ const MainPage = () => {
       selectedOption: option || ''
     };
     
-    showNotification(`${product.title} ${quantity || 1}개를 구매 페이지로 이동합니다.`);
+    toast.kirby(`${product.title} ${quantity || 1}개를 구매 페이지로 이동합니다.`);
     setIsModalOpen(false);
     
     // 바로구매 페이지로 이동
@@ -190,11 +184,11 @@ const MainPage = () => {
 
   const handleWishlistToggle = (productId) => {
     if (!isAuthenticated) {
-      showNotification('로그인하지 않아도 찜하기를 이용할 수 있습니다!', 'info');
+      toast.info('로그인하지 않아도 찜하기를 이용할 수 있습니다!');
     }
     const result = toggleWishlist(productsData.find(p => p.id === productId));
     if (result.success) {
-      showNotification(result.message);
+      toast.love(result.message);
       if (result.message.includes('추가')) {
         setShowFloatingWishlist(true);
       }
@@ -203,14 +197,14 @@ const MainPage = () => {
 
   const handleCartAdd = (product, quantity = 1) => {
     if (!isAuthenticated) {
-      showNotification('로그인하지 않아도 장바구니를 이용할 수 있습니다!', 'info');
+      toast.info('로그인하지 않아도 장바구니를 이용할 수 있습니다!');
     }
     const result = addToCart(product, quantity);
     if (result.success) {
-      showNotification(createKirbyMessage('장바구니에 추가되었습니다!'));
+      toast.gift(createKirbyMessage('장바구니에 추가되었습니다!'));
       setShowFloatingCart(true);
     } else {
-      showNotification(result.message, 'error');
+      toast.error(result.message);
     }
   };
 
@@ -231,16 +225,16 @@ const MainPage = () => {
   const handlePromoBannerClick = (banner) => {
     if (banner.type === 'signup') {
       if (!isAuthenticated) {
-        showNotification('회원가입/로그인 페이지로 이동해주세요!', 'info');
+        toast.info('회원가입/로그인 페이지로 이동해주세요!');
       } else {
-        showNotification('이미 로그인된 상태입니다!', 'info');
+        toast.info('이미 로그인된 상태입니다!');
       }
     }
   };
 
   const handleLogout = () => {
     const result = logout();
-    if (result.success) showNotification(result.message);
+    if (result.success) toast.success(result.message);
   };
 
   // 페이지 초기 로딩

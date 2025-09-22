@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 import MainPage from './pages/MainPage';
 import LoginPage from './pages/LoginPage';
@@ -21,12 +21,25 @@ import CouponBoxPage from './pages/CouponBoxPage';
 import QnAPage from './pages/QnaPage';
 import ReviewPage from './pages/ReviewPage';
 import AdminPage from './pages/AdminPage';
+import AdminAccessPage from './pages/AdminAccessPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import YouthProtectionPage from './pages/YouthProtectionPage';
 import DisputePage from './pages/DisputePage';
+import PointsPage from './pages/PointsPage';
 import KirbyBot from './components/common/KirbyBot';
+
+// 페이지 변경 시 스크롤을 맨 위로 이동시키는 컴포넌트
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 function App() {
   return (
@@ -34,6 +47,7 @@ function App() {
       <LoadingProvider>
         <AuthProvider>
           <Router>
+            <ScrollToTop />
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -51,9 +65,10 @@ function App() {
           <Route path="/coupon" element={<CouponBoxPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/points" element={<PointsPage />} />
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/qna" element={<QnAPage />} />
-          <Route path="/admin" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminAccessPage />} />
           <Route path="/admin/dashboard" element={<AdminPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />

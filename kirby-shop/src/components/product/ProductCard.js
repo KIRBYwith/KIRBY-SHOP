@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Star, Eye, Zap, Crown, Sparkles, Tag, Truck, MessageCircle, ThumbsUp, Camera, CreditCard } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
 import PaymentModal from '../payment/PaymentModal';
 
 const ProductCard = ({
@@ -29,6 +30,7 @@ const ProductCard = ({
 
   // 상품 상세로 이동
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // 결제 처리 함수들
   const handleQuickPayment = () => {
@@ -37,13 +39,13 @@ const ProductCard = ({
 
   const handlePaymentSuccess = (paymentResult) => {
     console.log('결제 성공:', paymentResult);
-    alert('결제가 완료되었습니다!');
+    toast.success('결제가 완료되었습니다!');
     setIsPaymentModalOpen(false);
   };
 
   const handlePaymentError = (error) => {
     console.error('결제 오류:', error);
-    alert(`결제 중 오류가 발생했습니다: ${error}`);
+    toast.error(`결제 중 오류가 발생했습니다: ${error}`);
   };
 
   const getOrderData = () => {

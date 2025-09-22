@@ -682,29 +682,34 @@
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 /* ======================
-   상품 카드 스타일
+   상품 카드 스타일 (메인 페이지 전용)
    ====================== */
-.product-card {
-  background-color: white;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 8px 30px rgba(255, 105, 180, 0.15);
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  position: relative;
+/* 메인 페이지의 product-card는 AdminPage.css와 분리 */
+body:not(.admin-page) .product-card,
+.main-page .product-card,
+.home-page .product-card {
+  background-color: white !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 30px rgba(255, 105, 180, 0.15) !important;
+  transition: all 0.3s ease !important;
+  border: 2px solid transparent !important;
+  position: relative !important;
 }
 
-.product-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(255, 105, 180, 0.25);
-  border-color: #ffb6c1;
+body:not(.admin-page) .product-card:hover,
+.main-page .product-card:hover,
+.home-page .product-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 15px 40px rgba(255, 105, 180, 0.25) !important;
+  border-color: #ffb6c1 !important;
 }
 
 .product-image-container {
@@ -836,23 +841,35 @@
   z-index: 10;
 }
 
-.product-info {
+/* 메인 페이지 전용 product-info 스타일 */
+.main-page .product-info,
+.home-page .product-info,
+body:not(.admin-page) .product-info {
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.product-title {
+.main-page .product-title,
+.home-page .product-title,
+body:not(.admin-page) .product-title {
   font-size: 1.3rem;
   font-weight: bold;
   color: #333;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   line-height: 1.4;
+  order: 1;
 }
 
-.product-rating {
+.main-page .product-rating,
+.home-page .product-rating,
+body:not(.admin-page) .product-rating {
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
+  order: 2;
 }
 
 .stars {
@@ -879,8 +896,11 @@
   color: #666;
 }
 
-.price-section {
-  margin-bottom: 1rem;
+.main-page .price-section,
+.home-page .price-section,
+body:not(.admin-page) .price-section {
+  margin-bottom: 0;
+  order: 3;
 }
 
 .original-price {
@@ -932,9 +952,13 @@
   color: #c62828;
 }
 
-.product-actions {
+.main-page .product-actions,
+.home-page .product-actions,
+body:not(.admin-page) .product-actions {
   display: flex;
   gap: 10px;
+  order: 5;
+  margin-top: auto;
 }
 
 .cart-btn {
@@ -973,14 +997,18 @@
   margin-left: 5px;
 }
 
-.product-tags {
+.main-page .product-tags,
+.home-page .product-tags,
+body:not(.admin-page) .product-tags {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
   margin-top: 10px;
 }
 
-.product-tag {
+.main-page .product-tag,
+.home-page .product-tag,
+body:not(.admin-page) .product-tag {
   background: #f8f9fa;
   color: #666;
   padding: 2px 8px;
@@ -1210,7 +1238,7 @@
   }
   
   .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
   

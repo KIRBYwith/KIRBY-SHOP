@@ -140,13 +140,15 @@
   border-radius: 10px;
 }
 
-.product-info h4 {
+.review-page .product-info h4,
+body:not(.admin-page) .product-info h4 {
   font-size: 1rem;
   color: #333;
   margin: 0 0 0.5rem 0;
 }
 
-.product-info p {
+.review-page .product-info p,
+body:not(.admin-page) .product-info p {
   font-size: 0.9rem;
   color: #666;
   margin: 0;
@@ -385,8 +387,10 @@
   margin-bottom: 1.5rem;
 }
 
-.user-info,
-.product-info {
+.review-page .user-info,
+.review-page .product-info,
+body:not(.admin-page) .user-info,
+body:not(.admin-page) .product-info {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -395,13 +399,14 @@
 .user-avatar {
   width: 50px;
   height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
   border: 2px solid #ff69b4;
 }
 
-.user-info h4,
-.product-info span {
+.review-page .user-info h4,
+.review-page .product-info span,
+body:not(.admin-page) .user-info h4,
+body:not(.admin-page) .product-info span {
   font-size: 1rem;
   color: #333;
   margin: 0;
@@ -413,7 +418,8 @@
   margin: 0;
 }
 
-.product-info img {
+.review-page .product-info img,
+body:not(.admin-page) .product-info img {
   width: 40px;
   height: 40px;
   object-fit: cover;

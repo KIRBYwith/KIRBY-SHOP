@@ -28,6 +28,25 @@ def get_current_user(
     
     return UserResponse.model_validate(user)
 
+def get_current_admin_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+) -> UserResponse:
+    """현재 로그인한 관리자 사용자 조회"""
+    token = credentials.credentials
+    user_id = get_user_id_from_token(token)
+    
+    user_service = UserService(db)
+    user = user_service.get_user_by_id(user_id)
+    
+    if user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="관리자 권한이 필요합니다."
+        )
+    
+    return UserResponse.model_validate(user)
+
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     """회원가입"""

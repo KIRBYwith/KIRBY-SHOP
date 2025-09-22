@@ -7,15 +7,15 @@ import '../styles/AdminLoginPage.css';
 const AdminLoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // 관리자 계정 정보 (평문으로 저장)
+  // 관리자 계정 정보
   const ADMIN_CREDENTIALS = {
-    username: 'admin',
+    email: 'admin@kirby-shop.com',
     password: 'admin123'
   };
 
@@ -36,31 +36,78 @@ const AdminLoginPage = () => {
 
     try {
       // 입력값 검증
-      if (!formData.username.trim() || !formData.password.trim()) {
-        setError('아이디와 비밀번호를 모두 입력해주세요.');
+      if (!formData.email.trim() || !formData.password.trim()) {
+        setError('이메일과 비밀번호를 모두 입력해주세요.');
         setIsLoading(false);
         return;
       }
 
-      // 관리자 계정 확인
-      if (formData.username === ADMIN_CREDENTIALS.username && 
-          formData.password === ADMIN_CREDENTIALS.password) {
-        
-        // 로그인 성공 - 관리자 세션 저장
+      // 로컬 관리자 계정 확인 (백엔드 API 실패 시 대비)
+      if (formData.email === ADMIN_CREDENTIALS.email && formData.password === ADMIN_CREDENTIALS.password) {
+        // 관리자 세션 저장
         const adminSession = {
           isAdmin: true,
-          username: formData.username,
+          user: {
+            id: 1,
+            email: ADMIN_CREDENTIALS.email,
+            name: '관리자',
+            role: 'admin'
+          },
           loginTime: new Date().toISOString(),
           role: 'admin'
         };
         
         localStorage.setItem('kirby-shop-admin-session', JSON.stringify(adminSession));
         
-        // 관리자 페이지로 이동
+        // 관리자 대시보드로 이동
         navigate('/admin/dashboard');
-        
-      } else {
-        setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+        setIsLoading(false);
+        return;
+      }
+
+      // 실제 API 호출 (백엔드가 실행 중인 경우)
+      try {
+        const response = await fetch('http://localhost:8000/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // 관리자 권한 확인
+          if (data.user.role === 'admin' || data.user.role === 'manager') {
+            // 토큰 저장
+            localStorage.setItem('kirby-shop-token', data.access_token);
+            
+            // 관리자 세션 저장
+            const adminSession = {
+              isAdmin: true,
+              user: data.user,
+              loginTime: new Date().toISOString(),
+              role: data.user.role
+            };
+            
+            localStorage.setItem('kirby-shop-admin-session', JSON.stringify(adminSession));
+            
+            // 관리자 대시보드로 이동
+            navigate('/admin/dashboard');
+          } else {
+            setError('관리자 권한이 없습니다.');
+          }
+        } else {
+          setError(data.detail || '로그인에 실패했습니다.');
+        }
+      } catch (apiError) {
+        // API 호출 실패 시 로컬 로그인으로 폴백
+        console.warn('API 호출 실패, 로컬 로그인으로 폴백:', apiError);
+        setError('백엔드 서버에 연결할 수 없습니다. 로컬 로그인을 시도해주세요.');
       }
     } catch (err) {
       setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -92,19 +139,19 @@ const AdminLoginPage = () => {
 
             <form onSubmit={handleSubmit} className="login-form">
               <div className="form-group">
-                <label htmlFor="username" className="form-label">
-                  관리자 아이디
+                <label htmlFor="email" className="form-label">
+                  관리자 이메일
                 </label>
                 <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
                   className="form-input"
-                  placeholder="관리자 아이디를 입력하세요"
-                  autoComplete="username"
+                  placeholder="관리자 이메일을 입력하세요"
+                  autoComplete="email"
                   disabled={isLoading}
                 />
               </div>
@@ -155,11 +202,11 @@ const AdminLoginPage = () => {
 
             <div className="login-footer">
               <div className="admin-info">
-                <h3>관리자 계정 정보</h3>
+                <h3>테스트 관리자 계정</h3>
                 <div className="account-details">
                   <div className="account-item">
-                    <span className="account-label">아이디:</span>
-                    <span className="account-value">{ADMIN_CREDENTIALS.username}</span>
+                    <span className="account-label">이메일:</span>
+                    <span className="account-value">{ADMIN_CREDENTIALS.email}</span>
                   </div>
                   <div className="account-item">
                     <span className="account-label">비밀번호:</span>

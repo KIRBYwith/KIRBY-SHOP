@@ -225,7 +225,9 @@ class CouponService:
     
     async def get_user_coupons(self, user_id: int, include_used: bool = False) -> List[UserCoupon]:
         """사용자 쿠폰 목록 조회"""
-        query = self.db.query(UserCoupon).filter(UserCoupon.user_id == user_id)
+        from sqlalchemy.orm import joinedload
+        
+        query = self.db.query(UserCoupon).options(joinedload(UserCoupon.coupon)).filter(UserCoupon.user_id == user_id)
         
         if not include_used:
             query = query.filter(UserCoupon.is_used == False)
@@ -312,57 +314,60 @@ class CouponService:
         return True
     
     async def register_coupon_by_code(self, user_id: int, coupon_code: str) -> CouponRegisterResponse:
-        """쿠폰 번호로 쿠폰 등록 (취약점 포함)"""
+        """쿠폰 번호로 쿠폰 등록"""
         coupon_code = coupon_code.upper().strip()
         
-        # 기본 쿠폰 코드들
-        valid_codes = {
-            'WELCOME20': 'WELCOME20',
-            'FREESHIP': 'FREESHIP', 
-            'FIXED5000': 'FIXED5000',
-            'PLUSH30': 'PLUSH30',
-            'BIRTHDAY50': 'BIRTHDAY50',
-            # 취약점: 특별한 마스터 코드들 (무제한 사용 가능)
-            'MASTER99': 'MASTER99', # 99% 할인 무제한
-            'UNLIMITED': 'UNLIMITED', # 무제한 사용 쿠폰
-            'ADMIN2024': 'ADMIN2024', # 관리자용 쿠폰
-            'KIRBYLOVE': 'KIRBYLOVE', # 특별 이벤트 쿠폰
-        }
-
-        # 취약점 1: 간단한 패턴 매칭으로 쿠폰 생성 가능
-        if coupon_code.startswith('KIRBY') and len(coupon_code) >= 8:
-            return await self._create_custom_coupon(user_id, coupon_code, "커스텀 쿠폰", 25, "percentage")
-
-        # 취약점 2: 특정 패턴으로 무제한 쿠폰 생성
-        if 'UNLIMITED' in coupon_code or 'MASTER' in coupon_code:
-            discount_value = 99 if 'MASTER' in coupon_code else 50
-            return await self._create_unlimited_coupon(user_id, coupon_code, discount_value)
-
-        # 일반 쿠폰 코드 처리
-        if coupon_code in valid_codes:
-            try:
-                coupon = await self.get_coupon_by_code(valid_codes[coupon_code])
-                user_coupon = await self.issue_coupon_to_user(user_id, coupon.id)
-                return CouponRegisterResponse(
-                    success=True,
-                    message=f"{coupon.name}이 등록되었습니다!",
-                    coupon=coupon
-                )
-            except HTTPException as e:
+        try:
+            # 데이터베이스에서 쿠폰 찾기
+            coupon = self.db.query(Coupon).filter(Coupon.code == coupon_code).first()
+            
+            if not coupon:
                 return CouponRegisterResponse(
                     success=False,
-                    message=str(e.detail)
+                    message="쿠폰을 찾을 수 없습니다. 쿠폰 번호를 확인해주세요."
                 )
-
-        # 취약점 3: 숫자만으로도 쿠폰 생성 가능
-        if coupon_code.isdigit() and len(coupon_code) >= 6:
-            discount_amount = int(coupon_code[-4:]) if len(coupon_code) >= 4 else 1000
-            return await self._create_numeric_coupon(user_id, coupon_code, discount_amount)
-
-        return CouponRegisterResponse(
-            success=False,
-            message="유효하지 않은 쿠폰 번호입니다."
-        )
+            
+            if not coupon.is_active:
+                return CouponRegisterResponse(
+                    success=False,
+                    message="비활성화된 쿠폰입니다."
+                )
+            
+            # 쿠폰 등록은 자유롭게 허용 (프론트엔드에서 중복 관리)
+            # 백엔드에서는 단순히 쿠폰 정보만 반환
+            
+            # 사용자 쿠폰 등록
+            user_coupon = UserCoupon(
+                user_id=user_id,
+                coupon_id=coupon.id,
+                obtained_at=datetime.now(),
+                is_used=False
+            )
+            
+            self.db.add(user_coupon)
+            self.db.commit()
+            
+            return CouponRegisterResponse(
+                success=True,
+                message=f"{coupon.name}이 성공적으로 등록되었습니다!",
+                coupon_code=coupon.code,
+                coupon_name=coupon.name,
+                coupon_description=coupon.description,
+                discount_type=coupon.discount_type,
+                discount_value=coupon.discount_value,
+                min_order_amount=coupon.min_order_amount,
+                max_discount_amount=coupon.max_discount_amount,
+                valid_from=coupon.valid_from.isoformat() if coupon.valid_from else None,
+                valid_until=coupon.valid_until.isoformat() if coupon.valid_until else None,
+                usage_limit=coupon.usage_limit
+            )
+            
+        except Exception as e:
+            self.db.rollback()
+            return CouponRegisterResponse(
+                success=False,
+                message=f"쿠폰 등록 중 오류가 발생했습니다: {str(e)}"
+            )
     
     async def _create_custom_coupon(self, user_id: int, code: str, name: str, discount_value: int, discount_type: str) -> CouponRegisterResponse:
         """커스텀 쿠폰 생성 (취약점)"""

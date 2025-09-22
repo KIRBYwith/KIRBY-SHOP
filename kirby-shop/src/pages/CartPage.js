@@ -36,6 +36,7 @@ const CartPage = () => {
     }
   };
 
+
   const handleOrder = () => {
     if (!user) {
       alert('로그인 후 주문해 주세요!');
@@ -100,6 +101,7 @@ const CartPage = () => {
                   </button>
                 </div>
               ))}
+
 
               {/* 결제 정보 */}
               <div className="payment-summary">

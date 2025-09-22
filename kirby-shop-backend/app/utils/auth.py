@@ -107,9 +107,21 @@ def get_current_admin_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
     """현재 로그인한 관리자 사용자 정보 반환"""
-    if not current_user.is_admin:
+    # 관리자 권한 체크 (role이 admin이거나 manager인 경우)
+    if current_user.role not in ['admin', 'manager']:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="관리자 권한이 필요합니다"
+        )
+    return current_user
+
+def get_current_super_admin_user(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """현재 로그인한 최고 관리자 사용자 정보 반환"""
+    if current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="최고 관리자 권한이 필요합니다"
         )
     return current_user

@@ -8,7 +8,7 @@ import {
   User, Star, ChevronRight, LogOut, MessageCircle, 
   Edit3, CreditCard, MapPin, Shield, Heart, 
   Award, ShoppingBag, Package, UserCheck, 
-  Settings, HelpCircle, Trash2, Camera
+  Settings, HelpCircle, Trash2, Camera, X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
@@ -141,7 +141,11 @@ const MyPage = () => {
                   className="profile-image"
                 />
               ) : (
-                <User size={48} className="profile-icon" />
+                <img 
+                  src="/bot/kirby-laptop-pink.png" 
+                  alt="핑크 노트북" 
+                  className="profile-icon"
+                />
               )}
               <button className="edit-avatar-btn" onClick={handleImageUpload}>
                 <Camera size={16} />
@@ -157,7 +161,7 @@ const MyPage = () => {
               </div>
               <span className={`profile-grade ${user.grade}`}>{user.grade || '일반회원'}</span>
               <div className="profile-stats">
-                <div className="stat-item">
+                <div className="stat-item" onClick={() => navigate('/points')} style={{ cursor: 'pointer' }}>
                   <span className="stat-label">포인트</span>
                   <span className="stat-value">{user.points || 0}P</span>
                 </div>
@@ -395,24 +399,37 @@ const MyPage = () => {
 
       {/* 프로필 이미지 업로드 모달 */}
       {showImageModal && (
-        <div className="modal-overlay" onClick={() => setShowImageModal(false)}>
-          <div className="modal-content image-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="profile-image-modal-overlay" onClick={() => setShowImageModal(false)}>
+          <div className="profile-image-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>프로필 이미지 변경</h3>
-              <button className="close-btn" onClick={() => setShowImageModal(false)}>×</button>
+              <div className="header-content">
+                <div className="header-icon">
+                  <Camera size={24} />
+                </div>
+                <div>
+                  <h2>프로필 이미지 변경</h2>
+                  <p>새로운 프로필 이미지를 업로드하세요</p>
+                </div>
+              </div>
+              <button className="close-button" onClick={() => setShowImageModal(false)}>
+                <X size={20} />
+              </button>
             </div>
-            <div className="modal-body">
+            
+            <div className="modal-content">
               <div className="image-upload-section">
-                <div className="current-image">
+                <div className="current-image-section">
                   <h4>현재 이미지</h4>
-                  {profileImage ? (
-                    <img src={profileImage} alt="현재 프로필" className="current-profile-img" />
-                  ) : (
-                    <div className="no-image">
-                      <User size={48} />
-                      <span>이미지 없음</span>
-                    </div>
-                  )}
+                  <div className="current-image-container">
+                    {profileImage ? (
+                      <img src={profileImage} alt="현재 프로필" className="current-profile-img" />
+                    ) : (
+                      <div className="no-image">
+                        <User size={48} />
+                        <span>이미지 없음</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="image-preview-section">
@@ -430,17 +447,20 @@ const MyPage = () => {
                       <span>이미지 선택</span>
                     </label>
                     {imagePreview && (
-                      <img src={imagePreview} alt="미리보기" className="preview-img" />
+                      <div className="preview-container">
+                        <img src={imagePreview} alt="미리보기" className="preview-img" />
+                      </div>
                     )}
                   </div>
-                  <p className="upload-info">
-                    • 이미지 파일만 업로드 가능합니다<br/>
-                    • 최대 파일 크기: 5MB<br/>
-                    • 권장 크기: 200x200px 이상
-                  </p>
+                  <div className="upload-info">
+                    <p>• 이미지 파일만 업로드 가능합니다</p>
+                    <p>• 최대 파일 크기: 5MB</p>
+                    <p>• 권장 크기: 200x200px 이상</p>
+                  </div>
                 </div>
               </div>
             </div>
+            
             <div className="modal-footer">
               <button 
                 className="btn-secondary" 
@@ -471,7 +491,7 @@ const MyPage = () => {
               </button>
             </div>
           </div>
-    </div>
+        </div>
       )}
 
       <Footer />

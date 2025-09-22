@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-import { Heart, Star, Trash2, ShoppingCart, Filter, SortAsc, SortDesc } from 'lucide-react';
+import { Heart, Star, Trash2, ShoppingCart, Filter, SortAsc, SortDesc, Grid, List } from 'lucide-react';
 
 import { useWishlist } from '../hooks/useWishlist';
 import { useCart } from '../hooks/useCart';
@@ -26,6 +26,7 @@ const WishlistPage = () => {
 
   const [sort, setSort] = useState('newest');
   const [filter, setFilter] = useState({}); // 확장 시 사용
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' 또는 'list'
 
   if (!wishlistItems || wishlistItems.length === 0) {
     return (
@@ -122,19 +123,38 @@ const WishlistPage = () => {
               할인순
             </button>
           </div>
-          
-          <button className="clear-all-btn" onClick={clearWishlist}>
-            <Trash2 size={16} />
-            모두삭제
-          </button>
+
+          <div className="view-controls">
+            <div className="view-toggle">
+              <button 
+                className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                onClick={() => setViewMode('grid')}
+                title="그리드 뷰"
+              >
+                <Grid size={16} />
+              </button>
+              <button 
+                className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                onClick={() => setViewMode('list')}
+                title="리스트 뷰"
+              >
+                <List size={16} />
+              </button>
+            </div>
+            
+            <button className="clear-all-btn" onClick={clearWishlist}>
+              <Trash2 size={16} />
+              모두삭제
+            </button>
+          </div>
         </div>
 
-        <div className="wishlist-list">
+        <div className={`wishlist-container ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
           {filteredItems.map((item) => (
             <ProductCard
               key={item.wishlistId || item.id}
               product={item}
-              viewMode="list"
+              viewMode={viewMode}
               isWishlisted={true}
               cartQuantity={isInCart(item.id) ? 1 : 0}
               onWishlistToggle={() => removeFromWishlist(item.id)}

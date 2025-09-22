@@ -33,7 +33,7 @@ const CouponModal = ({
   const expiringSoonCoupons = getExpiringSoonCoupons(7);
 
   // 필터링된 쿠폰 목록
-  const filteredCoupons = userCoupons.filter(coupon => {
+  const filteredCoupons = (userCoupons || []).filter(coupon => {
     // 검색 필터
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -46,9 +46,9 @@ const CouponModal = ({
     // 타입 필터
     switch (filterType) {
       case 'available':
-        return availableCoupons.some(c => c.id === coupon.id);
+        return (availableCoupons || []).some(c => c.id === coupon.id);
       case 'expiring':
-        return expiringSoonCoupons.some(c => c.id === coupon.id);
+        return (expiringSoonCoupons || []).some(c => c.id === coupon.id);
       default:
         return true;
     }
@@ -179,19 +179,19 @@ const CouponModal = ({
                 className={filterType === 'all' ? 'active' : ''}
                 onClick={() => setFilterType('all')}
               >
-                전체 ({userCoupons.length})
+                전체 ({(userCoupons || []).length})
               </button>
               <button 
                 className={filterType === 'available' ? 'active' : ''}
                 onClick={() => setFilterType('available')}
               >
-                사용가능 ({availableCoupons.length})
+                사용가능 ({(availableCoupons || []).length})
               </button>
               <button 
                 className={filterType === 'expiring' ? 'active' : ''}
                 onClick={() => setFilterType('expiring')}
               >
-                곧 만료 ({expiringSoonCoupons.length})
+                곧 만료 ({(expiringSoonCoupons || []).length})
               </button>
             </div>
           </div>
@@ -259,9 +259,9 @@ const CouponModal = ({
                         </div>
                       </div>
                       
-                      {coupon.categoryRestrictions.length > 0 && (
+                      {(coupon.categoryRestrictions || []).length > 0 && (
                         <div className="category-restrictions">
-                          <small>적용 카테고리: {coupon.categoryRestrictions.join(', ')}</small>
+                          <small>적용 카테고리: {(coupon.categoryRestrictions || []).join(', ')}</small>
                         </div>
                       )}
                     </div>

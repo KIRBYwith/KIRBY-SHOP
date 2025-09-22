@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,13 +8,20 @@ import '../styles/CouponBoxPage.css';
 
 const CouponBoxPage = () => {
   const { user } = useAuth();
-  const { userCoupons, issueCoupon } = useCoupon(user);
+  const { userCoupons, issueCoupon, refreshCoupons } = useCoupon(user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [message, setMessage] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // 사용자 쿠폰들
   const coupons = userCoupons || [];
+
+  // 쿠폰 목록 새로고침
+  useEffect(() => {
+    refreshCoupons();
+  }, [refreshTrigger, refreshCoupons]);
 
   const getCouponIcon = (type) => {
     switch (type) {
@@ -56,40 +63,112 @@ const CouponBoxPage = () => {
   // 쿠폰 등록 함수
   const handleCouponRegistration = async () => {
     if (!couponCode.trim()) {
-      setMessage('쿠폰 번호를 입력해주세요.');
+      setMessage('❌ 쿠폰 번호를 입력해주세요.');
       return;
     }
 
+    setIsRegistering(true);
+    setMessage('🔄 쿠폰 등록 중...');
+
     try {
       // 백엔드 API 호출
-      const response = await fetch('/api/coupons/register', {
+      const response = await fetch('http://localhost:8000/api/coupons/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           coupon_code: couponCode.trim().toUpperCase()
         })
       });
 
+      console.log('API 응답 상태:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API 오류:', errorData);
+        
+        if (response.status === 404) {
+          setMessage('❌ 쿠폰을 찾을 수 없습니다. 쿠폰 번호를 확인해주세요.');
+        } else if (response.status === 400) {
+          setMessage('❌ 이미 등록된 쿠폰입니다.');
+        } else {
+          setMessage(`❌ 서버 오류 (${response.status}). 다시 시도해주세요.`);
+        }
+        return;
+      }
+
       const result = await response.json();
+      console.log('API 응답:', result);
       
       if (result.success) {
-        setMessage(result.message);
+        setMessage(`✅ ${result.message}`);
         setCouponCode('');
-        // 쿠폰 목록 새로고침
-        window.location.reload();
+        
+        // 등록된 쿠폰을 사용자 쿠폰함에 추가
+        if (result.coupon_code) {
+          const newCoupon = {
+            id: result.coupon_code,
+            name: result.coupon_name || '등록된 쿠폰',
+            description: result.coupon_description || '쿠폰이 등록되었습니다.',
+            type: result.discount_type || 'percentage',
+            value: result.discount_value || 10,
+            minAmount: result.min_order_amount || 0,
+            maxDiscount: result.max_discount_amount || 0,
+            validFrom: result.valid_from || new Date().toISOString().split('T')[0],
+            validUntil: result.valid_until || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            isActive: true,
+            usageLimit: result.usage_limit || 1,
+            isUsed: false,
+            obtainedAt: new Date().toISOString(),
+            icon: '🎫'
+          };
+          
+          // useCoupon 훅을 통해 쿠폰 발급
+          try {
+            const issueResult = await issueCoupon(newCoupon);
+            if (issueResult.success) {
+              console.log('쿠폰이 사용자 쿠폰함에 추가되었습니다:', newCoupon);
+              setMessage(`✅ ${result.message} 쿠폰함에서 확인하세요!`);
+              
+              // 쿠폰 목록 새로고침
+              await refreshCoupons();
+              
+              // 강제 새로고침 트리거
+              setRefreshTrigger(prev => prev + 1);
+              
+              // 잠시 후 페이지 새로고침으로 최신 데이터 반영
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            } else {
+              console.error('쿠폰 발급 실패:', issueResult.message);
+              setMessage(`✅ ${result.message} (쿠폰함 추가 실패)`);
+            }
+          } catch (error) {
+            console.error('쿠폰 발급 오류:', error);
+            setMessage(`✅ ${result.message} (쿠폰함 추가 오류)`);
+          }
+        }
+        
+        // 모달 닫기 및 메시지 초기화
         setTimeout(() => {
           setIsModalOpen(false);
           setMessage('');
+          setIsRegistering(false);
         }, 2000);
       } else {
-        setMessage(result.message);
+        setMessage(`❌ ${result.message}`);
+        setIsRegistering(false);
       }
     } catch (error) {
       console.error('쿠폰 등록 오류:', error);
-      setMessage('쿠폰 등록 중 오류가 발생했습니다.');
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setMessage('❌ 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+      } else {
+        setMessage('❌ 쿠폰 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+      setIsRegistering(false);
     }
   };
 
@@ -226,13 +305,17 @@ const CouponBoxPage = () => {
               )}
               
               <div className="coupon-hints">
-                <h4>💡 쿠폰 번호 힌트</h4>
+                <h4>💡 사용 가능한 쿠폰 번호</h4>
                 <ul>
-                  <li><strong>일반 쿠폰:</strong> WELCOME20, FREESHIP, FIXED5000</li>
-                  <li><strong>특별 쿠폰:</strong> KIRBY로 시작하는 8자리 이상</li>
-                  <li><strong>숫자 쿠폰:</strong> 6자리 이상 숫자</li>
-                  <li><strong>마스터 쿠폰:</strong> MASTER, UNLIMITED 포함</li>
+                  <li><strong>신규회원:</strong> WELCOME20 (20% 할인)</li>
+                  <li><strong>무료배송:</strong> FREESHIP (배송비 무료)</li>
+                  <li><strong>정액할인:</strong> FIXED5000 (5,000원 할인)</li>
+                  <li><strong>인형할인:</strong> PLUSH30 (30% 할인)</li>
+                  <li><strong>생일특별:</strong> BIRTHDAY50 (50% 할인)</li>
                 </ul>
+                <p className="hint-note">
+                  💡 등록된 쿠폰은 쿠폰함에 저장되어 주문 시 사용할 수 있습니다!
+                </p>
               </div>
             </div>
             
@@ -246,9 +329,9 @@ const CouponBoxPage = () => {
               <button 
                 className="register-btn"
                 onClick={handleCouponRegistration}
-                disabled={!couponCode.trim()}
+                disabled={!couponCode.trim() || isRegistering}
               >
-                등록하기
+                {isRegistering ? '등록 중...' : '등록하기'}
               </button>
             </div>
           </div>

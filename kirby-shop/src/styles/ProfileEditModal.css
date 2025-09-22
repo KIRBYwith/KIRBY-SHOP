@@ -14,6 +14,7 @@
   z-index: 10000;
   padding: 20px;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-align: center;
 }
 
 .profile-edit-modal {
@@ -21,12 +22,14 @@
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   width: 95%;
-  max-width: 600px;
-  max-height: 85vh;
+  max-width: 900px;
+  max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   animation: modalSlideIn 0.3s ease-out;
+  margin: 0 auto;
+  text-align: left;
 }
 
 /* 헤더 */
@@ -140,12 +143,18 @@
 .modal-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 0;
 }
 
 /* 1단계: 비밀번호 확인 */
 .verify-form {
-  max-width: 400px;
+  max-width: 500px;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -223,6 +232,8 @@
   border-radius: 12px;
   padding: 4px;
   gap: 4px;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .tab-button {
@@ -260,12 +271,15 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
 }
 
 .form-grid .input-group.full-width {
@@ -387,11 +401,14 @@
 /* 액션 버튼 */
 .form-actions {
   display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 20px;
+  gap: 20px;
+  justify-content: space-between;
+  margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid #e9ecef;
+  width: 100%;
+  max-width: 600px;
+  flex-shrink: 0;
 }
 
 .cancel-button {
@@ -404,6 +421,11 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .cancel-button:hover {
@@ -426,7 +448,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 120px;
+  flex: 1;
 }
 
 .save-button:hover:not(:disabled) {
@@ -482,12 +504,13 @@
   }
   
   .form-actions {
-    flex-direction: column-reverse;
+    flex-direction: row;
+    gap: 12px;
   }
   
   .cancel-button,
   .save-button {
-    width: 100%;
+    flex: 1;
     justify-content: center;
   }
 }

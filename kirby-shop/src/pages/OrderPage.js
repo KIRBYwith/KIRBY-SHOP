@@ -412,14 +412,26 @@ const OrderPage = () => {
                     {summary.shippingFee > 0 ? (
                       <>
                         {formatPrice(summary.shippingFee)}
-                        {summary.region && summary.region !== '기본' && (
-                          <small style={{ display: 'block', fontSize: '12px', color: '#666' }}>
-                            ({summary.region} 지역)
+                        <div className="shipping-info">
+                          <small style={{ display: 'block', fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                            {summary.region && summary.region !== '기본' ? (
+                              `(${summary.region} 지역)`
+                            ) : (
+                              '기본 배송비'
+                            )}
                           </small>
-                        )}
+                          <small style={{ display: 'block', fontSize: '11px', color: '#999', marginTop: '2px' }}>
+                            {summary.shippingFee >= 30000 ? '30,000원 이상 구매 시 무료배송' : `${formatPrice(30000 - summary.shippingFee)}원 더 구매하면 무료배송`}
+                          </small>
+                        </div>
                       </>
                     ) : (
-                      <span style={{ color: '#10b981' }}>무료</span>
+                      <span style={{ color: '#10b981' }}>
+                        무료
+                        <small style={{ display: 'block', fontSize: '12px', color: '#10b981', marginTop: '4px' }}>
+                          (30,000원 이상 구매)
+                        </small>
+                      </span>
                     )}
                   </span>
                 </div>

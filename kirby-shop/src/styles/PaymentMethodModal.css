@@ -18,6 +18,7 @@
   padding: 20px;
   font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
   animation: fadeIn 0.3s ease-out;
+  text-align: center;
 }
 
 .payment-method-modal {
@@ -30,12 +31,14 @@
   min-width: 600px;
   max-width: 900px;
   height: auto;
-  max-height: 90vh;
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 2px solid rgba(79, 70, 229, 0.1);
+  margin: 0 auto;
+  text-align: left;
 }
 
 /* ======================
@@ -109,9 +112,68 @@
   overflow-x: hidden;
   padding: 36px;
   min-height: 0;
+  max-height: calc(85vh - 120px);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   gap: 32px;
+  /* 스크롤 동작 개선 */
+  scroll-behavior: smooth;
+  /* 스크롤 영역 명확화 */
+  position: relative;
+  /* 스크롤 강제 표시 */
+  scrollbar-width: thin;
+}
+
+/* 스크롤바 스타일링 */
+.modal-content::-webkit-scrollbar {
+  width: 14px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  border-radius: 7px;
+  margin: 8px 0;
+  border: 1px solid #cbd5e1;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ff69b4, #ff1493, #dc143c);
+  border-radius: 7px;
+  transition: all 0.3s ease;
+  border: 2px solid #f1f5f9;
+  box-shadow: 0 2px 4px rgba(255, 105, 180, 0.3);
+  min-height: 40px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ff1493, #dc143c, #8b008b);
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(255, 105, 180, 0.5);
+}
+
+.modal-content::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, #dc143c, #8b008b, #4b0082);
+}
+
+/* Firefox용 스크롤바 스타일 */
+.modal-content {
+  scrollbar-width: thin;
+  scrollbar-color: #ff69b4 #f1f5f9;
+}
+
+/* 스크롤 강제 표시 */
+.modal-content {
+  overflow-y: scroll !important;
+}
+
+/* 스크롤 영역 테스트용 */
+.modal-content::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 100%;
 }
 
 /* ======================
@@ -701,13 +763,15 @@
     border-radius: 20px;
   }
   
-  .modal-header {
-    padding: 24px 28px;
+  .modal-content {
+    max-height: calc(100vh - 140px);
+    padding: 24px;
+    gap: 24px;
+    overflow-y: scroll !important;
   }
   
-  .modal-content {
-    padding: 28px;
-    gap: 28px;
+  .modal-header {
+    padding: 24px 28px;
   }
   
   .methods-grid {
@@ -756,6 +820,13 @@
     height: 100vh;
     max-height: 100vh;
     border-radius: 0;
+  }
+  
+  .modal-content {
+    max-height: calc(100vh - 100px);
+    padding: 20px;
+    gap: 20px;
+    overflow-y: scroll !important;
   }
   
   .modal-header {

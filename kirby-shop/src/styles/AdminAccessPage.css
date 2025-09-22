@@ -1,0 +1,217 @@
+.admin-access-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-access-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.admin-access-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-access-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.admin-access-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.admin-access-subtitle {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.admin-access-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.access-info {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.access-info h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.access-info p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.legal-warning {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+}
+
+.legal-warning h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+}
+
+.legal-warning ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.legal-warning li {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.access-controls {
+  text-align: center;
+}
+
+.admin-access-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+}
+
+.admin-access-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(52, 152, 219, 0.4);
+}
+
+.warning-confirmation {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  padding: 2rem;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.warning-message h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.warning-message p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.warning-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(149, 165, 166, 0.3);
+}
+
+.admin-info {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+}
+
+.admin-info h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+}
+
+.admin-info p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .admin-access-container {
+    padding: 1rem;
+  }
+  
+  .admin-access-card {
+    padding: 2rem;
+  }
+  
+  .admin-access-header h1 {
+    font-size: 2rem;
+  }
+  
+  .warning-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .confirm-btn,
+  .cancel-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+
+

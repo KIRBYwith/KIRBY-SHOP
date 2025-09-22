@@ -14,6 +14,8 @@ from app.api.coupon import router as coupon_router
 from app.api.payment import router as payment_router
 from app.api.kakao_pay import router as kakao_pay_router
 from app.api.toss_payments import router as toss_payments_router
+from app.api.admin import router as admin_router
+from app.api.setting import router as setting_router
 
 # 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)
@@ -54,6 +56,8 @@ app.include_router(coupon_router)
 app.include_router(payment_router, prefix="/api/payments", tags=["payments"])
 app.include_router(kakao_pay_router)
 app.include_router(toss_payments_router)
+app.include_router(admin_router)
+app.include_router(setting_router, prefix="/api/admin", tags=["admin-settings"])
 
 if __name__ == "__main__":
     import uvicorn

@@ -286,7 +286,7 @@ const ProfileEditModal = ({
         </div>
 
         {/* 내용 */}
-        <div className="modal-content">
+        <div className="modal-content profile-edit-modal">
           {/* 1단계: 비밀번호 확인 */}
           {step === 'verify' && (
             <form onSubmit={handlePasswordVerification} className="verify-form">
@@ -364,7 +364,7 @@ const ProfileEditModal = ({
                 </button>
               </div>
 
-              <form onSubmit={handleSaveProfile} className="edit-form">
+              <form onSubmit={handleSaveProfile} className="edit-form profile-edit-form">
                 <div className="form-grid">
                   <div className="input-group">
                     <label htmlFor="name">이름 *</label>
