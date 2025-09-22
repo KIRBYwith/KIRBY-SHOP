@@ -1,0 +1,440 @@
+/* src/styles/Footer.css */
+
+.footer {
+  background: #1a1a2e;
+  color: white;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  border-top: 3px solid #16213e;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 메인 푸터 콘텐츠 */
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem 2rem;
+}
+
+.footer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footer-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 1rem 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.footer-link {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-link:hover {
+  color: #64b5f6;
+  transform: translateX(4px);
+}
+
+.footer-link.chat-link {
+  background: linear-gradient(135deg, #ff69b4, #ff1493);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  justify-content: center;
+}
+
+.footer-link.chat-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3);
+}
+
+.footer-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: white;
+  margin: 4px 0;
+}
+
+.footer-text svg {
+  color: #64b5f6;
+}
+
+/* 소셜 링크 */
+.social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.social-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: white;
+}
+
+.social-button:hover {
+  background: rgba(100, 181, 246, 0.2);
+  border-color: #64b5f6;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.social-button.instagram:hover {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.social-button.youtube:hover {
+  background: #ff0000;
+}
+
+.social-button.kakao:hover {
+  background: #fee500;
+  color: #3c1e1e;
+}
+
+/* 앱 다운로드 */
+.app-download {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.app-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  text-align: center;
+}
+
+.app-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: white;
+}
+
+.app-button:hover {
+  background: rgba(100, 181, 246, 0.2);
+  border-color: #64b5f6;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.app-button.ios:hover {
+  background: #007aff;
+}
+
+.app-button.android:hover {
+  background: #34a853;
+}
+
+/* 구분선 */
+.footer-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  margin: 0 2rem;
+}
+
+/* 하단 정보 */
+.footer-bottom {
+  background: transparent !important;
+  padding: 2rem;
+}
+
+.footer-bottom-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  background: transparent !important;
+}
+
+.company-info {
+  margin-bottom: 1.5rem;
+  background: transparent !important;
+}
+
+.company-info p {
+  font-size: 0.85rem;
+  color: white;
+  line-height: 1.6;
+  margin: 0.5rem 0;
+  background: transparent !important;
+}
+
+.company-info strong {
+  color: #64b5f6;
+  font-weight: 700;
+  background: transparent !important;
+}
+
+.legal-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.legal-link {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.legal-link:hover {
+  color: #64b5f6;
+}
+
+.legal-link.privacy {
+  color: #64b5f6;
+  font-weight: 600;
+}
+
+.divider {
+  color: white;
+  font-size: 0.8rem;
+}
+
+.copyright {
+  margin-bottom: 1.5rem;
+}
+
+.copyright p {
+  font-size: 0.85rem;
+  color: white;
+  margin: 0.3rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.copyright-icon {
+  color: #64b5f6;
+}
+
+.copyright-sub {
+  font-size: 0.75rem !important;
+  color: white !important;
+  font-style: italic;
+}
+
+.certifications {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.cert-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 25px;
+  font-size: 0.8rem;
+}
+
+.cert-mark {
+  font-size: 1.2rem;
+}
+
+.cert-text {
+  font-weight: 600;
+  color: white;
+}
+
+/* 플로팅 버튼들 */
+.floating-buttons {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.floating-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: #64b5f6;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(100, 181, 246, 0.4);
+}
+
+.floating-button.chat {
+  background: #25d366;
+}
+
+.floating-button.chat:hover {
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .footer-content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+  }
+  
+  .footer-section {
+    gap: 0.8rem;
+  }
+  
+  .footer-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 1rem;
+  }
+  
+  .footer-title {
+    font-size: 1rem;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .footer-links {
+    align-items: center;
+  }
+  
+  .footer-link {
+    justify-content: center;
+  }
+  
+  .social-links {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .app-download {
+    align-items: center;
+  }
+  
+  .legal-links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .certifications {
+    gap: 1rem;
+  }
+  
+  .floating-buttons {
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .floating-button {
+    width: 45px;
+    height: 45px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-content {
+    padding: 1rem 0.8rem;
+  }
+  
+  .footer-bottom {
+    padding: 1.5rem 1rem;
+  }
+  
+  .company-info p {
+    font-size: 0.8rem;
+  }
+  
+  .legal-links {
+    gap: 0.3rem;
+  }
+  
+  .legal-link {
+    font-size: 0.8rem;
+  }
+  
+  .certifications {
+    gap: 0.8rem;
+  }
+  
+  .cert-item {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+}

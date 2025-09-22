@@ -1,0 +1,475 @@
+/* ======================
+   관리자 쿠폰 관리 스타일
+   ====================== */
+
+.admin-coupons-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+}
+
+.admin-coupons-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.admin-coupons-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.admin-coupons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.admin-coupon-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-coupon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.admin-coupon-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.admin-coupon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.admin-coupon-info h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.coupon-code {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+    font-size: 0.9rem;
+}
+
+.admin-coupon-details {
+    margin-bottom: 1rem;
+}
+
+.admin-coupon-details p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.admin-coupon-details .discount-info {
+    font-weight: 600;
+    color: #3b82f6;
+    font-size: 1rem;
+}
+
+.admin-coupon-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.admin-coupon-stat-item {
+    text-align: center;
+}
+
+.admin-coupon-stat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.admin-coupon-stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.admin-status-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.admin-status-badge.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.admin-status-badge.inactive {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+    border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.admin-status-badge.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.admin-status-badge.processing {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.admin-status-badge.completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.admin-status-badge.cancelled {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.admin-coupon-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-coupon-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.admin-coupon-btn.edit {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+}
+
+.admin-coupon-btn.delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.admin-coupon-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 쿠폰 모달 스타일 */
+.admin-coupon-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+    text-align: center;
+}
+
+.admin-coupon-modal {
+    background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+    border-radius: 24px;
+    box-shadow: 
+        0 25px 80px rgba(59, 130, 246, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    width: auto;
+    min-width: 600px;
+    max-width: 800px;
+    height: auto;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(59, 130, 246, 0.1);
+    margin: 0 auto;
+    text-align: left;
+}
+
+.admin-coupon-modal .modal-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    padding: 28px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.admin-coupon-modal .header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+}
+
+.admin-coupon-modal .header-icon {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 16px;
+    padding: 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.admin-coupon-modal .modal-header h2 {
+    margin: 0 0 6px 0;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.admin-coupon-modal .modal-header p {
+    margin: 0;
+    font-size: 15px;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.admin-coupon-modal .close-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-coupon-modal .close-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.admin-coupon-modal .modal-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 32px;
+    min-height: 0;
+}
+
+.admin-coupon-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-coupon-modal .modal-footer {
+    padding: 24px 32px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.admin-coupon-modal .btn-secondary {
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-coupon-modal .btn-secondary:hover:not(:disabled) {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
+
+.admin-coupon-modal .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.admin-coupon-modal .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.admin-coupon-modal .btn-primary:disabled,
+.admin-coupon-modal .btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 쿠폰 유효성 표시 */
+.admin-coupon-validity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f0f9ff;
+    border-radius: 6px;
+    border: 1px solid #0ea5e9;
+}
+
+.admin-coupon-validity.valid {
+    background: #f0fdf4;
+    border-color: #10b981;
+}
+
+.admin-coupon-validity.expired {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+.admin-coupon-validity.upcoming {
+    background: #fffbeb;
+    border-color: #f59e0b;
+}
+
+.admin-validity-icon {
+    font-size: 0.875rem;
+}
+
+.admin-validity-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.admin-validity-text.valid {
+    color: #059669;
+}
+
+.admin-validity-text.expired {
+    color: #dc2626;
+}
+
+.admin-validity-text.upcoming {
+    color: #d97706;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .admin-coupons-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-coupon-actions {
+        flex-direction: column;
+    }
+    
+    .admin-coupon-modal {
+        min-width: 90vw;
+        max-width: 90vw;
+    }
+    
+    .admin-coupon-modal .modal-header {
+        padding: 20px 24px;
+    }
+    
+    .admin-coupon-modal .modal-content {
+        padding: 24px;
+    }
+    
+    .admin-coupon-modal .modal-footer {
+        padding: 20px 24px;
+        flex-direction: column;
+    }
+    
+    .admin-coupon-modal .modal-footer button {
+        width: 100%;
+    }
+    
+    .admin-coupon-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .admin-coupon-stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}

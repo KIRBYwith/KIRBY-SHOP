@@ -1,0 +1,1654 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import Header from '../components/common/Header';
+import Footer from '../components/common/Footer';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
+import '../styles/AdminPage.css';
+
+const AdminPage = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // API 기본 URL
+  const API_BASE_URL = 'http://localhost:8000/api';
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalOrders: 0,
+    totalProducts: 0,
+    totalRevenue: 0,
+    todayOrders: 0,
+    pendingOrders: 0
+  });
+
+  // 사용자 관리 상태
+  const [users, setUsers] = useState([]);
+  const [userSearch, setUserSearch] = useState('');
+  const [userFilter, setUserFilter] = useState('all');
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  // 상품 관리 상태
+  const [products, setProducts] = useState([]);
+  const [productSearch, setProductSearch] = useState('');
+  const [productFilter, setProductFilter] = useState('all');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // 주문 관리 상태
+  const [orders, setOrders] = useState([]);
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderFilter, setOrderFilter] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // 문의 관리 상태
+  const [inquiries, setInquiries] = useState([]);
+  const [inquirySearch, setInquirySearch] = useState('');
+  const [inquiryFilter, setInquiryFilter] = useState('all');
+
+  // 쿠폰 관리 상태
+  const [coupons, setCoupons] = useState([]);
+  const [couponSearch, setCouponSearch] = useState('');
+  const [couponFilter, setCouponFilter] = useState('all');
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+
+  // 쿠폰 폼 상태
+  const [newCoupon, setNewCoupon] = useState({
+    code: '',
+    name: '',
+    description: '',
+    discount_type: 'percentage',
+    discount_value: 0,
+    min_order_amount: 0,
+    max_discount_amount: null,
+    usage_limit: null,
+    user_limit: 1,
+    valid_from: '',
+    valid_until: ''
+  });
+
+  // 상품 폼 상태  
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    description: '',
+    price: 0,
+    stock: 0,
+    category: '',
+    image_url: '',
+    is_active: true
+  });
+
+  // 이미지 업로드 관련 상태
+  const [uploadMethod, setUploadMethod] = useState('file');
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imageUrls, setImageUrls] = useState(['']);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(true);
+  const [loginData, setLoginData] = useState({
+    username: '',
+    password: ''
+  });
+
+  // 차트 데이터 상태
+  const [chartData, setChartData] = useState({
+    salesData: [],
+    userGrowthData: [],
+    productCategoryData: [],
+    orderStatusData: []
+  });
+
+  // 알림 상태
+  const [notification, setNotification] = useState({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+
+  // 이미지 업로드 관련 함수들
+  const handleFileUpload = useCallback((files) => {
+    const newImages = Array.from(files).slice(0, 5);
+    const imageFiles = newImages.map(file => ({
+      file,
+      preview: URL.createObjectURL(file),
+      name: file.name,
+      size: file.size
+    }));
+
+    setSelectedImages(prev => {
+      // 메모리 정리
+      prev.forEach(img => URL.revokeObjectURL(img.preview));
+      return [...imageFiles];
+    });
+  }, []);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files);
+    }
+  }, [handleFileUpload]);
+
+  const removeImage = useCallback((index) => {
+    setSelectedImages(prev => {
+      const newImages = prev.filter((_, i) => i !== index);
+      if (prev[index]?.preview) {
+        URL.revokeObjectURL(prev[index].preview);
+      }
+      return newImages;
+    });
+  }, []);
+
+  const addImageUrl = () => {
+    setImageUrls(prev => [...prev, ''].slice(0, 5));
+  };
+
+  const updateImageUrl = (index, url) => {
+    setImageUrls(prev => prev.map((item, i) => i === index ? url : item));
+  };
+
+  const removeImageUrl = (index) => {
+    setImageUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // 알림 함수
+  const showNotification = useCallback((message, type = 'success') => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: 'success' });
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
+    const checkAdminSession = () => {
+      const adminSession = localStorage.getItem('kirby-shop-admin-session');
+      if (adminSession) {
+        try {
+          const sessionData = JSON.parse(adminSession);
+          const sessionTime = new Date(sessionData.loginTime);
+          const now = new Date();
+          const hoursDiff = (now - sessionTime) / (1000 * 60 * 60);
+
+          if (hoursDiff < 24) {
+            setIsAdmin(true);
+            setShowLoginForm(false);
+            loadDashboardData();
+          } else {
+            localStorage.removeItem('kirby-shop-admin-session');
+            setShowLoginForm(true);
+          }
+        } catch (error) {
+          localStorage.removeItem('kirby-shop-admin-session');
+          setShowLoginForm(true);
+        }
+      } else {
+        setShowLoginForm(true);
+      }
+    };
+
+    checkAdminSession();
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      switch (activeTab) {
+        case 'users':
+          loadUsers();
+          break;
+        case 'products':
+          loadProducts();
+          break;
+        case 'orders':
+          loadOrders();
+          break;
+        case 'coupons':
+          loadCoupons();
+          break;
+        case 'support':
+          loadInquiries();
+          break;
+        default:
+          break;
+      }
+    }
+  }, [activeTab, isAdmin]);
+
+  // 메모리 정리
+  useEffect(() => {
+    return () => {
+      selectedImages.forEach(img => {
+        if (img.preview) URL.revokeObjectURL(img.preview);
+      });
+    };
+  }, [selectedImages]);
+
+  const apiCall = async (endpoint, options = {}) => {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    // 관리자 세션에서 토큰 가져오기
+    const adminSession = localStorage.getItem('kirby-shop-admin-session');
+    let authToken = null;
+    
+    if (adminSession) {
+      try {
+        const sessionData = JSON.parse(adminSession);
+        authToken = sessionData.token || sessionData.username; // 임시로 username 사용
+      } catch (error) {
+        console.error('세션 파싱 오류:', error);
+      }
+    }
+
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+      },
+    };
+
+    const response = await fetch(url, { ...defaultOptions, ...options });
+
+    if (!response.ok) {
+      if (response.status === 403) {
+        // 인증 실패 시 로그인 폼 표시
+        setIsAdmin(false);
+        setShowLoginForm(true);
+        localStorage.removeItem('kirby-shop-admin-session');
+        throw new Error('인증이 필요합니다. 다시 로그인해주세요.');
+      }
+      throw new Error(`API 호출 실패: ${response.status}`);
+    }
+
+    return await response.json();
+  };
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const data = await apiCall('/admin/dashboard/stats');
+      setStats(data);
+    } catch (error) {
+      console.error('대시보드 데이터 로드 실패:', error);
+      setStats({
+        totalUsers: 12,
+        totalOrders: 10,
+        totalProducts: 10,
+        totalRevenue: 250000,
+        todayOrders: 3,
+        pendingOrders: 2
+      });
+    } finally {
+      setLoading(false);
+    }
+
+    loadChartData();
+    loadMockData();
+  };
+
+  const loadMockData = () => {
+    try {
+      const mockUsers = [
+        { id: 1, name: '김커비', email: 'kirby@example.com', role: 'user', createdAt: '2024-01-15', blocked: false },
+        { id: 2, name: '이스타', email: 'star@example.com', role: 'user', createdAt: '2024-02-20', blocked: false },
+        { id: 3, name: '박드림', email: 'dream@example.com', role: 'seller', createdAt: '2024-03-10', blocked: false },
+        { id: 4, name: '최랜드', email: 'land@example.com', role: 'user', createdAt: '2024-04-05', blocked: false },
+        { id: 5, name: '정메타', email: 'meta@example.com', role: 'manager', createdAt: '2024-05-12', blocked: false },
+      ];
+
+      const mockProducts = [
+        { id: 1, name: '커비 인형 (대형)', price: 25000, category: '인형', stock: 15, views: 1250, sales: 89, status: 'active', image: '/kirby_images/kirby_001.jpg' },
+        { id: 2, name: '커비 후드티', price: 35000, category: '의류', stock: 8, views: 980, sales: 67, status: 'active', image: '/kirby_images/kirby_002.jpg' },
+        { id: 3, name: '커비 램프', price: 45000, category: '액세서리', stock: 0, views: 2100, sales: 45, status: 'out-of-stock', image: '/kirby_images/kirby_003.jpg' },
+        { id: 4, name: '커비 티셔츠', price: 20000, category: '의류', stock: 25, views: 750, sales: 123, status: 'active', image: '/kirby_images/kirby_004.jpg' },
+        { id: 5, name: '커비 시계', price: 55000, category: '액세서리', stock: 12, views: 1800, sales: 34, status: 'active', image: '/kirby_images/kirby_005.jpg' },
+      ];
+
+      const mockOrders = [
+        { id: 1001, userName: '김커비', totalAmount: 25000, status: 'pending', createdAt: '2024-12-15 14:30', items: [{ name: '커비 인형 (대형)', quantity: 1 }] },
+        { id: 1002, userName: '이스타', totalAmount: 35000, status: 'processing', createdAt: '2024-12-15 13:45', items: [{ name: '커비 후드티', quantity: 1 }] },
+        { id: 1003, userName: '박드림', totalAmount: 45000, status: 'shipped', createdAt: '2024-12-15 12:20', items: [{ name: '커비 램프', quantity: 1 }] },
+      ];
+
+      const mockInquiries = [
+        { id: 2001, title: '배송 문의', content: '언제 배송되나요?', userName: '김커비', category: '배송', status: 'pending', createdAt: '2024-12-15 14:30' },
+        { id: 2002, title: '상품 문의', content: '사이즈가 어떻게 되나요?', userName: '이스타', category: '상품', status: 'answered', createdAt: '2024-12-15 13:45' },
+      ];
+
+      const mockCoupons = [
+        { id: 1, code: 'WELCOME20', name: '신규회원 20% 할인쿠폰', description: '신규회원 가입 축하!', discount_type: 'percentage', discount_value: 20, min_order_amount: 10000, max_discount_amount: 50000, usage_limit: 100, usage_count: 45, user_limit: 1, is_active: true, valid_from: '2024-01-01', valid_until: '2025-12-31', created_at: '2024-01-01' },
+        { id: 2, code: 'FREESHIP', name: '무료배송 쿠폰', description: '배송비 무료!', discount_type: 'fixed_amount', discount_value: 3000, min_order_amount: 20000, max_discount_amount: 3000, usage_limit: 500, usage_count: 123, user_limit: 10, is_active: true, valid_from: '2024-01-01', valid_until: '2025-12-31', created_at: '2024-01-01' },
+      ];
+
+      setUsers(mockUsers);
+      setProducts(mockProducts);
+      setOrders(mockOrders);
+      setInquiries(mockInquiries);
+      setCoupons(mockCoupons);
+
+    } catch (error) {
+      console.error('데이터 로드 실패:', error);
+    }
+  };
+
+  const loadChartData = async () => {
+    try {
+      const salesData = [
+        { date: '12-09', sales: 120000 },
+        { date: '12-10', sales: 150000 },
+        { date: '12-11', sales: 180000 },
+        { date: '12-12', sales: 200000 },
+        { date: '12-13', sales: 160000 },
+        { date: '12-14', sales: 220000 },
+        { date: '12-15', sales: 250000 }
+      ];
+
+      const userGrowthData = [
+        { month: '7월', users: 45 },
+        { month: '8월', users: 52 },
+        { month: '9월', users: 68 },
+        { month: '10월', users: 75 },
+        { month: '11월', users: 89 },
+        { month: '12월', users: 102 }
+      ];
+
+      const productCategoryData = [
+        { name: '인형', value: 35, color: '#FF6B6B' },
+        { name: '의류', value: 25, color: '#4ECDC4' },
+        { name: '액세서리', value: 20, color: '#45B7D1' },
+        { name: '문구', value: 15, color: '#96CEB4' },
+        { name: '기타', value: 5, color: '#FFEAA7' }
+      ];
+
+      const orderStatusData = [
+        { status: '대기', count: 3, color: '#FFA726' },
+        { status: '처리중', count: 5, color: '#42A5F5' },
+        { status: '배송중', count: 8, color: '#66BB6A' },
+        { status: '완료', count: 12, color: '#26A69A' },
+        { status: '취소', count: 2, color: '#EF5350' }
+      ];
+
+      setChartData({
+        salesData,
+        userGrowthData,
+        productCategoryData,
+        orderStatusData
+      });
+    } catch (error) {
+      console.error('차트 데이터 로드 실패:', error);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await apiCall('/admin/users');
+      setUsers(data);
+    } catch (error) {
+      console.error('사용자 목록 로드 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const data = await apiCall('/admin/products');
+      setProducts(data);
+    } catch (error) {
+      console.error('상품 목록 로드 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const data = await apiCall('/admin/orders');
+      setOrders(data);
+    } catch (error) {
+      console.error('주문 목록 로드 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCoupons = async () => {
+    try {
+      setLoading(true);
+      const data = await apiCall('/admin/coupons');
+      setCoupons(data);
+    } catch (error) {
+      console.error('쿠폰 목록 로드 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadInquiries = async () => {
+    try {
+      setLoading(true);
+      const data = await apiCall('/admin/inquiries');
+      setInquiries(data);
+    } catch (error) {
+      console.error('문의 목록 로드 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const tabs = [
+    { id: 'dashboard', label: '대시보드', icon: '📊' },
+    { id: 'users', label: '사용자 관리', icon: '👤' },
+    { id: 'products', label: '상품 관리', icon: '📦' },
+    { id: 'orders', label: '주문 관리', icon: '🧾' },
+    { id: 'coupons', label: '쿠폰 관리', icon: '🎫' },
+    { id: 'support', label: '고객지원', icon: '💬' },
+    { id: 'analytics', label: '통계 분석', icon: '📈' },
+    { id: 'settings', label: '설정', icon: '⚙️' },
+    { id: 'security', label: '보안', icon: '🔒' }
+  ];
+
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      if (!loginData.username || !loginData.password) {
+        alert('아이디와 비밀번호를 모두 입력해주세요.');
+        return;
+      }
+
+      // 백엔드 로그인 API 호출
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: loginData.username.trim(),
+          password: loginData.password.trim()
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        const sessionData = {
+          username: loginData.username.trim(),
+          token: data.access_token || data.token || loginData.username.trim(),
+          loginTime: new Date().toISOString(),
+          isAdmin: true
+        };
+        localStorage.setItem('kirby-shop-admin-session', JSON.stringify(sessionData));
+
+        setIsAdmin(true);
+        setShowLoginForm(false);
+
+        // 로그인 성공 후 데이터 로드
+        await loadDashboardData();
+        showNotification('관리자 로그인에 성공했습니다!');
+
+      } else {
+        const errorData = await response.json();
+        alert(`로그인 실패: ${errorData.detail || '아이디 또는 비밀번호가 올바르지 않습니다.'}`);
+      }
+
+    } catch (error) {
+      console.error('로그인 오류:', error);
+      
+      // 네트워크 오류 시 클라이언트 사이드 로그인으로 폴백
+      const adminEmail = 'admin@kirby-shop.com';
+      const adminPassword = 'admin123';
+      
+      if (loginData.username.trim() === adminEmail && loginData.password.trim() === adminPassword) {
+        const sessionData = {
+          username: loginData.username.trim(),
+          token: loginData.username.trim(),
+          loginTime: new Date().toISOString(),
+          isAdmin: true
+        };
+        localStorage.setItem('kirby-shop-admin-session', JSON.stringify(sessionData));
+
+        setIsAdmin(true);
+        setShowLoginForm(false);
+
+        setStats({
+          totalUsers: 12,
+          totalOrders: 10,
+          totalProducts: 10,
+          totalRevenue: 250000,
+          todayOrders: 3,
+          pendingOrders: 2
+        });
+
+        showNotification('관리자 로그인에 성공했습니다! (오프라인 모드)');
+      } else {
+        alert('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    }
+  };
+
+  const handleAdminLogout = () => {
+    if (window.confirm('관리자에서 로그아웃하시겠습니까?')) {
+      localStorage.removeItem('kirby-shop-admin-session');
+      setIsAdmin(false);
+      setShowLoginForm(true);
+      setLoginData({ username: '', password: '' });
+      showNotification('관리자에서 로그아웃되었습니다.');
+    }
+  };
+
+  const handleCreateCoupon = () => {
+    setEditingCoupon(null);
+    setNewCoupon({
+      code: '',
+      name: '',
+      description: '',
+      discount_type: 'percentage',
+      discount_value: 0,
+      min_order_amount: 0,
+      max_discount_amount: null,
+      usage_limit: null,
+      user_limit: 1,
+      valid_from: new Date().toISOString().split('T')[0],
+      valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      is_active: true
+    });
+    setIsCouponModalOpen(true);
+  };
+
+  const handleCreateProduct = () => {
+    setEditingProduct(null);
+    setNewProduct({
+      name: '',
+      description: '',
+      price: 0,
+      stock: 0,
+      category: '',
+      image_url: '',
+      is_active: true
+    });
+    setIsProductModalOpen(true);
+  };
+
+  const handleSaveCoupon = () => {
+    if (!newCoupon.code || !newCoupon.name) {
+      alert('쿠폰 코드와 이름은 필수입니다.');
+      return;
+    }
+
+    try {
+      if (editingCoupon) {
+        const updatedCoupons = coupons.map(c =>
+          c.id === editingCoupon.id ? { ...c, ...newCoupon } : c
+        );
+        setCoupons(updatedCoupons);
+        showNotification('쿠폰이 성공적으로 수정되었습니다!');
+      } else {
+        const newCouponData = {
+          ...newCoupon,
+          id: Date.now(),
+          usage_count: 0,
+          is_active: true,
+          created_at: new Date().toISOString().split('T')[0]
+        };
+        setCoupons(prev => [...prev, newCouponData]);
+        showNotification('새 쿠폰이 성공적으로 생성되었습니다!');
+      }
+
+      setIsCouponModalOpen(false);
+      setEditingCoupon(null);
+    } catch (error) {
+      console.error('쿠폰 저장 오류:', error);
+      showNotification('쿠폰 저장 중 오류가 발생했습니다.', 'error');
+    }
+  };
+
+  const handleSaveProduct = () => {
+    if (!newProduct.name || !newProduct.price) {
+      alert('상품명과 가격은 필수입니다.');
+      return;
+    }
+
+    try {
+      if (editingProduct) {
+        const updatedProducts = products.map(p =>
+          p.id === editingProduct.id ? { ...p, ...newProduct } : p
+        );
+        setProducts(updatedProducts);
+        showNotification('상품이 성공적으로 수정되었습니다!');
+      } else {
+        const newProductData = {
+          ...newProduct,
+          id: Date.now(),
+          created_at: new Date().toISOString().split('T')[0]
+        };
+        setProducts(prev => [...prev, newProductData]);
+        showNotification('새 상품이 성공적으로 추가되었습니다!');
+      }
+
+      setIsProductModalOpen(false);
+      setEditingProduct(null);
+    } catch (error) {
+      console.error('상품 저장 오류:', error);
+      showNotification('상품 저장 중 오류가 발생했습니다.', 'error');
+    }
+  };
+
+  // 알림 렌더링
+  const renderNotification = () => {
+    if (!notification.show) return null;
+
+    return (
+      <div className={`admin-notification-bar show ${notification.type}`}>
+        {notification.message}
+      </div>
+    );
+  };
+
+  const renderCouponModal = () => {
+    if (!isCouponModalOpen) return null;
+
+    return (
+      <div className="admin-modal-overlay" onClick={() => setIsCouponModalOpen(false)}>
+        <div className="admin-modal-content admin-coupon-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="admin-modal-header">
+            <div className="admin-modal-header-content">
+              <div className="admin-modal-title-section">
+                <div className="admin-modal-icon">🎫</div>
+                <div>
+                  <h2 className="admin-modal-title">쿠폰 관리 시스템</h2>
+                  <p className="admin-modal-subtitle">
+                    {editingCoupon ? '쿠폰 정보 수정' : '새로운 쿠폰 생성'}
+                  </p>
+                </div>
+              </div>
+              <button
+                className="admin-modal-close-btn"
+                onClick={() => setIsCouponModalOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div className="admin-modal-body">
+            {/* 기본 정보 섹션 */}
+            <div className="admin-form-section">
+              <div className="admin-section-header">
+                <div className="admin-section-icon">📝</div>
+                <h3 className="admin-section-title">기본 정보</h3>
+              </div>
+
+              <div className="admin-form-row">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">쿠폰 코드 *</label>
+                  <input
+                    type="text"
+                    value={newCoupon.code}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                    placeholder="예: WELCOME20"
+                    className="admin-form-input"
+                  />
+                  <small className="admin-input-hint">영문 대문자와 숫자만 사용 가능</small>
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">쿠폰 이름 *</label>
+                  <input
+                    type="text"
+                    value={newCoupon.name}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, name: e.target.value })}
+                    placeholder="예: 신규회원 20% 할인쿠폰"
+                    className="admin-form-input"
+                  />
+                </div>
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">쿠폰 설명</label>
+                <textarea
+                  value={newCoupon.description}
+                  onChange={(e) => setNewCoupon({ ...newCoupon, description: e.target.value })}
+                  placeholder="쿠폰에 대한 상세 설명"
+                  className="admin-form-textarea"
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* 할인 설정 섹션 */}
+            <div className="admin-form-section">
+              <div className="admin-section-header">
+                <div className="admin-section-icon">💰</div>
+                <h3 className="admin-section-title">할인 설정</h3>
+              </div>
+
+              <div className="admin-form-row">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">할인 타입</label>
+                  <select
+                    value={newCoupon.discount_type}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, discount_type: e.target.value })}
+                    className="admin-form-select"
+                  >
+                    <option value="percentage">퍼센트 할인 (%)</option>
+                    <option value="fixed_amount">정액 할인 (원)</option>
+                  </select>
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">할인 값</label>
+                  <input
+                    type="number"
+                    value={newCoupon.discount_value}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, discount_value: parseFloat(e.target.value) || 0 })}
+                    placeholder={newCoupon.discount_type === 'percentage' ? '20' : '5000'}
+                    className="admin-form-input"
+                  />
+                </div>
+              </div>
+
+              <div className="admin-form-row">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">최소 주문금액</label>
+                  <input
+                    type="number"
+                    value={newCoupon.min_order_amount}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, min_order_amount: parseInt(e.target.value) || 0 })}
+                    placeholder="0"
+                    className="admin-form-input"
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">최대 할인금액</label>
+                  <input
+                    type="number"
+                    value={newCoupon.max_discount_amount || ''}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, max_discount_amount: parseInt(e.target.value) || null })}
+                    placeholder="선택사항"
+                    className="admin-form-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 사용 조건 섹션 */}
+            <div className="admin-form-section">
+              <div className="admin-section-header">
+                <div className="admin-section-icon">⚙️</div>
+                <h3 className="admin-section-title">사용 조건</h3>
+              </div>
+
+              <div className="admin-form-row">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">총 사용 제한</label>
+                  <input
+                    type="number"
+                    value={newCoupon.usage_limit || ''}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, usage_limit: parseInt(e.target.value) || null })}
+                    placeholder="무제한"
+                    className="admin-form-input"
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">사용자당 제한</label>
+                  <input
+                    type="number"
+                    value={newCoupon.user_limit}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, user_limit: parseInt(e.target.value) || 1 })}
+                    placeholder="1"
+                    className="admin-form-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 유효기간 섹션 */}
+            <div className="admin-form-section">
+              <div className="admin-section-header">
+                <div className="admin-section-icon">📅</div>
+                <h3 className="admin-section-title">유효기간</h3>
+              </div>
+
+              <div className="admin-form-row">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">시작일</label>
+                  <input
+                    type="date"
+                    value={newCoupon.valid_from}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, valid_from: e.target.value })}
+                    className="admin-form-input"
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">종료일</label>
+                  <input
+                    type="date"
+                    value={newCoupon.valid_until}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, valid_until: e.target.value })}
+                    className="admin-form-input"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-modal-footer">
+            <button
+              className="admin-btn-secondary"
+              onClick={() => setIsCouponModalOpen(false)}
+            >
+              취소
+            </button>
+            <button
+              className="admin-btn-primary"
+              onClick={handleSaveCoupon}
+            >
+              {editingCoupon ? '쿠폰 수정' : '쿠폰 생성'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // 간단한 대시보드 렌더
+  const renderDashboard = () => (
+    <div className="admin-content">
+      <h2>관리자 대시보드</h2>
+      <div className="admin-kpi-grid">
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-value">₩{stats.totalRevenue?.toLocaleString() || 0}</div>
+          <div className="admin-kpi-label">총 매출액</div>
+        </div>
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-value">{stats.totalOrders || 0}</div>
+          <div className="admin-kpi-label">총 주문수</div>
+        </div>
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-value">{stats.totalUsers || 0}</div>
+          <div className="admin-kpi-label">총 회원수</div>
+        </div>
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-value">{stats.totalProducts || 0}</div>
+          <div className="admin-kpi-label">등록 상품</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCoupons = () => (
+    <div className="admin-content">
+      <div className="content-header">
+        <h2>쿠폰 관리</h2>
+        <button onClick={handleCreateCoupon} className="admin-btn-primary">
+          새 쿠폰 생성
+        </button>
+      </div>
+      <div className="coupons-grid">
+        {coupons.map(coupon => (
+          <div key={coupon.id} className="coupon-card">
+            <div className="coupon-header">
+              <div className="coupon-code">{coupon.code}</div>
+              <span className={`admin-status-badge ${coupon.is_active ? 'active' : 'inactive'}`}>
+                {coupon.is_active ? '활성' : '비활성'}
+              </span>
+            </div>
+            <h3 className="coupon-name">{coupon.name}</h3>
+            <p className="coupon-description">{coupon.description}</p>
+            <div className="coupon-details">
+              <div>할인: {coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `${coupon.discount_value}원`}</div>
+              <div>사용: {coupon.usage_count} / {coupon.usage_limit || '무제한'}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // 상품 페이지네이션 상태 추가
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(36);
+
+  const renderProducts = () => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(products.length / itemsPerPage);
+
+    return (
+      <div className="admin-content">
+        <div className="admin-content-header">
+          <h2>상품 관리</h2>
+          <div className="header-actions">
+            <input
+              type="text"
+              placeholder="상품 검색..."
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+              className="admin-search-input"
+            />
+            <button onClick={handleCreateProduct} className="admin-btn-primary">
+              새 상품 추가
+            </button>
+          </div>
+        </div>
+
+        <div className="admin-products-grid">
+          {currentProducts.map(product => (
+            <div key={product.id} className="admin-product-card">
+              <div className="admin-product-image">
+                <img src={product.image || '/placeholder.jpg'} alt={product.name} />
+              </div>
+              <div className="admin-product-info">
+                <h3 className="admin-product-name">{product.name}</h3>
+                <p className="admin-product-price">{product.price?.toLocaleString()}원</p>
+                <div className="admin-product-meta">
+                  <span>재고: {product.stock}개</span>
+                  <span className={`admin-status-badge ${product.status || 'active'}`}>
+                    {product.status === 'active' ? '판매중' : '품절'}
+                  </span>
+                </div>
+                <div className="admin-product-actions">
+                  <button className="admin-action-btn edit">수정</button>
+                  <button className="admin-action-btn delete">삭제</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 페이지네이션 */}
+        <div className="admin-pagination">
+          <button
+            className="admin-pagination-btn"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            이전
+          </button>
+
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index + 1}
+              className={`admin-pagination-btn ${currentPage === index + 1 ? 'active' : ''}`}
+              onClick={() => setCurrentPage(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          <button
+            className="admin-pagination-btn"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            다음
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderAnalytics = () => (
+    <div className="admin-analytics-dashboard">
+      <div className="admin-analytics-header">
+        <h2 className="admin-analytics-title">비즈니스 인사이트 대시보드</h2>
+        <p className="admin-analytics-subtitle">실시간 데이터로 보는 커비샵의 성장 동력</p>
+      </div>
+
+      {/* KPI 카드들 */}
+      <div className="admin-kpi-grid">
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-header">
+            <div className="admin-kpi-icon-wrapper">💰</div>
+            <div className="admin-kpi-trend positive">↗️ +18.2%</div>
+          </div>
+          <div className="admin-kpi-value">₩2,450,000</div>
+          <div className="admin-kpi-label">총 매출액</div>
+          <div className="admin-kpi-sublabel">이번 달 기준</div>
+        </div>
+
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-header">
+            <div className="admin-kpi-icon-wrapper">📦</div>
+            <div className="admin-kpi-trend positive">↗️ +25.7%</div>
+          </div>
+          <div className="admin-kpi-value">1,247</div>
+          <div className="admin-kpi-label">총 주문 건수</div>
+          <div className="admin-kpi-sublabel">이번 달 기준</div>
+        </div>
+
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-header">
+            <div className="admin-kpi-icon-wrapper">👥</div>
+            <div className="admin-kpi-trend positive">↗️ +12.3%</div>
+          </div>
+          <div className="admin-kpi-value">342</div>
+          <div className="admin-kpi-label">신규 고객</div>
+          <div className="admin-kpi-sublabel">이번 달 기준</div>
+        </div>
+
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-header">
+            <div className="admin-kpi-icon-wrapper">⭐</div>
+            <div className="admin-kpi-trend positive">↗️ +0.3</div>
+          </div>
+          <div className="admin-kpi-value">4.8</div>
+          <div className="admin-kpi-label">평균 만족도</div>
+          <div className="admin-kpi-sublabel">5점 만점 기준</div>
+        </div>
+      </div>
+
+      {/* 메인 차트 */}
+      <div className="admin-main-chart-section">
+        <div className="admin-chart-card">
+          <div className="admin-chart-header">
+            <h3 className="admin-chart-title">매출 트렌드 분석</h3>
+            <p className="admin-chart-description">최근 30일간의 상세 매출 동향</p>
+          </div>
+          <div className="admin-chart-container">
+            <ResponsiveContainer width="100%" height={350}>
+              <AreaChart data={chartData.salesData}>
+                <defs>
+                  <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#667eea" stopOpacity={0.9} />
+                    <stop offset="95%" stopColor="#667eea" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="date" />
+                <YAxis tickFormatter={(value) => `₩${(value / 1000).toFixed(0)}K`} />
+                <Tooltip formatter={(value) => [`₩${value?.toLocaleString()}`, '매출']} />
+                <Area
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#667eea"
+                  fill="url(#salesGradient)"
+                  strokeWidth={3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* 서브 차트들 */}
+      <div className="admin-charts-grid">
+        <div className="admin-mini-chart-card">
+          <div className="admin-mini-chart-header">
+            <h4 className="admin-mini-chart-title">고객 증가 추이</h4>
+          </div>
+          <div className="admin-mini-chart-body">
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={chartData.userGrowthData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="users" fill="#10b981" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="admin-mini-chart-card">
+          <div className="admin-mini-chart-header">
+            <h4 className="admin-mini-chart-title">카테고리별 매출</h4>
+          </div>
+          <div className="admin-mini-chart-body">
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={chartData.productCategoryData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {chartData.productCategoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="admin-mini-chart-card">
+          <div className="admin-mini-chart-header">
+            <h4 className="admin-mini-chart-title">인기 상품 TOP 5</h4>
+          </div>
+          <div className="admin-mini-chart-body">
+            <div className="admin-products-ranking-list">
+              {products.slice(0, 5).map((product, index) => (
+                <div key={product.id} className="admin-ranking-product-item">
+                  <div className="admin-rank-badge">#{index + 1}</div>
+                  <div className="admin-product-info">
+                    <div className="admin-product-name">{product.name}</div>
+                    <div className="admin-product-sales">{product.sales || 0}개 판매</div>
+                  </div>
+                  <div className="admin-product-price">₩{product.price?.toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard': return renderDashboard();
+      case 'users': return renderUsers(); // 추가 구현 필요
+      case 'products': return renderProducts();
+      case 'orders': return renderOrders(); // 추가 구현 필요  
+      case 'coupons': return renderCoupons();
+      case 'support': return renderSupport(); // 추가 구현 필요
+      case 'analytics': return renderAnalytics();
+      case 'settings': return renderSettings();
+      case 'security': return renderSecurity();
+      default: return renderDashboard();
+    }
+  };
+
+  if (showLoginForm) {
+    return (
+      <div className="admin-page">
+        <div className="admin-login-container">
+          <div className="admin-login-form">
+            <div className="login-header">
+              <h2>관리자 로그인</h2>
+              <p>커비샵 관리자 페이지에 접근하려면 로그인이 필요합니다.</p>
+            </div>
+
+            <form onSubmit={handleAdminLogin} className="login-form">
+              <div className="admin-form-group">
+                <label htmlFor="username">아이디</label>
+                <input
+                  type="text"
+                  id="username"
+                  value={loginData.username}
+                  onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
+                  placeholder="관리자 아이디를 입력하세요"
+                  required
+                  className="admin-form-input"
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label htmlFor="password">비밀번호</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  placeholder="관리자 비밀번호를 입력하세요"
+                  required
+                  className="admin-form-input"
+                />
+              </div>
+
+              <button type="submit" className="admin-btn-primary login-button">
+                로그인
+              </button>
+            </form>
+
+            <div className="login-info">
+              <p><strong>관리자 계정 정보:</strong></p>
+              <p>아이디: admin@kirby-shop.com</p>
+              <p>비밀번호: admin123</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const renderSettings = () => (
+    <div className="admin-content">
+      <h2>시스템 설정</h2>
+      <div className="admin-settings-grid">
+        <div className="admin-settings-card">
+          <h3>사이트 기본 설정</h3>
+          <div className="admin-form-group">
+            <label>사이트 이름</label>
+            <input type="text" defaultValue="커비샵" className="admin-form-input" />
+          </div>
+          <div className="admin-form-group">
+            <label>사이트 설명</label>
+            <textarea defaultValue="커비 굿즈 전문 쇼핑몰" className="admin-form-textarea"></textarea>
+          </div>
+          <button className="admin-btn-primary">저장</button>
+        </div>
+
+        <div className="admin-settings-card">
+          <h3>알림 설정</h3>
+          <div className="admin-checkbox-wrapper">
+            <input type="checkbox" id="new-order-alert" defaultChecked className="admin-checkbox" />
+            <label htmlFor="new-order-alert">새 주문 알림</label>
+          </div>
+          <div className="admin-checkbox-wrapper">
+            <input type="checkbox" id="inquiry-alert" defaultChecked className="admin-checkbox" />
+            <label htmlFor="inquiry-alert">문의 알림</label>
+          </div>
+          <button className="admin-btn-primary">저장</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSecurity = () => (
+    <div className="admin-content">
+      <h2>보안 관리</h2>
+      <div className="admin-security-grid">
+        <div className="admin-security-card">
+          <h3>관리자 활동 로그</h3>
+          <div className="admin-activity-log">
+            <div className="admin-log-item">
+              <span>2024-12-15 14:30</span>
+              <span>사용자 권한 변경</span>
+              <span>admin</span>
+            </div>
+            <div className="admin-log-item">
+              <span>2024-12-15 13:45</span>
+              <span>상품 상태 변경</span>
+              <span>manager</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-security-card">
+          <h3>보안 설정</h3>
+          <div className="admin-checkbox-wrapper">
+            <input type="checkbox" id="2fa" defaultChecked className="admin-checkbox" />
+            <label htmlFor="2fa">2단계 인증</label>
+          </div>
+          <div className="admin-checkbox-wrapper">
+            <input type="checkbox" id="ip-restrict" className="admin-checkbox" />
+            <label htmlFor="ip-restrict">IP 제한</label>
+          </div>
+          <button className="admin-btn-primary">저장</button>
+        </div>
+      </div>
+    </div>
+  );
+
+// renderContent() 함수에서 누락된 함수들을 추가하세요:
+
+// 1. renderUsers 함수 추가
+const renderUsers = () => (
+  <div className="admin-content">
+    <div className="admin-content-header">
+      <h2>사용자 관리</h2>
+      <div className="header-actions">
+        <input
+          type="text"
+          placeholder="사용자 검색..."
+          value={userSearch}
+          onChange={(e) => setUserSearch(e.target.value)}
+          className="admin-search-input"
+        />
+        <select
+          value={userFilter}
+          onChange={(e) => setUserFilter(e.target.value)}
+          className="admin-form-select"
+        >
+          <option value="all">전체</option>
+          <option value="user">일반회원</option>
+          <option value="manager">관리자</option>
+          <option value="blocked">차단된 사용자</option>
+        </select>
+      </div>
+    </div>
+
+    <div className="admin-users-table">
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>이름</th>
+            <th>이메일</th>
+            <th>역할</th>
+            <th>가입일</th>
+            <th>상태</th>
+            <th>액션</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map(user => (
+            <tr key={user.id}>
+              <td>{user.id}</td>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td>
+                <span className={`admin-role-badge ${user.role}`}>
+                  {user.role === 'user' ? '일반회원' : 
+                   user.role === 'manager' ? '관리자' : '판매자'}
+                </span>
+              </td>
+              <td>{user.createdAt}</td>
+              <td>
+                <span className={`admin-status-badge ${user.blocked ? 'blocked' : 'active'}`}>
+                  {user.blocked ? '차단됨' : '활성'}
+                </span>
+              </td>
+              <td>
+                <div className="admin-action-buttons">
+                  <button className="admin-action-btn edit">편집</button>
+                  <button className="admin-action-btn delete">삭제</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+// 2. renderOrders 함수 추가
+const renderOrders = () => (
+  <div className="admin-content">
+    <div className="admin-content-header">
+      <h2>주문 관리</h2>
+      <div className="header-actions">
+        <input
+          type="text"
+          placeholder="주문 검색..."
+          value={orderSearch}
+          onChange={(e) => setOrderSearch(e.target.value)}
+          className="admin-search-input"
+        />
+        <select
+          value={orderFilter}
+          onChange={(e) => setOrderFilter(e.target.value)}
+          className="admin-form-select"
+        >
+          <option value="all">전체</option>
+          <option value="pending">대기중</option>
+          <option value="processing">처리중</option>
+          <option value="shipped">배송중</option>
+          <option value="delivered">배송완료</option>
+          <option value="cancelled">취소됨</option>
+        </select>
+      </div>
+    </div>
+
+    <div className="admin-orders-table">
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>주문번호</th>
+            <th>고객명</th>
+            <th>주문금액</th>
+            <th>상태</th>
+            <th>주문일시</th>
+            <th>액션</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map(order => (
+            <tr key={order.id}>
+              <td>#{order.id}</td>
+              <td>{order.userName}</td>
+              <td>₩{order.totalAmount?.toLocaleString()}</td>
+              <td>
+                <span className={`admin-status-badge ${order.status}`}>
+                  {order.status === 'pending' ? '대기중' :
+                   order.status === 'processing' ? '처리중' :
+                   order.status === 'shipped' ? '배송중' : '완료'}
+                </span>
+              </td>
+              <td>{order.createdAt}</td>
+              <td>
+                <div className="admin-action-buttons">
+                  <button className="admin-action-btn view">상세</button>
+                  <button className="admin-action-btn edit">수정</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+// 3. renderSupport 함수 추가
+const renderSupport = () => (
+  <div className="admin-content">
+    <div className="admin-content-header">
+      <h2>고객지원</h2>
+      <div className="header-actions">
+        <input
+          type="text"
+          placeholder="문의 검색..."
+          value={inquirySearch}
+          onChange={(e) => setInquirySearch(e.target.value)}
+          className="admin-search-input"
+        />
+        <select
+          value={inquiryFilter}
+          onChange={(e) => setInquiryFilter(e.target.value)}
+          className="admin-form-select"
+        >
+          <option value="all">전체</option>
+          <option value="pending">미답변</option>
+          <option value="answered">답변완료</option>
+          <option value="closed">종료</option>
+        </select>
+      </div>
+    </div>
+
+    <div className="admin-inquiries-table">
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>문의번호</th>
+            <th>제목</th>
+            <th>고객명</th>
+            <th>카테고리</th>
+            <th>상태</th>
+            <th>문의일시</th>
+            <th>액션</th>
+          </tr>
+        </thead>
+        <tbody>
+          {inquiries.map(inquiry => (
+            <tr key={inquiry.id}>
+              <td>#{inquiry.id}</td>
+              <td>{inquiry.title}</td>
+              <td>{inquiry.userName}</td>
+              <td>
+                <span className={`admin-category-badge ${inquiry.category}`}>
+                  {inquiry.category}
+                </span>
+              </td>
+              <td>
+                <span className={`admin-status-badge ${inquiry.status}`}>
+                  {inquiry.status === 'pending' ? '미답변' : '답변완료'}
+                </span>
+              </td>
+              <td>{inquiry.createdAt}</td>
+              <td>
+                <div className="admin-action-buttons">
+                  <button className="admin-action-btn view">답변</button>
+                  <button className="admin-action-btn delete">삭제</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+// 4. renderProductModal 함수 추가
+const renderProductModal = () => {
+  if (!isProductModalOpen) return null;
+
+  return (
+    <div className="admin-modal-overlay" onClick={() => setIsProductModalOpen(false)}>
+      <div className="admin-modal-content admin-product-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
+          <div className="admin-modal-header-content">
+            <div className="admin-modal-title-section">
+              <div className="admin-modal-icon">📦</div>
+              <div>
+                <h2 className="admin-modal-title">상품 관리 시스템</h2>
+                <p className="admin-modal-subtitle">
+                  {editingProduct ? '상품 정보 수정' : '새로운 상품 등록'}
+                </p>
+              </div>
+            </div>
+            <button
+              className="admin-modal-close-btn"
+              onClick={() => setIsProductModalOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div className="admin-modal-body">
+          <div className="admin-form-section">
+            <div className="admin-section-header">
+              <div className="admin-section-icon">📝</div>
+              <h3 className="admin-section-title">기본 정보</h3>
+            </div>
+
+            <div className="admin-form-row">
+              <div className="admin-form-group">
+                <label className="admin-form-label">상품명 *</label>
+                <input
+                  type="text"
+                  value={newProduct.name}
+                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  placeholder="상품명을 입력하세요"
+                  className="admin-form-input"
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">카테고리 *</label>
+                <select
+                  value={newProduct.category}
+                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                  className="admin-form-select"
+                >
+                  <option value="">카테고리 선택</option>
+                  <option value="인형">인형</option>
+                  <option value="의류">의류</option>
+                  <option value="액세서리">액세서리</option>
+                  <option value="문구">문구</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-form-label">상품 설명</label>
+              <textarea
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                placeholder="상품에 대한 상세 설명"
+                className="admin-form-textarea"
+                rows="4"
+              />
+            </div>
+
+            <div className="admin-form-row">
+              <div className="admin-form-group">
+                <label className="admin-form-label">가격 *</label>
+                <input
+                  type="number"
+                  value={newProduct.price}
+                  onChange={(e) => setNewProduct({ ...newProduct, price: parseInt(e.target.value) || 0 })}
+                  placeholder="0"
+                  className="admin-form-input"
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">재고 수량</label>
+                <input
+                  type="number"
+                  value={newProduct.stock}
+                  onChange={(e) => setNewProduct({ ...newProduct, stock: parseInt(e.target.value) || 0 })}
+                  placeholder="0"
+                  className="admin-form-input"
+                />
+              </div>
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-form-label">이미지 URL</label>
+              <input
+                type="url"
+                value={newProduct.image_url}
+                onChange={(e) => setNewProduct({ ...newProduct, image_url: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+                className="admin-form-input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-modal-footer">
+          <button
+            className="admin-btn-secondary"
+            onClick={() => setIsProductModalOpen(false)}
+          >
+            취소
+          </button>
+          <button
+            className="admin-btn-primary"
+            onClick={handleSaveProduct}
+          >
+            {editingProduct ? '상품 수정' : '상품 등록'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminPage;

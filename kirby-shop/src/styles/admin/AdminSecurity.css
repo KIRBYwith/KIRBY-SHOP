@@ -1,0 +1,588 @@
+/* ======================
+   관리자 보안 관리 스타일
+   ====================== */
+
+/* 보안 관리 콘텐츠 */
+.admin-security-content {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.admin-content-header {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-content-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(255, 105, 180, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 20, 147, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.admin-content-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, #ff69b4, #ff1493);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.admin-content-subtitle {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+/* 보안 그리드 */
+.admin-security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+/* 보안 카드 */
+.admin-security-card {
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.admin-security-card:hover {
+  border-color: #ff69b4;
+  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.15);
+  transform: translateY(-2px);
+}
+
+.admin-security-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff69b4, #ff1493, #dc143c);
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+}
+
+/* 카드 헤더 */
+.admin-card-header {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-card-icon {
+  font-size: 2rem;
+  background: linear-gradient(135deg, #ff69b4, #ff1493);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3));
+}
+
+.admin-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  flex: 1;
+}
+
+/* 카드 바디 */
+.admin-card-body {
+  padding: 1.5rem;
+}
+
+/* 보안 정보 */
+.admin-security-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.admin-info-item:hover {
+  border-color: #ff69b4;
+  background: rgba(255, 105, 180, 0.02);
+}
+
+.admin-info-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.admin-info-value {
+  font-weight: 500;
+  color: #1f2937;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.75rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+/* 보안 상태 */
+.admin-security-status {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.admin-status-item:hover {
+  border-color: #ff69b4;
+  background: rgba(255, 105, 180, 0.02);
+}
+
+.admin-status-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.admin-status-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.admin-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.admin-status-indicator.success {
+  background: #10b981;
+}
+
+.admin-status-indicator.warning {
+  background: #f59e0b;
+}
+
+.admin-status-indicator.error {
+  background: #ef4444;
+}
+
+.admin-status-indicator.info {
+  background: #3b82f6;
+}
+
+/* 보안 액션 */
+.admin-security-actions {
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.admin-btn-primary {
+  background: linear-gradient(135deg, #ff69b4, #ff1493);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+  font-size: 0.9rem;
+}
+
+.admin-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+}
+
+.admin-btn-secondary {
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.admin-btn-secondary:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+.admin-btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.admin-btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* 접근 로그 테이블 */
+.admin-access-log {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.admin-log-header {
+  background: #f8fafc;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.admin-log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.3s ease;
+}
+
+.admin-log-item:hover {
+  background: rgba(255, 105, 180, 0.02);
+}
+
+.admin-log-item:last-child {
+  border-bottom: none;
+}
+
+.admin-log-time {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.admin-log-action {
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.admin-log-ip {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* 애니메이션 */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .admin-security-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .admin-content-header {
+    padding: 1.5rem 1rem;
+  }
+  
+  .admin-content-title {
+    font-size: 1.5rem;
+  }
+  
+  .admin-card-header {
+    padding: 1rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .admin-card-body {
+    padding: 1rem;
+  }
+  
+  .admin-security-actions {
+    padding: 1rem;
+    flex-direction: column;
+  }
+  
+  .admin-security-actions button {
+    width: 100%;
+  }
+  
+  .admin-info-item,
+  .admin-status-item {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .admin-log-item {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content-title {
+    font-size: 1.25rem;
+  }
+  
+  .admin-content-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .admin-card-title {
+    font-size: 1.1rem;
+  }
+  
+  .admin-card-icon {
+    font-size: 1.5rem;
+  }
+  
+  .admin-info-label,
+  .admin-status-label {
+    font-size: 0.85rem;
+  }
+  
+  .admin-info-value,
+  .admin-status-value {
+    font-size: 0.85rem;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .admin-security-content {
+    background: #1e293b;
+    border-color: #475569;
+  }
+  
+  .admin-content-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+  
+  .admin-content-subtitle {
+    color: #94a3b8;
+  }
+  
+  .admin-security-card {
+    background: #334155;
+    border-color: #475569;
+  }
+  
+  .admin-card-header {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-color: #475569;
+  }
+  
+  .admin-card-title {
+    color: #f1f5f9;
+  }
+  
+  .admin-info-item,
+  .admin-status-item {
+    background: #334155;
+    border-color: #475569;
+  }
+  
+  .admin-info-label,
+  .admin-status-label {
+    color: #f1f5f9;
+  }
+  
+  .admin-info-value {
+    background: #475569;
+    border-color: #64748b;
+    color: #f1f5f9;
+  }
+  
+  .admin-security-actions {
+    background: #334155;
+    border-color: #475569;
+  }
+  
+  .admin-access-log {
+    background: #334155;
+    border-color: #475569;
+  }
+  
+  .admin-log-header {
+    background: #475569;
+    color: #f1f5f9;
+  }
+  
+  .admin-log-item {
+    border-color: #475569;
+  }
+  
+  .admin-log-time,
+  .admin-log-ip {
+    color: #94a3b8;
+  }
+  
+  .admin-log-action {
+    color: #f1f5f9;
+  }
+  
+  .admin-log-ip {
+    background: #475569;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .admin-security-card,
+  .admin-btn-primary,
+  .admin-btn-secondary,
+  .admin-btn-danger,
+  .admin-info-item,
+  .admin-status-item {
+    transition: none;
+  }
+  
+  .admin-security-card:hover,
+  .admin-btn-primary:hover,
+  .admin-btn-secondary:hover,
+  .admin-btn-danger:hover {
+    transform: none;
+  }
+  
+  .admin-status-indicator {
+    animation: none;
+  }
+}
+
+/* 관리자 푸터 */
+.admin-footer {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-top: 1px solid #e2e8f0;
+  padding: 1.5rem 2rem;
+  margin-top: 2rem;
+}
+
+.admin-footer-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-developer-info {
+  text-align: center;
+}
+
+.developer-text {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.developer-text:first-child {
+  margin-bottom: 0.25rem;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .admin-security-content,
+  .admin-security-card {
+    border-width: 2px;
+  }
+  
+  .admin-info-item,
+  .admin-status-item,
+  .admin-access-log {
+    border-width: 2px;
+  }
+  
+  .admin-btn-primary,
+  .admin-btn-secondary,
+  .admin-btn-danger {
+    border: 2px solid currentColor;
+  }
+}

@@ -1,0 +1,498 @@
+/* src/styles/ShippingAddressSelector.css */
+
+.shipping-address-selector {
+  width: 100%;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* 저장된 배송지 섹션 */
+.saved-addresses-section {
+  background: white;
+  border: 2px solid #f1f3f4;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.section-header:hover {
+  background: #e9ecef;
+}
+
+.section-header h4 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.toggle-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #495057;
+}
+
+/* 주소 목록 */
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.address-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border-bottom: 1px solid #f1f3f4;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.address-item:last-child {
+  border-bottom: none;
+}
+
+.address-item:hover {
+  background: #f8f9fa;
+}
+
+.address-item.selected {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f1f9f1 100%);
+  border-color: #10b981;
+}
+
+.address-item.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #10b981;
+}
+
+/* 라디오 버튼 */
+.address-radio {
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.address-radio input {
+  display: none;
+}
+
+.radio-custom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #dee2e6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.address-item.selected .radio-custom {
+  background: #10b981;
+  border-color: #10b981;
+}
+
+/* 주소 내용 */
+.address-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.address-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.address-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.address-title svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.address-nickname {
+  font-size: 16px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.default-badge {
+  background: #ffd700;
+  color: #856404;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.address-type {
+  font-size: 12px;
+  color: #6c757d;
+  background: #f8f9fa;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.address-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipient-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.recipient-info svg {
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.address-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.main-address {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #343a40;
+  line-height: 1.4;
+}
+
+.detail-address {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+.delivery-request {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #856404;
+}
+
+/* 주소 옵션 버튼 */
+.address-options {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  background: white;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  justify-content: center;
+  min-width: 140px;
+}
+
+.option-button:hover {
+  border-color: #10b981;
+  color: #10b981;
+  transform: translateY(-1px);
+}
+
+.option-button.selected {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #10b981;
+  color: white;
+}
+
+.option-button.new-address {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.option-button.new-address:hover {
+  background: #10b981;
+  color: white;
+}
+
+/* 선택된 주소 요약 */
+.selected-address-summary {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f1f9f1 100%);
+  border: 2px solid #10b981;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.check-icon {
+  color: #10b981;
+}
+
+.summary-header span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #047857;
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-recipient {
+  font-size: 15px;
+  font-weight: 600;
+  color: #047857;
+}
+
+.summary-address {
+  font-size: 14px;
+  color: #047857;
+  line-height: 1.4;
+}
+
+.summary-request {
+  font-size: 13px;
+  color: #065f46;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+/* 배송 안내 */
+.shipping-notice {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+  border: 1px solid #2196f3;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.notice-content h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1565c0;
+}
+
+.notice-content ul {
+  margin: 0;
+  padding-left: 16px;
+  list-style: none;
+}
+
+.notice-content li {
+  position: relative;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #1565c0;
+  padding-left: 16px;
+}
+
+.notice-content li:before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #1976d2;
+  font-weight: bold;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .address-item {
+    padding: 16px;
+  }
+  
+  .address-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .recipient-info {
+    flex-wrap: wrap;
+  }
+  
+  .address-options {
+    flex-direction: column;
+  }
+  
+  .option-button {
+    flex: none;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-header {
+    padding: 14px 16px;
+  }
+  
+  .address-item {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  
+  .address-nickname {
+    font-size: 15px;
+  }
+  
+  .selected-address-summary {
+    padding: 16px;
+  }
+  
+  .shipping-notice {
+    padding: 14px;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .saved-addresses-section {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .section-header {
+    background: #374151;
+    border-color: #4b5563;
+  }
+  
+  .section-header h4 {
+    color: #f9fafb;
+  }
+  
+  .address-item {
+    border-color: #374151;
+  }
+  
+  .address-item:hover {
+    background: #374151;
+  }
+  
+  .address-item.selected {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+  }
+  
+  .radio-custom {
+    border-color: #6b7280;
+  }
+  
+  .address-nickname {
+    color: #f9fafb;
+  }
+  
+  .main-address {
+    color: #f9fafb;
+  }
+  
+  .detail-address {
+    color: #d1d5db;
+  }
+  
+  .option-button {
+    background: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+  }
+  
+  .option-button:hover {
+    border-color: #10b981;
+    color: #10b981;
+  }
+  
+  .selected-address-summary {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    border-color: #10b981;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .address-item,
+  .option-button,
+  .toggle-button {
+    transition: none;
+  }
+  
+  .option-button:hover {
+    transform: none;
+  }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .saved-addresses-section,
+  .selected-address-summary,
+  .shipping-notice {
+    border-width: 2px;
+  }
+  
+  .address-item.selected {
+    border-width: 3px;
+  }
+  
+  .radio-custom {
+    border-width: 2px;
+  }
+}

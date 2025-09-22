@@ -1,0 +1,455 @@
+/* src/styles/CategoryMenu.css */
+
+/* ======================
+   카테고리 메뉴 기본 스타일
+   ====================== */
+   .category-menu {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 182, 193, 0.3);
+    position: sticky;
+    top: 110px;
+    z-index: 999;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.1);
+  }
+  
+  .category-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    position: relative;
+  }
+  
+  /* ======================
+     모바일용 드롭다운 헤더
+     ====================== */
+  .mobile-category-header {
+    display: none;
+  }
+  
+  .mobile-category-toggle {
+    width: 100%;
+    padding: 1rem;
+    background: white;
+    border: 3px solid #ffb6c1;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 8px 30px rgba(255, 105, 180, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .mobile-category-toggle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.1), transparent);
+    transition: left 0.6s ease;
+  }
+  
+  .mobile-category-toggle:hover::before {
+    left: 100%;
+  }
+  
+  .mobile-category-toggle:hover {
+    border-color: #ff69b4;
+    background: linear-gradient(135deg, rgba(255, 105, 180, 0.05), rgba(255, 182, 193, 0.05));
+    transform: translateY(-2px);
+  }
+  
+  .current-category {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #ff1493;
+  }
+  
+  .dropdown-arrow {
+    transition: transform 0.3s ease;
+    font-size: 1rem;
+    color: #ff1493;
+    filter: drop-shadow(0 0 4px rgba(255, 20, 147, 0.3));
+  }
+  
+  .dropdown-arrow.active {
+    transform: rotate(180deg);
+  }
+  
+  /* ======================
+     데스크톱용 가로 카테고리 리스트
+     ====================== */
+  .category-list {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .category-item {
+    margin: 0;
+  }
+  
+  .category-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: transparent;
+    border: 2px solid transparent;
+    color: #ff1493;
+    padding: 8px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .category-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.1), transparent);
+    transition: left 0.6s ease;
+  }
+  
+  .category-button:hover::before {
+    left: 100%;
+  }
+  
+  .category-button:hover {
+    background-color: rgba(255, 105, 180, 0.1);
+    border-color: #ff69b4;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);
+  }
+  
+  .category-button.active {
+    background-color: #ff69b4;
+    color: white;
+    border-color: #ff1493;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+  }
+  
+  .category-icon {
+    font-size: 1.2rem;
+    filter: drop-shadow(0 0 4px rgba(255, 242, 0, 0.5));
+  }
+  
+  .category-name {
+    font-weight: 500;
+  }
+  
+  /* ======================
+     스페셜 아이템
+     ====================== */
+  .special-items {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 182, 193, 0.3);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .special-button {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .special-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+  }
+  
+  .special-button:hover::before {
+    left: 100%;
+  }
+  
+  .special-button.new-items {
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+  }
+  
+  .special-button.best-items {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: white;
+  }
+  
+  .special-button.sale-items {
+    background: linear-gradient(135deg, #ff4500, #dc143c);
+    color: white;
+  }
+  
+  .special-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* ======================
+     모바일 오버레이
+     ====================== */
+  .mobile-category-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 499;
+    backdrop-filter: blur(5px);
+  }
+  
+  /* ======================
+     반응형 스타일
+     ====================== */
+  @media screen and (max-width: 768px) {
+    .category-menu {
+      top: 120px;
+    }
+    
+    .category-container {
+      padding: 1rem;
+    }
+  
+    /* 모바일에서 드롭다운 표시 */
+    .mobile-category-header {
+      display: block;
+    }
+  
+    /* 모바일에서 카테고리 리스트를 드롭다운으로 */
+    .category-list {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 1rem;
+      right: 1rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+      border: 3px solid #ffb6c1;
+      padding: 1rem;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 500;
+      max-height: 60vh;
+      overflow-y: auto;
+      animation: slideInUp 0.3s ease-out;
+    }
+  
+    .category-list.mobile-open {
+      display: flex;
+    }
+  
+    .mobile-category-overlay {
+      display: block;
+    }
+  
+    .category-button {
+      justify-content: flex-start;
+      padding: 1rem;
+      border-radius: 15px;
+      width: 100%;
+      background: #fafafa;
+      border: 2px solid transparent;
+    }
+  
+    .category-button:hover {
+      background: rgba(255, 105, 180, 0.1);
+      border-color: #ffb6c1;
+      transform: translateX(5px);
+    }
+  
+    .category-button.active {
+      background: #ff69b4;
+      color: white;
+      border-color: #ff1493;
+      transform: scale(1.02);
+    }
+  
+    /* 스페셜 아이템도 드롭다운에 포함 */
+    .special-items {
+      display: none;
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 1rem;
+      right: 1rem;
+      background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+      border: 3px solid #ffb6c1;
+      padding: 1rem;
+      margin-top: 0;
+      border-top: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 500;
+      animation: slideInUp 0.3s ease-out 0.1s both;
+    }
+  
+    .special-items.mobile-open {
+      display: flex;
+    }
+  
+    .special-button {
+      width: 100%;
+      text-align: left;
+      padding: 1rem;
+      border-radius: 12px;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .category-container {
+      padding: 0.8rem;
+    }
+  
+    .mobile-category-toggle {
+      padding: 0.8rem;
+      font-size: 0.9rem;
+      border-radius: 15px;
+    }
+  
+    .category-button {
+      padding: 0.8rem;
+      font-size: 0.9rem;
+      border-radius: 12px;
+    }
+  
+    .special-button {
+      padding: 0.8rem;
+      font-size: 0.9rem;
+    }
+  
+    .category-list {
+      border-radius: 15px;
+    }
+  
+    .special-items {
+      border-radius: 15px;
+    }
+  }
+  
+  /* ======================
+     다크모드 지원
+     ====================== */
+  @media (prefers-color-scheme: dark) {
+    .category-menu {
+      background: rgba(45, 55, 72, 0.9);
+      border-bottom-color: rgba(74, 85, 104, 0.3);
+    }
+  
+    .mobile-category-toggle,
+    .category-list,
+    .special-items {
+      background: #2d3748;
+      color: #e0e0e0;
+      border-color: #4a5568;
+    }
+  
+    .current-category {
+      color: #ff69b4;
+    }
+  
+    .category-button {
+      color: #ff69b4;
+      background: #3a4553;
+    }
+  
+    .category-button:hover {
+      background: rgba(255, 105, 180, 0.2);
+    }
+  }
+  
+  /* ======================
+     접근성 향상
+     ====================== */
+  .category-button:focus,
+  .special-button:focus,
+  .mobile-category-toggle:focus {
+    outline: 2px solid #ff69b4;
+    outline-offset: 2px;
+  }
+  
+  /* 고대비 모드 지원 */
+  @media (prefers-contrast: high) {
+    .mobile-category-toggle,
+    .category-list,
+    .special-items {
+      border: 3px solid #000;
+    }
+  
+    .category-button:hover {
+      border: 2px solid #ff69b4;
+    }
+  }
+  
+  /* 애니메이션 감소 모드 지원 */
+  @media (prefers-reduced-motion: reduce) {
+    .category-list,
+    .special-items {
+      animation: none;
+    }
+  
+    .category-button,
+    .special-button,
+    .mobile-category-toggle {
+      transition: none;
+    }
+  
+    .category-button::before,
+    .special-button::before,
+    .mobile-category-toggle::before {
+      transition: none;
+    }
+  }
+  
+  /* ======================
+     유틸리티 애니메이션
+     ====================== */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

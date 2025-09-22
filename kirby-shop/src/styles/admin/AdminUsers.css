@@ -1,0 +1,446 @@
+/* ======================
+   관리자 사용자 관리 스타일
+   ====================== */
+
+.admin-users-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+}
+
+.admin-users-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.admin-users-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.admin-users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.admin-user-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.admin-user-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.admin-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-user-avatar {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.admin-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: opacity 0.3s ease;
+}
+
+.admin-avatar-image.loading {
+    opacity: 0;
+}
+
+.admin-avatar-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+    border-radius: 50%;
+}
+
+.admin-user-details h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.admin-user-details p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.admin-user-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.admin-stat-item {
+    text-align: center;
+}
+
+.admin-stat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.admin-stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.admin-user-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-user-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.admin-user-btn.edit {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+}
+
+.admin-user-btn.delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.admin-user-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 사용자 모달 스타일 */
+.admin-user-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+    text-align: center;
+}
+
+.admin-user-modal {
+    background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+    border-radius: 24px;
+    box-shadow: 
+        0 25px 80px rgba(59, 130, 246, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    width: auto;
+    min-width: 600px;
+    max-width: 800px;
+    height: auto;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(59, 130, 246, 0.1);
+    margin: 0 auto;
+    text-align: left;
+}
+
+.admin-user-modal .modal-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    padding: 28px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.admin-user-modal .header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+}
+
+.admin-user-modal .header-icon {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 16px;
+    padding: 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.admin-user-modal .modal-header h2 {
+    margin: 0 0 6px 0;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.admin-user-modal .modal-header p {
+    margin: 0;
+    font-size: 15px;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.admin-user-modal .close-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-user-modal .close-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.admin-user-modal .modal-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 32px;
+    min-height: 0;
+}
+
+.admin-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.admin-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.admin-form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-form-input,
+.admin-form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.admin-form-input:focus,
+.admin-form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.admin-user-modal .modal-footer {
+    padding: 24px 32px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.admin-user-modal .btn-secondary {
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-user-modal .btn-secondary:hover:not(:disabled) {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
+
+.admin-user-modal .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.admin-user-modal .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.admin-user-modal .btn-primary:disabled,
+.admin-user-modal .btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 프로필 이미지 정보 */
+.profile-image-info {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.profile-image-note {
+    margin: 0;
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
+    font-style: italic;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .admin-users-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-user-actions {
+        flex-direction: column;
+    }
+    
+    .admin-user-modal {
+        min-width: 90vw;
+        max-width: 90vw;
+    }
+    
+    .admin-user-modal .modal-header {
+        padding: 20px 24px;
+    }
+    
+    .admin-user-modal .modal-content {
+        padding: 24px;
+    }
+    
+    .admin-user-modal .modal-footer {
+        padding: 20px 24px;
+        flex-direction: column;
+    }
+    
+    .admin-user-modal .modal-footer button {
+        width: 100%;
+    }
+    
+    .admin-form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-image-grid {
+        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+        gap: 0.4rem;
+        max-height: 150px;
+    }
+    
+    .profile-image-preview {
+        height: 40px;
+    }
+}

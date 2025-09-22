@@ -1,0 +1,756 @@
+/* 커비봇 컨테이너 */
+.kirby-bot-container {
+  position: fixed;
+  bottom: 90px;
+  left: 40px;
+  z-index: 1000;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  transform: scale(1.2); /* 20% 크기 증가 (기존 1.1에서 10% 더 증가) */
+  /* 자유 비행을 위한 여유 공간 확장 */
+  margin: 25px;
+}
+
+/* 커비봇 아이콘 */
+.kirby-bot-icon {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: kirbyFloat 4s ease-in-out infinite;
+}
+
+.kirby-bot-icon:hover {
+  transform: scale(1.15);
+  animation-play-state: paused;
+}
+
+.kirby-bot-icon:hover .kirby-image {
+  filter: drop-shadow(0 6px 20px rgba(255, 182, 193, 0.6));
+}
+
+.kirby-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(255, 182, 193, 0.4));
+}
+
+/* 커비봇 플로팅 애니메이션 */
+@keyframes kirbyFloat {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  20% {
+    transform: translateY(-15px) translateX(5px) rotate(3deg);
+  }
+  40% {
+    transform: translateY(-25px) translateX(-3px) rotate(-2deg);
+  }
+  60% {
+    transform: translateY(-20px) translateX(8px) rotate(2deg);
+  }
+  80% {
+    transform: translateY(-10px) translateX(-5px) rotate(-1deg);
+  }
+}
+
+/* 펄스 효과 */
+.bot-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 182, 193, 0.2) 0%, rgba(255, 182, 193, 0.05) 50%, transparent 100%);
+  animation: pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* 알림 아이콘 */
+.bot-notification {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  animation: notificationBounce 1.5s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+}
+
+@keyframes notificationBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* 말풍선 */
+.kirby-bot-speech-bubble {
+  position: absolute;
+  bottom: 90px;
+  left: 0;
+  width: 450px; /* 가로 길이 증가 (380px → 450px) */
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  animation: speechBubbleSlideIn 0.3s ease-out;
+  border: 2px solid #ffb6c1;
+}
+
+@keyframes speechBubbleSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 말풍선 내용 */
+.speech-bubble-content {
+  padding: 20px;
+}
+
+.speech-bubble-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bot-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff6b6b;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.close-bot-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-bot-btn:hover {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.speech-bubble-message {
+  margin-bottom: 16px;
+}
+
+.speech-bubble-message p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* 로딩 상태 */
+.loading-recommendations {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-recommendations p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+/* 추천 상품 목록 */
+.recommendations-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.recommendation-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #fafafa;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.recommendation-item:hover {
+  background: #fff;
+  border-color: #ffb6c1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 182, 193, 0.2);
+}
+
+.recommendation-image {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.recommendation-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.discount-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+}
+
+.new-badge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  background: linear-gradient(135deg, #4CAF50, #66BB6A);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.bestseller-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #FF9800, #FFB74D);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+}
+
+.recommendation-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.recommendation-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recommendation-category {
+  font-size: 10px;
+  color: #666;
+  margin-bottom: 2px;
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.recommendation-rating {
+  font-size: 10px;
+  color: #ff9800;
+  margin-bottom: 2px;
+}
+
+.recommendation-stock {
+  font-size: 10px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.recommendation-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.original-price {
+  font-size: 11px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.discounted-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff6b6b;
+}
+
+.price {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.recommendation-action {
+  color: #ff6b6b;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.recommendation-item:hover .recommendation-action {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* 말풍선 푸터 */
+.speech-bubble-footer {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 말풍선 꼬리 */
+.speech-bubble-tail {
+  position: absolute;
+  bottom: -10px;
+  left: 30px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #ffb6c1;
+}
+
+.speech-bubble-tail::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid white;
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .kirby-bot-speech-bubble {
+    background: #2a2a2a;
+    border-color: #ff6b6b;
+  }
+  
+  .bot-title {
+    color: #ff8e8e;
+  }
+  
+  .speech-bubble-message p {
+    color: #e0e0e0;
+  }
+  
+  .recommendation-item {
+    background: #3a3a3a;
+  }
+  
+  .recommendation-item:hover {
+    background: #4a4a4a;
+    border-color: #ff6b6b;
+  }
+  
+  .recommendation-info h4 {
+    color: #e0e0e0;
+  }
+  
+  .recommendation-category {
+    color: #999;
+    background: #444;
+  }
+  
+  .recommendation-stock {
+    color: #bbb;
+  }
+  
+  .price {
+    color: #e0e0e0;
+  }
+  
+  .speech-bubble-tail::after {
+    border-top-color: #2a2a2a;
+  }
+}
+
+/* ======================
+   채팅 기능 스타일
+   ====================== */
+.header-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.mode-toggle-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.mode-toggle-btn:hover {
+  background: linear-gradient(135deg, #ff5252, #ff7979);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+.mode-toggle-btn.active {
+  background: linear-gradient(135deg, #4CAF50, #66BB6A);
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+  animation: activeGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes activeGlow {
+  from {
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+  }
+  to {
+    box-shadow: 0 3px 15px rgba(76, 175, 80, 0.6);
+  }
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+}
+
+.chat-message.user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.chat-message.bot {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.message-content {
+  background: #f0f0f0;
+  padding: 10px 16px; /* 패딩 증가 */
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  max-width: 300px; /* 최대 가로 길이 설정 */
+  min-width: 80px; /* 최소 가로 길이 설정 */
+}
+
+.chat-message.user .message-content {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message.bot .message-content {
+  background: #f0f0f0;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+
+.message-time {
+  font-size: 10px;
+  color: #999;
+  margin-top: 2px;
+  padding: 0 4px;
+}
+
+.chat-input-container {
+  display: flex;
+  padding: 10px 15px;
+  border-top: 1px solid #eee;
+  gap: 8px;
+}
+
+.chat-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 8px 15px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.chat-input:focus {
+  border-color: #ff6b6b;
+}
+
+.send-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  background: #999;
+  border-radius: 50%;
+  animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.2);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .kirby-bot-speech-bubble {
+    width: 350px; /* 모바일에서 가로 길이 조정 */
+    left: -50px; /* 위치 조정 */
+  }
+  
+  .message-content {
+    max-width: 250px; /* 모바일에서 최대 가로 길이 조정 */
+  }
+}
+
+@media (max-width: 480px) {
+  .kirby-bot-speech-bubble {
+    width: 300px; /* 작은 화면에서 가로 길이 조정 */
+    left: -80px; /* 위치 조정 */
+  }
+  
+  .message-content {
+    max-width: 200px; /* 작은 화면에서 최대 가로 길이 조정 */
+  }
+  
+  .kirby-bot-container {
+    transform: scale(1.0); /* 작은 화면에서 크기 조정 */
+  }
+}
+
+/* 다크 모드에서 채팅 스타일 */
+[data-theme="dark"] .chat-message.bot .message-content {
+  background: #444;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .chat-input {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .chat-input:focus {
+  border-color: #ff6b6b;
+}
+
+[data-theme="dark"] .chat-input-container {
+  border-top-color: #444;
+}
+
+/* 스크롤바 스타일 */
+.chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 2px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .kirby-bot-container {
+    bottom: 15px;
+    left: 15px;
+  }
+  
+  .kirby-bot-icon {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .kirby-bot-speech-bubble {
+    width: 320px;
+    bottom: 80px;
+  }
+  
+  .speech-bubble-content {
+    padding: 16px;
+  }
+  
+  .recommendation-item {
+    padding: 10px;
+  }
+  
+  .recommendation-image {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kirby-bot-speech-bubble {
+    width: 300px;
+    left: -200px;
+  }
+  
+  .speech-bubble-tail {
+    left: 200px;
+  }
+}
