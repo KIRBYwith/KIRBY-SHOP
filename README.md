@@ -3,7 +3,6 @@ KIRBY-SHOP is a virtual website created for penetration testing practice.
 KIRBY-SHOP은 모의해킹 프로젝트를 위해 가상으로 만든 웹사이트입니다.
 
 
-```markdown
 # 🍓 Kirby Shop - 커비 굿즈 쇼핑몰
 
 귀여운 커비와 함께하는 특별한 쇼핑 경험을 제공하는 풀스택 이커머스 플랫폼
