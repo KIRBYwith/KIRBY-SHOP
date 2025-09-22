@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  kirby-shop-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # 데이터베이스 설정 (AWS RDS)
+      - DATABASE_URL=mysql+pymysql://admin:YourSecurePassword123!@kirby-shop-db.xxxxxxxxx.ap-northeast-2.rds.amazonaws.com:3306/kirby_shop
+      - DB_HOST=kirby-shop-db.xxxxxxxxx.ap-northeast-2.rds.amazonaws.com
+      - DB_PORT=3306
+      - DB_USER=admin
+      - DB_PASSWORD=YourSecurePassword123!
+      - DB_NAME=kirby_shop
+      
+      # AWS 설정
+      - AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+      - AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+      - AWS_REGION=ap-northeast-2
+      - S3_BUCKET_NAME=kirby-shop-images
+      - S3_BUCKET_URL=https://kirby-shop-images.s3.ap-northeast-2.amazonaws.com
+      
+      # JWT 설정
+      - SECRET_KEY=your-super-secret-key-change-this-in-production
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      
+      # CORS 설정
+      - ALLOWED_ORIGINS=https://your-domain.com,https://kirby-shop.vercel.app,http://localhost:3000
+      
+      # Redis 설정 (AWS ElastiCache)
+      - REDIS_URL=redis://kirby-shop-redis.xxxxxxxxx.cache.amazonaws.com:6379
+      - REDIS_HOST=kirby-shop-redis.xxxxxxxxx.cache.amazonaws.com
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      
+      # 결제 설정
+      - TOSS_CLIENT_KEY=your-toss-client-key
+      - TOSS_SECRET_KEY=your-toss-secret-key
+      - KAKAO_PAY_ADMIN_KEY=your-kakao-pay-admin-key
+      
+      # 파일 업로드 설정
+      - MAX_FILE_SIZE=10485760
+      - UPLOAD_DIR=uploads
+      
+      # 개발 환경 설정
+      - DEBUG=True
+    depends_on:
+      - redis
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
