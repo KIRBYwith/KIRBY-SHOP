@@ -1,0 +1,262 @@
+/* ======================
+   관리자 QnA 관리 스타일
+   ====================== */
+
+.admin-qna-table {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.qna-title-cell {
+    max-width: 300px;
+}
+
+.qna-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.qna-content-preview {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* QnA 모달 스타일 */
+.admin-qna-modal {
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.qna-detail-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #ff69b4;
+}
+
+.qna-detail-section h3 {
+    color: #ff1493;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.qna-detail-content p {
+    margin-bottom: 0.8rem;
+    color: #555;
+}
+
+.qna-detail-content strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.qna-content-box {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin: 0.5rem 0 1rem 0;
+    line-height: 1.6;
+    color: #444;
+    min-height: 80px;
+}
+
+.answer-section {
+    margin-bottom: 1.5rem;
+}
+
+.answer-section h3 {
+    color: #ff1493;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.admin-form-textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.3s ease;
+}
+
+.admin-form-textarea:focus {
+    outline: none;
+    border-color: #ff69b4;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+}
+
+.admin-form-textarea::placeholder {
+    color: #999;
+}
+
+/* 액션 버튼 스타일 */
+.admin-action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.admin-action-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.admin-action-btn.view {
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+}
+
+.admin-action-btn.view:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+}
+
+.admin-action-btn.delete {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+}
+
+.admin-action-btn.delete:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+/* 상태 배지 스타일 */
+.admin-status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.admin-status-badge.pending {
+    background: linear-gradient(135deg, #ffeb3b, #ffc107);
+    color: #333;
+}
+
+.admin-status-badge.answered {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+}
+
+/* 카테고리 배지 스타일 */
+.admin-category-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    color: #1976d2;
+    border: 1px solid #90caf9;
+}
+
+/* 기존 답변 표시 스타일 */
+.existing-answers {
+    margin-bottom: 1.5rem;
+}
+
+.existing-answers h4 {
+    color: #ff1493;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.existing-answer-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+}
+
+.answer-content-display {
+    line-height: 1.6;
+    color: #444;
+    margin-bottom: 0.8rem;
+}
+
+.answer-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.answer-date {
+    font-style: italic;
+}
+
+.edit-answer-btn {
+    padding: 0.3rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-answer-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(255, 105, 180, 0.3);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .admin-qna-table {
+        padding: 1rem;
+        overflow-x: auto;
+    }
+    
+    .qna-title-cell {
+        max-width: 200px;
+    }
+    
+    .admin-action-buttons {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .admin-action-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .admin-qna-modal {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
+    .qna-detail-section {
+        padding: 1rem;
+    }
+    
+    .answer-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+}

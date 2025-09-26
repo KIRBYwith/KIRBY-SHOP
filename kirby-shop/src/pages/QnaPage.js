@@ -4,6 +4,9 @@ import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import '../styles/QnaPage.css';
 
+// API 기본 URL
+const API_BASE_URL = 'http://localhost:8000';
+
 const QnAPage = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('faq');
@@ -16,6 +19,8 @@ const QnAPage = () => {
     category: 'general',
     isPrivate: false
   });
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreview, setImagePreview] = useState([]);
 
   const [faqs, setFaqs] = useState([
     {
@@ -90,6 +95,8 @@ const QnAPage = () => {
       views: 15
     }
   ]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const categories = [
     { id: 'all', name: '전체', icon: '📋' },
@@ -107,6 +114,220 @@ const QnAPage = () => {
     { id: 'my-questions', label: '내 문의내역', icon: '📝' }
   ];
 
+  // API 호출 함수들
+  const fetchUserQuestions = async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('kirby-shop-token');
+      
+      if (!token) {
+        console.warn('토큰이 없습니다. 더미 데이터만 표시합니다.');
+        return;
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/api/qna/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const questions = await response.json();
+        // 더미 데이터와 API 데이터를 합치기
+        const combinedQuestions = [...questions, ...userQuestions.filter(q => q.id > 100)];
+        setUserQuestions(combinedQuestions);
+      } else {
+        throw new Error('문의내역을 불러오는데 실패했습니다.');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching user questions:', err);
+      // API 실패 시 더미 데이터만 표시
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createQuestion = async (questionData) => {
+    try {
+      const token = localStorage.getItem('kirby-shop-token');
+      
+      if (!token) {
+        throw new Error('로그인이 필요합니다.');
+      }
+      
+      console.log('토큰 확인:', token);
+      console.log('문의 데이터:', questionData);
+      
+      const response = await fetch(`${API_BASE_URL}/api/qna/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(questionData)
+      });
+      
+      console.log('응답 상태:', response.status);
+      
+      if (response.ok) {
+        const newQuestion = await response.json();
+        setUserQuestions(prev => [newQuestion, ...prev]);
+        return newQuestion;
+      } else {
+        const errorData = await response.json();
+        console.error('API 에러:', errorData);
+        throw new Error(errorData.detail || '문의 등록에 실패했습니다.');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error creating question:', err);
+      throw err;
+    }
+  };
+
+  const createQuestionWithImages = async (questionData, images) => {
+    try {
+      const token = localStorage.getItem('kirby-shop-token');
+      
+      if (!token) {
+        throw new Error('로그인이 필요합니다.');
+      }
+      
+      console.log('이미지 업로드 토큰 확인:', token);
+      console.log('이미지 업로드 문의 데이터:', questionData);
+      console.log('이미지 파일들:', images);
+      
+      const formData = new FormData();
+      
+      formData.append('title', questionData.title);
+      formData.append('content', questionData.content);
+      formData.append('category', questionData.category);
+      formData.append('is_private', questionData.is_private);
+      if (questionData.product_id) {
+        formData.append('product_id', questionData.product_id);
+      }
+      
+      // 이미지 파일 추가
+      images.forEach((image, index) => {
+        formData.append('images', image);
+      });
+      
+      const response = await fetch(`${API_BASE_URL}/api/qna/with-images`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      
+      console.log('이미지 업로드 응답 상태:', response.status);
+      
+      if (response.ok) {
+        const newQuestion = await response.json();
+        setUserQuestions(prev => [newQuestion, ...prev]);
+        return newQuestion;
+      } else {
+        const errorData = await response.json();
+        console.error('이미지 업로드 API 에러:', errorData);
+        throw new Error(errorData.detail || '문의 등록에 실패했습니다.');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error creating question with images:', err);
+      throw err;
+    }
+  };
+
+  const deleteQuestion = async (questionId) => {
+    try {
+      const token = localStorage.getItem('kirby-shop-token');
+      
+      if (!token) {
+        throw new Error('로그인이 필요합니다.');
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/api/qna/${questionId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        // 성공적으로 삭제된 경우 목록에서 제거
+        setUserQuestions(prev => prev.filter(q => q.id !== questionId));
+        alert('문의가 삭제되었습니다.');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || '문의 삭제에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error('Error deleting question:', err);
+      alert(`문의 삭제에 실패했습니다: ${err.message}`);
+    }
+  };
+
+  // 컴포넌트 마운트 시 사용자 문의내역 로드
+  useEffect(() => {
+    console.log('QnaPage 마운트됨, 사용자:', user);
+    console.log('토큰 상태:', localStorage.getItem('kirby-shop-token'));
+    if (user) {
+      fetchUserQuestions();
+    }
+  }, [user]);
+
+  // 더미 데이터를 위한 로컬 스토리지 동기화
+  useEffect(() => {
+    const savedQuestions = localStorage.getItem('userQuestions');
+    if (savedQuestions && user) {
+      try {
+        const parsed = JSON.parse(savedQuestions);
+        setUserQuestions(prev => {
+          const apiQuestions = prev.filter(q => q.id <= 100);
+          const dummyQuestions = parsed.filter(q => q.id > 100);
+          return [...apiQuestions, ...dummyQuestions];
+        });
+      } catch (err) {
+        console.error('Error parsing saved questions:', err);
+      }
+    }
+  }, [user]);
+
+  // userQuestions 변경 시 로컬 스토리지에 저장
+  useEffect(() => {
+    if (user) {
+      const dummyQuestions = userQuestions.filter(q => q.id > 100);
+      localStorage.setItem('userQuestions', JSON.stringify(dummyQuestions));
+    }
+  }, [userQuestions, user]);
+
+  // 이미지 처리 함수들
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 5) {
+      alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
+      return;
+    }
+    
+    setSelectedImages(files);
+    
+    // 미리보기 생성
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreview(previews);
+  };
+
+  const removeImage = (index) => {
+    const newImages = selectedImages.filter((_, i) => i !== index);
+    const newPreviews = imagePreview.filter((_, i) => i !== index);
+    
+    setSelectedImages(newImages);
+    setImagePreview(newPreviews);
+  };
+
   const filteredFaqs = faqs.filter(faq => {
     const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
     const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,7 +335,7 @@ const QnAPage = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const handleSubmitQuestion = (e) => {
+  const handleSubmitQuestion = async (e) => {
     e.preventDefault();
     if (!user) {
       alert('로그인이 필요합니다.');
@@ -126,21 +347,42 @@ const QnAPage = () => {
       return;
     }
 
-    const question = {
-      id: Date.now(),
-      title: newQuestion.title,
-      content: newQuestion.content,
-      category: newQuestion.category,
-      status: 'pending',
-      answer: null,
-      createdAt: new Date().toISOString().split('T')[0],
-      views: 0
-    };
+    console.log('현재 사용자:', user);
+    console.log('토큰 확인:', localStorage.getItem('kirby-shop-token'));
 
-    setUserQuestions(prev => [question, ...prev]);
-    setNewQuestion({ title: '', content: '', category: 'general', isPrivate: false });
-    setShowQuestionForm(false);
-    alert('문의가 등록되었습니다. 빠른 시일 내에 답변드리겠습니다.');
+    try {
+      setLoading(true);
+      const questionData = {
+        title: newQuestion.title,
+        content: newQuestion.content,
+        category: newQuestion.category,
+        is_private: newQuestion.isPrivate,
+        product_id: null // 일반 문의이므로 null
+      };
+
+      console.log('제출할 문의 데이터:', questionData);
+      console.log('선택된 이미지 개수:', selectedImages.length);
+
+      // 이미지가 있으면 이미지와 함께 생성, 없으면 일반 생성
+      if (selectedImages.length > 0) {
+        console.log('이미지와 함께 문의 등록 시도');
+        await createQuestionWithImages(questionData, selectedImages);
+      } else {
+        console.log('일반 문의 등록 시도');
+        await createQuestion(questionData);
+      }
+      
+      setNewQuestion({ title: '', content: '', category: 'general', isPrivate: false });
+      setSelectedImages([]);
+      setImagePreview([]);
+      setShowQuestionForm(false);
+      alert('문의가 등록되었습니다. 빠른 시일 내에 답변드리겠습니다.');
+    } catch (err) {
+      console.error('문의 등록 실패:', err);
+      alert(`문의 등록에 실패했습니다: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderFAQ = () => (
@@ -263,6 +505,44 @@ const QnAPage = () => {
             </div>
             
             <div className="form-group">
+              <label htmlFor="images">이미지 첨부 (선택사항)</label>
+              <div className="image-upload-section">
+                <input
+                  type="file"
+                  id="images"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageSelect}
+                  className="image-input"
+                />
+                <label htmlFor="images" className="image-upload-btn">
+                  📷 이미지 선택 (최대 5개)
+                </label>
+                <p className="image-upload-hint">JPG, PNG, GIF, WebP 형식만 지원됩니다. (최대 10MB)</p>
+              </div>
+              
+              {imagePreview.length > 0 && (
+                <div className="image-preview-section">
+                  <h4>선택된 이미지 ({imagePreview.length}/5)</h4>
+                  <div className="image-preview-grid">
+                    {imagePreview.map((preview, index) => (
+                      <div key={index} className="image-preview-item">
+                        <img src={preview} alt={`미리보기 ${index + 1}`} />
+                        <button
+                          type="button"
+                          className="remove-image-btn"
+                          onClick={() => removeImage(index)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="form-group">
               <label className="checkbox-label">
                 <input
                   type="checkbox"
@@ -303,7 +583,18 @@ const QnAPage = () => {
           </div>
         ) : (
           <div className="questions-list">
-            {userQuestions.length > 0 ? (
+            {loading ? (
+              <div className="loading">
+                <div className="loading-spinner">⏳</div>
+                <p>문의내역을 불러오는 중...</p>
+              </div>
+            ) : error ? (
+              <div className="error">
+                <div className="error-icon">❌</div>
+                <p>{error}</p>
+                <button onClick={fetchUserQuestions} className="retry-btn">다시 시도</button>
+              </div>
+            ) : userQuestions.length > 0 ? (
               userQuestions.map(question => (
                 <div key={question.id} className="question-item">
                   <div className="question-header">
@@ -319,15 +610,68 @@ const QnAPage = () => {
                   </div>
                   <h4 className="question-title">{question.title}</h4>
                   <p className="question-content">{question.content}</p>
+                  
+                  {/* 이미지 표시 */}
+                  {question.images && question.images.length > 0 && (
+                    <div className="question-images">
+                      <h5>첨부 이미지</h5>
+                      <div className="image-gallery">
+                        {question.images.map((imageUrl, index) => (
+                          <div key={index} className="image-item">
+                            <img 
+                              src={`${API_BASE_URL}${imageUrl}`} 
+                              alt={`첨부 이미지 ${index + 1}`}
+                              onClick={() => window.open(`${API_BASE_URL}${imageUrl}`, '_blank')}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   {question.answer && (
                     <div className="answer-section">
                       <h5>답변</h5>
                       <p className="answer-content">{question.answer}</p>
                     </div>
                   )}
+                  {question.answers && question.answers.length > 0 && (
+                    <div className="answer-section">
+                      <h5>답변</h5>
+                      {question.answers.map(answer => (
+                        <p key={answer.id} className="answer-content">{answer.content}</p>
+                      ))}
+                    </div>
+                  )}
                   <div className="question-footer">
-                    <span className="question-date">{question.createdAt}</span>
-                    <span className="question-views">👁️ {question.views}</span>
+                    <div className="question-info">
+                      <span className="question-date">
+                        {question.created_at ? new Date(question.created_at).toLocaleDateString() : question.createdAt}
+                      </span>
+                      <span className="question-views">👁️ {question.views || 0}</span>
+                    </div>
+                    <div className="question-actions">
+                      {question.status === 'pending' ? (
+                        <button 
+                          className="btn-delete"
+                          onClick={() => {
+                            if (window.confirm('정말로 이 문의를 삭제하시겠습니까?\n삭제된 문의는 복구할 수 없습니다.')) {
+                              deleteQuestion(question.id);
+                            }
+                          }}
+                          title="문의 삭제"
+                        >
+                          🗑️ 삭제
+                        </button>
+                      ) : (
+                        <span 
+                          className="delete-disabled"
+                          title="답변이 완료된 문의는 삭제할 수 없습니다"
+                        >
+                          🔒 삭제불가
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))

@@ -2,7 +2,7 @@
 Q&A 관련 데이터베이스 모델
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Index
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Index, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -18,6 +18,7 @@ class QnA(Base):
     category = Column(String(50), nullable=False)  # 상품문의, 배송문의, 교환/반품, 기타
     status = Column(String(20), default="pending")  # pending, answered, closed
     is_private = Column(Boolean, default=False)
+    images = Column(JSON)  # 이미지 URL 리스트
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     

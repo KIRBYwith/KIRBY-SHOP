@@ -20,6 +20,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import '../styles/AdminPage.css';
+import '../styles/admin/AdminQnA.css';
 import AdminLoginModal from '../components/admin/AdminLoginModal';
 
 const AdminPage = () => {
@@ -75,6 +76,15 @@ const AdminPage = () => {
   const [inquiries, setInquiries] = useState([]);
   const [inquirySearch, setInquirySearch] = useState('');
   const [inquiryFilter, setInquiryFilter] = useState('all');
+  
+  // QnA 관리 상태
+  const [qnas, setQnas] = useState([]);
+  const [qnaSearch, setQnaSearch] = useState('');
+  const [qnaFilter, setQnaFilter] = useState('all');
+  const [selectedQna, setSelectedQna] = useState(null);
+  const [isQnaModalOpen, setIsQnaModalOpen] = useState(false);
+  const [answerContent, setAnswerContent] = useState('');
+  const [editingAnswer, setEditingAnswer] = useState(null);
 
   // 쿠폰 관리 상태
   const [coupons, setCoupons] = useState([]);
@@ -231,6 +241,9 @@ const AdminPage = () => {
           break;
         case 'support':
           loadInquiries();
+          break;
+        case 'qna':
+          fetchQnAs();
           break;
         default:
           break;
@@ -564,6 +577,7 @@ const AdminPage = () => {
     { id: 'orders', label: '주문 관리', icon: '🧾' },
     { id: 'coupons', label: '쿠폰 관리', icon: '🎫' },
     { id: 'support', label: '고객지원', icon: '💬' },
+    { id: 'qna', label: 'Q&A 관리', icon: '❓' },
     { id: 'analytics', label: '통계 분석', icon: '📈' },
     { id: 'settings', label: '설정', icon: '⚙️' },
     { id: 'security', label: '보안', icon: '🔒' }
@@ -2866,6 +2880,288 @@ const AdminPage = () => {
     </div>
   );
 
+  // QnA 관리 함수들
+  const fetchQnAs = async () => {
+    try {
+      console.log('QnA 목록 조회 시작...');
+      const token = localStorage.getItem('kirby-shop-token');
+      console.log('사용할 토큰:', token);
+      
+      const response = await fetch(`${API_BASE_URL}/qna/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      console.log('QnA API 응답 상태:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('QnA 데이터:', data);
+        setQnas(data);
+      } else {
+        const errorData = await response.json();
+        console.error('QnA API 에러:', errorData);
+        alert(`QnA 목록 조회 실패: ${errorData.detail || '알 수 없는 오류'}`);
+      }
+    } catch (error) {
+      console.error('QnA 목록 조회 실패:', error);
+      alert('QnA 목록 조회 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleAnswerQnA = (qna) => {
+    setSelectedQna(qna);
+    setAnswerContent('');
+    setEditingAnswer(null);
+    setIsQnaModalOpen(true);
+  };
+
+  const handleEditAnswer = (qna, answer) => {
+    setSelectedQna(qna);
+    setAnswerContent(answer.content);
+    setEditingAnswer(answer);
+    setIsQnaModalOpen(true);
+  };
+
+  const submitAnswer = async () => {
+    if (!answerContent.trim()) {
+      alert('답변 내용을 입력해주세요.');
+      return;
+    }
+
+    try {
+      let response;
+      if (editingAnswer) {
+        // 답변 수정
+        response = await fetch(`${API_BASE_URL}/qna/answers/${editingAnswer.id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('kirby-shop-token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            content: answerContent
+          })
+        });
+      } else {
+        // 새 답변 등록
+        response = await fetch(`${API_BASE_URL}/qna/${selectedQna.id}/answers`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('kirby-shop-token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            content: answerContent
+          })
+        });
+      }
+
+      if (response.ok) {
+        alert(editingAnswer ? '답변이 수정되었습니다.' : '답변이 등록되었습니다.');
+        setIsQnaModalOpen(false);
+        setAnswerContent('');
+        setSelectedQna(null);
+        setEditingAnswer(null);
+        fetchQnAs(); // 목록 새로고침
+      } else {
+        const errorData = await response.json();
+        alert(`${editingAnswer ? '답변 수정' : '답변 등록'} 실패: ${errorData.detail || '알 수 없는 오류'}`);
+      }
+    } catch (error) {
+      console.error('답변 처리 실패:', error);
+      alert(`${editingAnswer ? '답변 수정' : '답변 등록'} 중 오류가 발생했습니다.`);
+    }
+  };
+
+  const renderQnA = () => (
+    <div className="admin-content">
+      <div className="admin-content-header">
+        <h2>Q&A 관리</h2>
+        <div className="header-actions">
+          <input
+            type="text"
+            placeholder="Q&A 검색..."
+            value={qnaSearch}
+            onChange={(e) => setQnaSearch(e.target.value)}
+            className="admin-search-input"
+          />
+          <select
+            value={qnaFilter}
+            onChange={(e) => setQnaFilter(e.target.value)}
+            className="admin-form-select"
+          >
+            <option value="all">전체</option>
+            <option value="pending">답변대기</option>
+            <option value="answered">답변완료</option>
+          </select>
+          <button 
+            className="admin-btn-primary"
+            onClick={fetchQnAs}
+          >
+            새로고침
+          </button>
+        </div>
+      </div>
+
+      <div className="admin-qna-table">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>카테고리</th>
+              <th>상태</th>
+              <th>작성일</th>
+              <th>액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            {qnas.filter(qna => {
+              const matchesSearch = qna.title.toLowerCase().includes(qnaSearch.toLowerCase()) ||
+                                 qna.content.toLowerCase().includes(qnaSearch.toLowerCase());
+              const matchesFilter = qnaFilter === 'all' || qna.status === qnaFilter;
+              return matchesSearch && matchesFilter;
+            }).map(qna => (
+              <tr key={qna.id}>
+                <td>#{qna.id}</td>
+                <td className="qna-title-cell">
+                  <div className="qna-title">{qna.title}</div>
+                  <div className="qna-content-preview">{qna.content.substring(0, 50)}...</div>
+                </td>
+                <td>{qna.user?.name || '알 수 없음'}</td>
+                <td>
+                  <span className={`admin-category-badge ${qna.category}`}>
+                    {qna.category}
+                  </span>
+                </td>
+                <td>
+                  <span className={`admin-status-badge ${qna.status}`}>
+                    {qna.status === 'pending' ? '답변대기' : '답변완료'}
+                  </span>
+                </td>
+                <td>{new Date(qna.created_at).toLocaleDateString()}</td>
+                <td>
+                  <div className="admin-action-buttons">
+                    <button 
+                      className="admin-action-btn view"
+                      onClick={() => handleAnswerQnA(qna)}
+                    >
+                      {qna.status === 'pending' ? '답변하기' : '답변보기'}
+                    </button>
+                    <button className="admin-action-btn delete">삭제</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {renderAdminFooter()}
+    </div>
+  );
+
+  // QnA 답변 모달 렌더링 함수
+  const renderQnAModal = () => {
+    if (!isQnaModalOpen || !selectedQna) return null;
+
+    return (
+      <div className="admin-modal-overlay" onClick={() => setIsQnaModalOpen(false)}>
+        <div className="admin-modal-content admin-qna-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="admin-modal-header">
+            <div className="admin-modal-header-content">
+              <div className="admin-modal-title-section">
+                <div className="admin-modal-icon">❓</div>
+                <div>
+                  <h2 className="admin-modal-title">Q&A 답변</h2>
+                  <p className="admin-modal-subtitle">
+                    {selectedQna.title}
+                  </p>
+                </div>
+              </div>
+              <button 
+                className="admin-modal-close-btn"
+                onClick={() => setIsQnaModalOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div className="admin-modal-body">
+            <div className="qna-detail-section">
+              <h3>문의 내용</h3>
+              <div className="qna-detail-content">
+                <p><strong>제목:</strong> {selectedQna.title}</p>
+                <p><strong>내용:</strong></p>
+                <div className="qna-content-box">
+                  {selectedQna.content}
+                </div>
+                <p><strong>카테고리:</strong> {selectedQna.category}</p>
+                <p><strong>작성자:</strong> {selectedQna.user?.name || '알 수 없음'}</p>
+                <p><strong>작성일:</strong> {new Date(selectedQna.created_at).toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div className="answer-section">
+              <h3>{editingAnswer ? '답변 수정' : '답변 작성'}</h3>
+              
+              {/* 기존 답변 표시 */}
+              {selectedQna.answers && selectedQna.answers.length > 0 && !editingAnswer && (
+                <div className="existing-answers">
+                  <h4>기존 답변</h4>
+                  {selectedQna.answers.map((answer, index) => (
+                    <div key={answer.id} className="existing-answer-item">
+                      <div className="answer-content-display">
+                        {answer.content}
+                      </div>
+                      <div className="answer-meta">
+                        <span className="answer-date">
+                          {new Date(answer.created_at).toLocaleString()}
+                        </span>
+                        <button 
+                          className="edit-answer-btn"
+                          onClick={() => handleEditAnswer(selectedQna, answer)}
+                        >
+                          ✏️ 수정
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <textarea
+                className="admin-form-textarea"
+                placeholder={editingAnswer ? "수정할 답변 내용을 입력해주세요..." : "답변 내용을 입력해주세요..."}
+                value={answerContent}
+                onChange={(e) => setAnswerContent(e.target.value)}
+                rows={6}
+              />
+            </div>
+          </div>
+
+          <div className="admin-modal-footer">
+            <button 
+              className="admin-btn-secondary"
+              onClick={() => setIsQnaModalOpen(false)}
+            >
+              취소
+            </button>
+            <button 
+              className="admin-btn-primary"
+              onClick={submitAnswer}
+            >
+              {editingAnswer ? '답변 수정' : '답변 등록'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // 상품 모달 렌더링 함수
   const renderProductModal = () => {
     if (!isProductModalOpen) return null;
@@ -3281,6 +3577,8 @@ const AdminPage = () => {
         return renderCoupons();
       case 'support':
         return renderSupport();
+      case 'qna':
+        return renderQnA();
       case 'analytics':
         return renderAnalytics();
       case 'settings':
@@ -3417,22 +3715,45 @@ const AdminPage = () => {
   // 관리자 로그인 함수
   const handleAdminLogin = async (loginData) => {
     try {
-      // 간단한 클라이언트 사이드 인증 (실제로는 서버 인증 필요)
-      if (loginData.email === 'admin@kirby-shop.com' && loginData.password === 'admin123') {
+      // 백엔드 API를 통한 실제 인증
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: loginData.email,
+          password: loginData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.user.role === 'admin') {
+        // 관리자 권한 확인
         setIsAdmin(true);
         setShowLoginForm(false);
+        
+        // JWT 토큰 저장
+        localStorage.setItem('kirby-shop-token', data.access_token);
+        localStorage.setItem('kirby-shop-user', JSON.stringify(data.user));
+        
+        // 관리자 세션 정보 저장
         localStorage.setItem('adminSession', JSON.stringify({
           isAdmin: true,
           username: loginData.email,
           expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24시간
         }));
+        
         loadDashboardData();
         alert('관리자 로그인 성공!');
       } else {
-        alert('잘못된 관리자 정보입니다.');
-        throw new Error('Invalid credentials');
+        alert('관리자 권한이 필요합니다.');
+        throw new Error('Admin access required');
       }
     } catch (error) {
+      console.error('관리자 로그인 실패:', error);
+      alert('로그인에 실패했습니다.');
       throw error;
     }
   };
@@ -3501,6 +3822,7 @@ const AdminPage = () => {
             {renderContent()}
           {renderCouponModal()}
           {renderProductModal()}
+          {renderQnAModal()}
           {renderNotification()}
           </div>
       </div>

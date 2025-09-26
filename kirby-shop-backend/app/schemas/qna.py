@@ -11,6 +11,7 @@ class QnABase(BaseModel):
     content: str
     category: str  # 상품문의, 배송문의, 교환/반품, 기타
     is_private: bool = False
+    images: Optional[List[str]] = []
 
 class QnACreate(QnABase):
     product_id: Optional[int] = None
@@ -21,14 +22,17 @@ class QnAUpdate(BaseModel):
     category: Optional[str] = None
     is_private: Optional[bool] = None
     status: Optional[str] = None
+    images: Optional[List[str]] = None
 
 class QnAResponse(QnABase):
     id: int
     user_id: int
     product_id: Optional[int] = None
     status: str
+    images: Optional[List[str]] = []
     created_at: datetime
     updated_at: datetime
+    answers: Optional[List["QnAAnswerResponse"]] = []
     
     class Config:
         from_attributes = True

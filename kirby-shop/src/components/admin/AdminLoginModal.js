@@ -65,7 +65,7 @@ const AdminLoginModal = ({ isOpen, onClose, onLogin }) => {
                 value={loginData.email}
                 onChange={handleInputChange}
                 className="admin-form-input"
-                placeholder="admin@kirby-shop.com"
+                placeholder="admin@test.com"
                 required
               />
             </div>
@@ -90,7 +90,7 @@ const AdminLoginModal = ({ isOpen, onClose, onLogin }) => {
             <div className="test-account-info">
               <h4>📋 테스트 계정 정보</h4>
               <div className="account-detail">
-                <strong>이메일:</strong> admin@kirby-shop.com
+                <strong>이메일:</strong> admin@test.com
               </div>
               <div className="account-detail">
                 <strong>비밀번호:</strong> admin123

@@ -23,7 +23,8 @@ class QnAService:
             title=qna_data.title,
             content=qna_data.content,
             category=qna_data.category,
-            is_private=qna_data.is_private
+            is_private=qna_data.is_private,
+            images=qna_data.images or []
         )
         
         self.db.add(qna)
@@ -43,6 +44,41 @@ class QnAService:
         return self.db.query(QnA).filter(
             QnA.user_id == user_id
         ).offset(skip).limit(limit).all()
+
+    def get_qnas_by_user_with_answers(self, user_id: int, skip: int = 0, limit: int = 20) -> List[QnA]:
+        """사용자별 Q&A 조회 (답변 포함)"""
+        from sqlalchemy.orm import joinedload
+        qnas = self.db.query(QnA).options(
+            joinedload(QnA.answers)
+        ).filter(
+            QnA.user_id == user_id
+        ).offset(skip).limit(limit).all()
+        
+        # 답변이 있는 경우 상태를 'answered'로 업데이트
+        for qna in qnas:
+            if qna.answers and len(qna.answers) > 0:
+                if qna.status == 'pending':
+                    qna.status = 'answered'
+                    self.db.commit()
+        
+        return qnas
+
+    def get_all_qnas_with_answers(self, skip: int = 0, limit: int = 20) -> List[QnA]:
+        """전체 Q&A 조회 (답변 포함) - 관리자용"""
+        from sqlalchemy.orm import joinedload
+        qnas = self.db.query(QnA).options(
+            joinedload(QnA.answers),
+            joinedload(QnA.user)
+        ).order_by(QnA.created_at.desc()).offset(skip).limit(limit).all()
+        
+        # 답변이 있는 경우 상태를 'answered'로 업데이트
+        for qna in qnas:
+            if qna.answers and len(qna.answers) > 0:
+                if qna.status == 'pending':
+                    qna.status = 'answered'
+                    self.db.commit()
+        
+        return qnas
 
     def get_qna_by_id(self, qna_id: int) -> Optional[QnA]:
         """Q&A ID로 조회"""

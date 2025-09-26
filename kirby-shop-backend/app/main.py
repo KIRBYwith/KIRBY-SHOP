@@ -5,6 +5,8 @@ Kirby Shop 백엔드 API 서버
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 from app.config import settings
 from app.database import engine
 from app.models import Base
@@ -16,9 +18,14 @@ from app.api.kakao_pay import router as kakao_pay_router
 from app.api.toss_payments import router as toss_payments_router
 from app.api.admin import router as admin_router
 from app.api.setting import router as setting_router
+from app.api.qna.views import router as qna_router
 
 # 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)
+
+# 업로드 디렉토리 생성
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+os.makedirs(os.path.join(settings.UPLOAD_DIR, "qna_images"), exist_ok=True)
 
 # FastAPI 앱 인스턴스 생성
 app = FastAPI(
@@ -58,6 +65,10 @@ app.include_router(kakao_pay_router)
 app.include_router(toss_payments_router)
 app.include_router(admin_router)
 app.include_router(setting_router, prefix="/api/admin", tags=["admin-settings"])
+app.include_router(qna_router)
+
+# 정적 파일 서빙 (업로드된 이미지)
+app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 if __name__ == "__main__":
     import uvicorn
