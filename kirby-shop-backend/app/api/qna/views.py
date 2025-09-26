@@ -1,0 +1,141 @@
+"""
+QnA 관련 API 라우터
+"""
+
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.api.qna.schemas import (
+    QnACreate,
+    QnAUpdate,
+    QnAResponse,
+    QnAAnswerCreate,
+    QnAAnswerResponse,
+)
+from app.api.qna.services import QnAService
+from app.api.auth import get_current_user, get_current_admin_user
+from app.schemas.user import UserResponse
+
+router = APIRouter(prefix="/api/qna", tags=["QnA"])
+
+
+@router.post("/", response_model=QnAResponse, status_code=status.HTTP_201_CREATED)
+async def create_qna(
+    qna_data: QnACreate,
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = QnAService(db)
+    qna = service.create_qna(qna_data, user_id=current_user.id)
+    return QnAResponse.model_validate(qna)
+
+
+@router.get("/product/{product_id}", response_model=List[QnAResponse])
+async def list_qna_by_product(
+    product_id: int,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    service = QnAService(db)
+    qnas = service.get_qnas_by_product(product_id, skip=(page - 1) * limit, limit=limit)
+    return [QnAResponse.model_validate(q) for q in qnas]
+
+
+@router.get("/me", response_model=List[QnAResponse])
+async def list_my_qna(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = QnAService(db)
+    qnas = service.get_qnas_by_user(current_user.id, skip=(page - 1) * limit, limit=limit)
+    return [QnAResponse.model_validate(q) for q in qnas]
+
+
+@router.get("/{qna_id}", response_model=QnAResponse)
+async def get_qna(qna_id: int, db: Session = Depends(get_db)):
+    service = QnAService(db)
+    qna = service.get_qna_by_id(qna_id)
+    if not qna:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="QnA를 찾을 수 없습니다.")
+    return QnAResponse.model_validate(qna)
+
+
+@router.put("/{qna_id}", response_model=QnAResponse)
+async def update_qna(
+    qna_id: int,
+    qna_data: QnAUpdate,
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = QnAService(db)
+    qna = service.update_qna(qna_id, qna_data, user_id=current_user.id)
+    if not qna:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="QnA를 찾을 수 없습니다.")
+    return QnAResponse.model_validate(qna)
+
+
+@router.delete("/{qna_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_qna(
+    qna_id: int,
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = QnAService(db)
+    ok = service.delete_qna(qna_id, user_id=current_user.id)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="QnA를 찾을 수 없습니다.")
+    return None
+
+
+# 관리자 전용: 답변 관리
+@router.post("/{qna_id}/answers", response_model=QnAAnswerResponse, status_code=status.HTTP_201_CREATED)
+async def create_answer(
+    qna_id: int,
+    answer_data: QnAAnswerCreate,
+    admin_user: UserResponse = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    service = QnAService(db)
+    answer = service.create_answer(qna_id, answer_data, admin_id=admin_user.id)
+    return QnAAnswerResponse.model_validate(answer)
+
+
+@router.get("/{qna_id}/answers", response_model=List[QnAAnswerResponse])
+async def list_answers(qna_id: int, db: Session = Depends(get_db)):
+    service = QnAService(db)
+    answers = service.get_answers_by_qna(qna_id)
+    return [QnAAnswerResponse.model_validate(a) for a in answers]
+
+
+@router.put("/answers/{answer_id}", response_model=QnAAnswerResponse)
+async def update_answer(
+    answer_id: int,
+    answer_data: QnAAnswerCreate,
+    admin_user: UserResponse = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    service = QnAService(db)
+    answer = service.update_answer(answer_id, answer_data, admin_id=admin_user.id)
+    if not answer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="답변을 찾을 수 없습니다.")
+    return QnAAnswerResponse.model_validate(answer)
+
+
+@router.delete("/answers/{answer_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_answer(
+    answer_id: int,
+    admin_user: UserResponse = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    service = QnAService(db)
+    ok = service.delete_answer(answer_id, admin_id=admin_user.id)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="답변을 찾을 수 없습니다.")
+    return None
+
+
