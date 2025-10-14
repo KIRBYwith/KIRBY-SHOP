@@ -23,8 +23,8 @@ from app.services.user_service import UserService
 from app.services.product_service import ProductService
 from app.services.order_service import OrderService
 from app.services.coupon_service import CouponService
-# from app.services.review_service import ReviewService
-# from app.services.qna_service import QnAService
+from app.services.review_service import ReviewService
+from app.services.qna_service import QnAService
 from app.utils.auth import get_current_admin_user, get_password_hash
 from sqlalchemy import func, desc, and_
 

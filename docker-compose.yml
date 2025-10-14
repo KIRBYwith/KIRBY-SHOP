@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: kirby-mysql
+    restart: always
+    environment:
+      # 의도적 취약점 1: 약한 비밀번호
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: kirby_shop
+      # 의도적 취약점 2: 추가 계정 생성 (약한 비밀번호)
+      MYSQL_USER: kirby
+      MYSQL_PASSWORD: kirby123
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      # 의도적 취약점 3: MySQL 포트 외부 노출 (OWASP A05:2021 - Security Misconfiguration)
+      - "3306:3306"
+    networks:
+      - kirby-network
+    command:
+      # 의도적 취약점 4: 로컬호스트 제한 해제
+      - --bind-address=0.0.0.0
+      # 의도적 취약점 5: 일반 로그 활성화 (성능 저하, 민감 정보 로그)
+      - --general-log=1
+      - --general-log-file=/var/lib/mysql/general.log
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: kirby-backend
+    restart: always
+    environment:
+      # 데이터베이스 연결
+      DATABASE_URL: mysql+pymysql://root:admin123@mysql:3306/kirby_shop
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      # 의도적 취약점 6: 환경변수에 평문 비밀번호 노출
+      DB_PASSWORD: admin123
+      DB_NAME: kirby_shop
+      
+      # JWT 설정
+      # 의도적 취약점 7: 약한 시크릿 키 (OWASP A02:2021 - Cryptographic Failures)
+      SECRET_KEY: kirby-shop-secret-123
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      
+      # CORS 설정
+      # 의도적 취약점 8: 모든 Origin 허용 (OWASP A05:2021 - Security Misconfiguration)
+      ALLOWED_ORIGINS: "*"
+      
+      # 의도적 취약점 9: 디버그 모드 활성화 (에러 상세 정보 노출)
+      DEBUG: "true"
+      
+      # 파일 업로드
+      MAX_FILE_SIZE: 104857600
+      UPLOAD_DIR: uploads
+      
+      # Redis (미사용이지만 노출)
+      REDIS_URL: redis://localhost:6379
+    volumes:
+      - ./kirby-shop-backend/uploads:/app/uploads
+      # 의도적 취약점 10: 소스코드 마운트 (코드 노출 위험)
+      - ./kirby-shop-backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - kirby-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: kirby-frontend
+    restart: always
+    environment:
+      # 의도적 취약점 11: API URL 하드코딩 노출
+      REACT_APP_API_URL: http://REPLACE_WITH_YOUR_IP:8000
+      # 의도적 취약점 12: 프론트엔드에 시크릿 키 노출 (절대 하면 안 되는 것!)
+      REACT_APP_SECRET_KEY: exposed-frontend-secret-key-123
+      # 의도적 취약점 13: Admin 정보 노출
+      REACT_APP_ADMIN_EMAIL: admin@kirby-shop.com
+      REACT_APP_ADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - kirby-network
+    # 의도적 취약점 14: 소스코드 볼륨 마운트
+    volumes:
+      - ./kirby-shop/src:/app/src
+
+  nginx:
+    image: nginx:alpine
+    container_name: kirby-nginx
+    restart: always
+    ports:
+      - "80:80"
+      # 의도적 취약점 15: HTTPS 미사용
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      # 의도적 취약점 16: 로그 파일 노출
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - kirby-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  kirby-network:
+    driver: bridge
+
+# 의도적 취약점 요약 (OWASP Top 10 기반):
+# 1. A01:2021 - Broken Access Control: 소스코드 마운트
+# 2. A02:2021 - Cryptographic Failures: 약한 시크릿 키, 평문 비밀번호
+# 3. A03:2021 - Injection: SQL 로그 노출
+# 4. A05:2021 - Security Misconfiguration: 디버그 모드, CORS *, MySQL 외부 노출
+# 5. A07:2021 - Identification and Authentication Failures: 기본 비밀번호
+# 6. A09:2021 - Security Logging and Monitoring Failures: 과도한 로깅
+

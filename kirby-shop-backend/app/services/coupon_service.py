@@ -10,14 +10,14 @@ from datetime import datetime
 from decimal import Decimal
 from app.models.coupon import Coupon, UserCoupon
 from app.models.user import User
-from app.schemas.coupon import CouponCreate, CouponUpdate, CouponApplyRequest, CouponValidationResponse, CouponRegisterRequest, CouponRegisterResponse
-from app.utils.cache import cache_manager, get_coupon_cache_key
+from app.schemas.coupon import CouponCreate, CouponUpdate, CouponApplyRequest, CouponValidationResponse, CouponRegisterRequest, CouponRegisterResponse, CouponResponse
+# from app.utils.cache import cache_manager, get_coupon_cache_key  # 캐시 기능 제거
 
 class CouponService:
     def __init__(self, db: Session):
         self.db = db
     
-    async def create_coupon(self, coupon_data: CouponCreate) -> Coupon:
+    def create_coupon(self, coupon_data: CouponCreate) -> Coupon:
         """쿠폰 생성 (관리자 전용)"""
         # 쿠폰 코드 중복 확인
         existing_coupon = self.db.query(Coupon).filter(Coupon.code == coupon_data.code).first()
@@ -45,19 +45,14 @@ class CouponService:
         self.db.commit()
         self.db.refresh(coupon)
         
-        # 캐시 무효화
-        await cache_manager.delete(f"coupons:*")
+        # 캐시 무효화 (캐시 기능 제거됨)
+        # await cache_manager.delete(f"coupons:*")
         
         return coupon
     
-    async def get_coupon_by_code(self, code: str) -> Coupon:
+    def get_coupon_by_code(self, code: str) -> Coupon:
         """쿠폰 코드로 쿠폰 조회"""
-        # 캐시에서 먼저 확인
-        cache_key = get_coupon_cache_key(code)
-        cached_coupon = await cache_manager.get(cache_key)
-        if cached_coupon:
-            return cached_coupon
-        
+        # 캐시 기능 제거 - 직접 DB 조회
         coupon = self.db.query(Coupon).filter(Coupon.code == code).first()
         if not coupon:
             raise HTTPException(
@@ -65,12 +60,9 @@ class CouponService:
                 detail="쿠폰을 찾을 수 없습니다"
             )
         
-        # 캐시에 저장 (30분)
-        await cache_manager.set(cache_key, coupon, 1800)
-        
         return coupon
     
-    async def get_active_coupons(self) -> List[Coupon]:
+    def get_active_coupons(self) -> List[Coupon]:
         """활성 쿠폰 목록 조회"""
         now = datetime.now()
         coupons = self.db.query(Coupon).filter(
@@ -333,8 +325,43 @@ class CouponService:
                     message="비활성화된 쿠폰입니다."
                 )
             
-            # 쿠폰 등록은 자유롭게 허용 (프론트엔드에서 중복 관리)
-            # 백엔드에서는 단순히 쿠폰 정보만 반환
+            # 현재 날짜 확인
+            now = datetime.now()
+            if coupon.valid_from > now:
+                return CouponRegisterResponse(
+                    success=False,
+                    message="아직 사용할 수 없는 쿠폰입니다."
+                )
+            
+            if coupon.valid_until < now:
+                return CouponRegisterResponse(
+                    success=False,
+                    message="만료된 쿠폰입니다."
+                )
+            
+            # 중복 등록 확인
+            existing_user_coupon = self.db.query(UserCoupon).filter(
+                UserCoupon.user_id == user_id,
+                UserCoupon.coupon_id == coupon.id
+            ).first()
+            
+            if existing_user_coupon:
+                return CouponRegisterResponse(
+                    success=False,
+                    message="이미 등록된 쿠폰입니다."
+                )
+            
+            # 사용자별 쿠폰 제한 확인
+            user_coupon_count = self.db.query(UserCoupon).filter(
+                UserCoupon.user_id == user_id,
+                UserCoupon.coupon_id == coupon.id
+            ).count()
+            
+            if user_coupon_count >= coupon.user_limit:
+                return CouponRegisterResponse(
+                    success=False,
+                    message=f"이 쿠폰은 사용자당 {coupon.user_limit}개까지만 등록 가능합니다."
+                )
             
             # 사용자 쿠폰 등록
             user_coupon = UserCoupon(
@@ -350,16 +377,7 @@ class CouponService:
             return CouponRegisterResponse(
                 success=True,
                 message=f"{coupon.name}이 성공적으로 등록되었습니다!",
-                coupon_code=coupon.code,
-                coupon_name=coupon.name,
-                coupon_description=coupon.description,
-                discount_type=coupon.discount_type,
-                discount_value=coupon.discount_value,
-                min_order_amount=coupon.min_order_amount,
-                max_discount_amount=coupon.max_discount_amount,
-                valid_from=coupon.valid_from.isoformat() if coupon.valid_from else None,
-                valid_until=coupon.valid_until.isoformat() if coupon.valid_until else None,
-                usage_limit=coupon.usage_limit
+                coupon=CouponResponse.model_validate(coupon)
             )
             
         except Exception as e:

@@ -159,8 +159,8 @@ const QnAPage = () => {
         throw new Error('로그인이 필요합니다.');
       }
       
-      console.log('토큰 확인:', token);
-      console.log('문의 데이터:', questionData);
+      // console.log('토큰 확인:', token);
+      // console.log('문의 데이터:', questionData);
       
       const response = await fetch(`${API_BASE_URL}/api/qna/`, {
         method: 'POST',
@@ -171,7 +171,7 @@ const QnAPage = () => {
         body: JSON.stringify(questionData)
       });
       
-      console.log('응답 상태:', response.status);
+      // console.log('응답 상태:', response.status);
       
       if (response.ok) {
         const newQuestion = await response.json();
@@ -179,12 +179,12 @@ const QnAPage = () => {
         return newQuestion;
       } else {
         const errorData = await response.json();
-        console.error('API 에러:', errorData);
+        // console.error('API 에러:', errorData);
         throw new Error(errorData.detail || '문의 등록에 실패했습니다.');
       }
     } catch (err) {
       setError(err.message);
-      console.error('Error creating question:', err);
+      // console.error('Error creating question:', err);
       throw err;
     }
   };

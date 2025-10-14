@@ -1,0 +1,20 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# 패키지 설치
+COPY kirby-shop/package*.json ./
+RUN npm install
+
+# 애플리케이션 코드 복사
+COPY kirby-shop/ .
+
+# 포트 노출
+EXPOSE 3000
+
+# 의도적 취약점 1: 환경변수 노출 (빌드 시 API 키 등이 번들에 포함됨)
+# 의도적 취약점 2: Production 빌드 대신 개발 모드로 실행 (소스맵 노출)
+ENV NODE_ENV=development
+
+CMD ["npm", "start"]
+

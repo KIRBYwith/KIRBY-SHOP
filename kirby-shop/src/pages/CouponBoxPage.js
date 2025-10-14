@@ -82,11 +82,11 @@ const CouponBoxPage = () => {
         })
       });
 
-      console.log('API 응답 상태:', response.status);
+      // console.log('API 응답 상태:', response.status);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('API 오류:', errorData);
+        // console.error('API 오류:', errorData);
         
         if (response.status === 404) {
           setMessage('❌ 쿠폰을 찾을 수 없습니다. 쿠폰 번호를 확인해주세요.');
@@ -99,57 +99,17 @@ const CouponBoxPage = () => {
       }
 
       const result = await response.json();
-      console.log('API 응답:', result);
+      // console.log('API 응답:', result);
       
       if (result.success) {
         setMessage(`✅ ${result.message}`);
         setCouponCode('');
         
-        // 등록된 쿠폰을 사용자 쿠폰함에 추가
-        if (result.coupon_code) {
-          const newCoupon = {
-            id: result.coupon_code,
-            name: result.coupon_name || '등록된 쿠폰',
-            description: result.coupon_description || '쿠폰이 등록되었습니다.',
-            type: result.discount_type || 'percentage',
-            value: result.discount_value || 10,
-            minAmount: result.min_order_amount || 0,
-            maxDiscount: result.max_discount_amount || 0,
-            validFrom: result.valid_from || new Date().toISOString().split('T')[0],
-            validUntil: result.valid_until || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            isActive: true,
-            usageLimit: result.usage_limit || 1,
-            isUsed: false,
-            obtainedAt: new Date().toISOString(),
-            icon: '🎫'
-          };
-          
-          // useCoupon 훅을 통해 쿠폰 발급
-          try {
-            const issueResult = await issueCoupon(newCoupon);
-            if (issueResult.success) {
-              console.log('쿠폰이 사용자 쿠폰함에 추가되었습니다:', newCoupon);
-              setMessage(`✅ ${result.message} 쿠폰함에서 확인하세요!`);
-              
-              // 쿠폰 목록 새로고침
-              await refreshCoupons();
-              
-              // 강제 새로고침 트리거
-              setRefreshTrigger(prev => prev + 1);
-              
-              // 잠시 후 페이지 새로고침으로 최신 데이터 반영
-              setTimeout(() => {
-                window.location.reload();
-              }, 1000);
-            } else {
-              console.error('쿠폰 발급 실패:', issueResult.message);
-              setMessage(`✅ ${result.message} (쿠폰함 추가 실패)`);
-            }
-          } catch (error) {
-            console.error('쿠폰 발급 오류:', error);
-            setMessage(`✅ ${result.message} (쿠폰함 추가 오류)`);
-          }
-        }
+        // 쿠폰 목록 새로고침
+        await refreshCoupons();
+        
+        // 강제 새로고침 트리거
+        setRefreshTrigger(prev => prev + 1);
         
         // 모달 닫기 및 메시지 초기화
         setTimeout(() => {

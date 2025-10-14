@@ -79,7 +79,7 @@ export function AuthProvider({ children }) {
                     };
                 }
             } catch (apiError) {
-                console.warn('백엔드 API 호출 실패:', apiError);
+                // console.warn('백엔드 API 호출 실패:', apiError);
                 return { 
                     success: false, 
                     message: '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.' 
@@ -134,7 +134,7 @@ export function AuthProvider({ children }) {
                     };
                 }
             } catch (apiError) {
-                console.warn('백엔드 API 호출 실패:', apiError);
+                // console.warn('백엔드 API 호출 실패:', apiError);
                 return { 
                     success: false, 
                     message: '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.' 

@@ -141,11 +141,10 @@ const MyPage = () => {
                   className="profile-image"
                 />
               ) : (
-                <img 
-                  src="/bot/kirby-laptop-pink.png" 
-                  alt="핑크 노트북" 
-                  className="profile-icon"
-                />
+                <div className="kirby-profile-placeholder">
+                  <div className="kirby-ball"></div>
+                  <div className="kirby-shadow"></div>
+                </div>
               )}
               <button className="edit-avatar-btn" onClick={handleImageUpload}>
                 <Camera size={16} />

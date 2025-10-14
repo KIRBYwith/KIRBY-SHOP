@@ -16,7 +16,8 @@ from datetime import datetime
 
 def hash_password(password: str) -> str:
     """비밀번호 해시화"""
-    return hashlib.sha256(password.encode()).hexdigest()
+    from app.utils.auth import get_password_hash
+    return get_password_hash(password)
 
 def create_admin_user():
     """관리자 계정 생성"""

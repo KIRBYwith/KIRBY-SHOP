@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.models.user import User
+from app.models.coupon import UserCoupon
 from app.services.coupon_service import CouponService
 from app.schemas.coupon import (
     CouponCreate, CouponUpdate, CouponResponse, CouponApplyRequest, 
@@ -25,14 +26,14 @@ async def create_coupon(
 ):
     """쿠폰 생성 (관리자 전용)"""
     coupon_service = CouponService(db)
-    coupon = await coupon_service.create_coupon(coupon_data)
+    coupon = coupon_service.create_coupon(coupon_data)
     return CouponResponse.model_validate(coupon)
 
 @router.get("/", response_model=List[CouponResponse])
 async def get_active_coupons(db: Session = Depends(get_db)):
     """활성 쿠폰 목록 조회"""
     coupon_service = CouponService(db)
-    coupons = await coupon_service.get_active_coupons()
+    coupons = coupon_service.get_active_coupons()
     return [CouponResponse.model_validate(coupon) for coupon in coupons]
 
 @router.get("/{coupon_code}", response_model=CouponResponse)
@@ -42,7 +43,7 @@ async def get_coupon_by_code(
 ):
     """쿠폰 코드로 쿠폰 조회"""
     coupon_service = CouponService(db)
-    coupon = await coupon_service.get_coupon_by_code(coupon_code)
+    coupon = coupon_service.get_coupon_by_code(coupon_code)
     return CouponResponse.model_validate(coupon)
 
 @router.post("/validate", response_model=CouponValidationResponse)
@@ -93,9 +94,12 @@ async def get_my_coupons(
 ):
     """내 쿠폰 목록 조회 (토큰 검증 우회)"""
     try:
+        print("쿠폰 목록 조회 시작")
         # 게스트 사용자 ID 사용
         guest_user = db.query(User).filter(User.email == "guest@kirby-shop.com").first()
+        print(f"게스트 사용자: {guest_user}")
         if not guest_user:
+            print("게스트 사용자를 찾을 수 없음")
             return []
         
         # 직접 쿼리로 쿠폰 목록 조회
@@ -107,6 +111,11 @@ async def get_my_coupons(
             query = query.filter(UserCoupon.is_used == False)
         
         user_coupons = query.order_by(UserCoupon.obtained_at.desc()).all()
+        print(f"사용자 쿠폰 개수: {len(user_coupons)}")
+        
+        if not user_coupons:
+            print("사용자 쿠폰이 없음")
+            return []
         
         # 수동으로 응답 데이터 구성
         result = []
@@ -138,9 +147,15 @@ async def get_my_coupons(
             }
             result.append(coupon_data)
         
+        print(f"결과 반환: {len(result)}개 쿠폰")
+        if len(result) == 0:
+            return []
         return result
     except Exception as e:
         print(f"쿠폰 목록 조회 오류: {e}")
+        import traceback
+        traceback.print_exc()
+        # 오류 발생 시에도 빈 배열 반환 (404 대신)
         return []
 
 @router.post("/use/{user_coupon_id}")

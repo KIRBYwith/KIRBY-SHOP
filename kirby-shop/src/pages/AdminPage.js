@@ -274,7 +274,7 @@ const AdminPage = () => {
           authHeader = `Bearer ${tokenData.access_token}`;
         }
       } catch (e) {
-        console.warn('토큰 파싱 실패:', e);
+        // console.warn('토큰 파싱 실패:', e);
       }
     }
     
@@ -1319,29 +1319,25 @@ const AdminPage = () => {
     if (!isCouponModalOpen) return null;
 
     return (
-      <div className="admin-modal-overlay" onClick={() => setIsCouponModalOpen(false)}>
-        <div className="admin-modal-content admin-coupon-modal" onClick={(e) => e.stopPropagation()}>
-          <div className="admin-modal-header">
-            <div className="admin-modal-header-content">
-              <div className="admin-modal-title-section">
-                <div className="admin-modal-icon">🎫</div>
-                <div>
-                  <h2 className="admin-modal-title">쿠폰 관리 시스템</h2>
-                  <p className="admin-modal-subtitle">
-                    {editingCoupon ? '쿠폰 정보 수정' : '새로운 쿠폰 생성'}
-                  </p>
+      <div className="admin-coupon-modal-overlay" onClick={() => setIsCouponModalOpen(false)}>
+        <div className="admin-coupon-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <div className="header-content">
+              <div className="header-icon">🎫</div>
+              <div>
+                <h2>쿠폰 관리 시스템</h2>
+                <p>{editingCoupon ? '쿠폰 정보 수정' : '새로운 쿠폰 생성'}</p>
+              </div>
             </div>
+            <button
+              className="close-button"
+              onClick={() => setIsCouponModalOpen(false)}
+            >
+              ✕
+            </button>
           </div>
-              <button
-                className="admin-modal-close-btn"
-                onClick={() => setIsCouponModalOpen(false)}
-              >
-                ✕
-              </button>
-        </div>
-            </div>
 
-          <div className="admin-modal-body">
+          <div className="modal-content">
             {/* 기본 정보 섹션 */}
             <div className="admin-form-section">
               <div className="admin-section-header">
@@ -1506,20 +1502,20 @@ const AdminPage = () => {
           </div>
         </div>
 
-          <div className="admin-modal-footer">
+          <div className="modal-footer">
             <button
               className="admin-btn-secondary"
               onClick={() => setIsCouponModalOpen(false)}
             >
               취소
             </button>
-                  <button
+            <button
               className="admin-btn-primary"
               onClick={handleSaveCoupon}
-                  >
+            >
               {editingCoupon ? '쿠폰 수정' : '쿠폰 생성'}
-                  </button>
-                </div>
+            </button>
+          </div>
                 </div>
               </div>
   );
